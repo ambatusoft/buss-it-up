@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#120f20">
+  <meta name="description" content="Dreamybull: Buss It Up! A five-stage confetti arcade shooter.">
+  <title>Buss It Up! • Dreamybull Arcade</title>
+  <style>/* STYLES */</style>
+</head>
+<body data-mode="title">
+  <main class="cabinet">
+    <header class="mast">
+      <div class="brand"><span class="brand-icon" aria-hidden="true"><svg viewBox="0 0 36 36" fill="none"><path d="M7 10l7 5h8l7-5-2 10-5 7h-8l-5-7z" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round"/><path d="M13 19h3m4 0h3m-7 4h4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></span><div>BUSS IT UP<span>!</span><small>DREAMYBULL ARCADE</small></div></div>
+      <div class="mast-center"><span></span> LOCAL ARCADE <b> //</b> AFTER HOURS</div>
+      <div class="tools"><button id="archive" aria-label="Open the lore archive">◈ <span>ARCHIVE</span></button><button id="audio" aria-label="Toggle sound" aria-pressed="true">◖)) <span>SOUND ON</span></button></div>
+    </header>
+
+    <section class="deck" aria-label="Arcade cabinet">
+      <div class="viewport" id="viewport">
+        <canvas id="arena" width="960" height="544" aria-label="Buss It Up! gameplay arena"></canvas>
+        <div class="hud" id="hud" hidden>
+          <div class="hud-meter"><b id="hp-text"></b><div class="meter"><i id="hp-fill"></i></div></div>
+          <div class="hud-wave"><span id="arena-name"></span><strong id="wave-name"></strong><div id="wave-track" aria-hidden="true"></div></div>
+          <div class="hud-score"><span>SCORE</span><strong id="score"></strong></div>
+          <div class="hud-actions">
+            <div><span id="dash-status"></span><i id="dash-fill"></i></div>
+            <div><span id="buss-status"></span><i id="buss-fill"></i></div>
+            <strong id="combo-status" hidden></strong>
+          </div>
+          <div id="boss-hud" hidden><b id="boss-name"></b><div class="meter"><i id="boss-fill"></i></div></div>
+          <button id="pause" class="pause" aria-label="Pause game">Ⅱ</button>
+        </div>
+        <div id="toast" class="toast" hidden></div>
+        <section class="title-screen" id="title-screen" aria-label="Title screen">
+          <!-- POSTER -->
+          <div class="hero-ink"></div>
+          <div class="hero-copy">
+            <div class="hero-label">DREAMYBULL <span>//</span> AFTER HOURS</div>
+            <div class="hero-title"><h1>BUSS<br>IT UP<span>!</span></h1></div>
+            <p>Night shift. Rogue bots. One blaster.</p>
+            <div class="hero-buttons"><button id="start" class="primary">▶ &nbsp; START TOUR</button><button id="continue" class="primary ghost" hidden>RESUME TOUR</button></div>
+          </div>
+          <div class="poster-stamp"><b>DB!</b><span>NIGHT<br>CREW</span></div>
+          <div class="frame-ticks" aria-hidden="true"></div>
+        </section>
+        <section id="overlay" class="overlay" inert aria-live="polite"></section>
+        <div id="touch" class="touch" hidden><div id="stick" aria-label="Move"><i></i></div><div class="touch-actions"><button id="touch-dash">DASH</button><button id="touch-buss">BUSS</button><button id="touch-fire">POP</button></div></div>
+      </div>
+      <aside class="route">
+        <div class="route-heading"><div><small>AFTER HOURS</small><h2>TOUR MAP</h2></div><span id="stage-count">01 / 05</span></div>
+        <ol id="route-list"></ol>
+        <button id="catalog" class="catalog-button" aria-label="Open the enemy and upgrade files"><span aria-hidden="true">▤</span> FILES <b id="catalog-count">0</b></button>
+        <div class="route-bottom"><button id="practice" aria-label="Open boss practice">PRACTICE</button><button id="difficulty" aria-label="Change difficulty">ARCADE ▾</button><button id="reset-data">RESET DATA</button></div>
+      </aside>
+    </section>
+
+    <section class="control-strip" aria-label="Controls">
+      <div class="how"><span class="control-icon">✣</span><div><b>HOW TO PLAY</b><small>THE BASICS</small></div></div>
+      <div class="keys"><span><kbd>W A S D</kbd> Move</span><span><kbd>MOUSE</kbd> Aim &amp; pop</span><span><kbd>SHIFT</kbd> Dash</span><span><kbd>SPACE</kbd> Buss Burst</span></div>
+      <div class="high"><small>LOCAL HIGH SCORE</small><strong id="best">000000</strong></div>
+    </section>
+    <footer><span>DREAMYBULL ARCADE <i>✦</i> AN UNOFFICIAL MEME PARODY</span><span>AFTER HOURS PRESS <i> // </i> VOL. 05</span></footer>
+  </main>
+  <dialog id="lore" class="lore" aria-labelledby="lore-title"><div class="lore-head"><div><small>AFTER HOURS FIELD NOTES</small><h2 id="lore-title">THE ARCHIVE</h2></div><form method="dialog"><button class="secondary" aria-label="Close archive">✕</button></form></div><div id="lore-content"></div></dialog>
+  <dialog id="field-guide" class="lore field-guide" aria-labelledby="files-title">
+    <div class="lore-head"><div><small id="guide-status"></small><h2 id="files-title">FIELD FILES</h2></div><form method="dialog"><button class="secondary" aria-label="Close files">✕</button></form></div>
+    <div class="file-toolbar">
+      <nav class="file-tabs" aria-label="File types"><button id="enemy-tab" aria-pressed="true">Enemies</button><button id="perk-tab" aria-pressed="false">Upgrades</button></nav>
+      <label><span class="sr-only">Search discovered files by name or number</span><input id="file-search" type="search" placeholder="Find a file…" autocomplete="off"></label>
+    </div>
+    <div class="file-layout"><div id="enemy-files"></div><div id="file-detail" class="file-detail" aria-live="polite">Select a file to inspect it.</div></div>
+  </dialog>
+  <dialog id="practice-dialog" class="lore" aria-labelledby="practice-title">
+    <div class="lore-head"><div><small id="practice-mode"></small><h2 id="practice-title">BOSS PRACTICE</h2></div><form method="dialog"><button class="secondary" aria-label="Close boss practice">✕</button></form></div>
+    <p>Revisit bosses you’ve already faced.</p>
+    <div id="practice-list" class="practice-list"></div>
+  </dialog>
+  <dialog id="reset-dialog" class="lore" aria-labelledby="reset-title" aria-describedby="reset-description">
+    <div class="lore-head"><h2 id="reset-title">RESET GAME DATA?</h2></div>
+    <p id="reset-description">This deletes your checkpoint, high score, unlocks, and Files entries in this browser. Sound and difficulty return to their defaults.</p>
+    <form method="dialog" class="reset-actions">
+      <button class="secondary" value="cancel" autofocus>CANCEL</button>
+      <button class="secondary" id="confirm-reset" value="reset">RESET DATA</button>
+    </form>
+  </dialog>
+  <script>/* GAME */</script>
+</body>
+</html>
