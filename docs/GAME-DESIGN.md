@@ -1,261 +1,471 @@
-# Buss It Up! internal game reference
+# Buss It Up! gameplay reference
 
-This reference includes the full six-stage route and boss spoilers. It uses the game's 960 × 544 arena coordinates. Distances and speeds are in pixels and pixels per second. Times are in seconds and angles are in radians unless marked otherwise. The tables below come from [src/game.js](../src/game.js). Run `node docs/refresh-reference.mjs` after changing balance values, files, wave plans, or cue timings. The remaining sections describe the attack and scoring logic.
+Updated 2026-11-14. This file contains full-route and boss spoilers. Numerical tables come from the game data and formulas. Regenerate them with `node scripts/refresh-reference.mjs`.
 
 <!-- BEGIN GENERATED TABLES -->
 
-## Player and difficulty
+## Player and combat tuning
 
-Starts with **100 Vibe**, **17 pop damage**, a **0.164 s** fire interval, **265 px/s** movement, **730 px/s** projectile speed, and **48%** Burst charge.
+Starts with 100 Vibe, 17 pop power, 0.164 s per volley, 934 px shot range, 265 px/s movement, 40% charge, and 86 base Burst damage. A hit grants 1 s of protection. Dash starts at 785 px/s for 0.17 s with a 1.48 s cooldown. A dash can award one Close Call for 5 charge and 25 points before build modifiers.
 
-Dash speed is **785 px/s** for **0.17 s**, with a **1.48 s** cooldown and **0.14 s** input buffer. Each of the first **3** projectile contacts while dashing is worth **5 charge** and **25 points**. The dash removes all projectiles it intercepts.
-
-A clean regular wave pays **240 + 80 × zero-based stage index** points and **10 charge**. Practice starts with **65%** charge, **+10** max Vibe per stage index, and divides the fire interval by **1 + 0.055 × stage index**.
-
-| Mode | Enemy HP | Boss HP | Incoming damage | Enemy shot speed | Regular wave refill | Boss entry refill | Vibe drop |
-| --- | --- | --- | --- | --- | --- | --- | --- |
-| arcade | 100% | 100% | 100% | 100% | 17% | 55% | 11.5% |
-| chill | 72% | 76% | 53% | 82% | 28% | 72% | 19% |
-
-## Stage progression
-
-| Stage                | Regular waves | Enemy HP scale | Pop/Burst damage scale | Active cap Arcade / Chill | Boss                 | Boss radius | Boss HP Arcade / Chill | Practice power |
-| -------------------- | ------------- | -------------- | ---------------------- | ------------------------- | -------------------- | ----------- | ---------------------- | -------------- |
-| 1 · After Hours Gym  | 3             | 1.16           | 1                      | 9 / 7                     | The Lunk-Bot         | 35          | 3196 / 2429            | 1×             |
-| 2 · Buss Terminal    | 3             | 1.69           | 1.23                   | 10 / 8                    | The Dreamybus        | 42          | 4318 / 3282            | 1.22×          |
-| 3 · Ambatublow Club  | 4             | 3.38           | 1.55                   | 10 / 8                    | Sax Max              | 31          | 5100 / 3876            | 1.38×          |
-| 4 · Omaygot Studio   | 4             | 4.26           | 1.94                   | 11 / 9                    | The Omaygot Director | 34          | 5780 / 4393            | 1.55×          |
-| 5 · Ambatron Core    | 4             | 5.12           | 2.4                    | 11 / 9                    | Ambatron Prime       | 40          | 9180 / 6977            | 1.78×          |
-| 6 · The Burnt Server | 4             | 6.3            | 3.05                   | 12 / 10                   | Satan’s PC           | 51          | 16592 / 12610          | 1.98×          |
-
-Regular wave spawn times are seconds after the round begins. The first squad starts at 1.10 s in wave 1 and 0.58 s in later waves. Squads start 4.30 + 0.24 × wave number seconds apart, with an extra 0.24 s in the club. The nominal gap between bots is 0.16 s. The time range below is the earliest Arcade schedule. Deployments queue when the active cap is reached and are released one at a time after a slot opens. Boss summons use their own caps. The enemy numbers in the last two columns omit the E- prefix and list the squad members in spawn order.
-
-| Stage.wave | Wave | Bots Arcade / Chill | First–last spawn, s | Arcade squads | Chill squads |
-| --- | --- | --- | --- | --- | --- |
-| 1.1 | Ambatu Company Interview | 13 / 10 | 1.1–10.82 | 01 02 01 04 / 04 01 03 01 / 01 02 02 01 04 | 01 02 01 / 04 01 03 / 01 02 02 01 |
-| 1.2 | Ambadonut Break | 13 / 10 | 0.58–10.78 | 02 01 04 01 / 01 03 05 02 / 02 02 01 04 03 | 02 01 04 / 01 03 05 / 02 02 01 04 |
-| 1.3 | Wordington Anger | 21 / 17 | 0.58–16.44 | 01 04 01 03 05 / 03 05 02 02 01 / 02 01 04 03 01 / 03 01 02 01 04 01 | 01 04 01 03 / 03 05 02 02 / 02 01 04 03 / 03 01 02 01 04 |
-| 2.1 | Thank Your Driver | 13 / 10 | 1.1–10.82 | 01 04 01 03 / 03 05 02 06 / 06 01 04 03 01 | 01 04 01 / 03 05 02 / 06 01 04 03 |
-| 2.2 | Move Over! | 16 / 13 | 0.58–10.94 | 04 01 03 05 02 / 05 02 06 01 04 / 01 04 03 01 02 01 | 04 01 03 05 / 05 02 06 01 / 01 04 03 01 02 |
-| 2.3 | Bus Edit Part 2 | 21 / 17 | 0.58–16.44 | 01 03 05 02 06 / 02 06 01 04 03 / 04 03 01 02 01 / 02 01 04 01 03 05 | 01 03 05 02 / 02 06 01 04 / 04 03 01 02 / 02 01 04 01 03 |
-| 3.1 | I’m at the Club | 16 / 13 | 1.1–11.46 | 01 01 04 01 02 / 01 04 01 02 03 / 01 01 04 01 03 06 | 01 01 04 01 / 01 04 01 02 / 01 01 04 01 03 |
-| 3.2 | Ambasing Choir | 16 / 13 | 0.58–11.42 | 01 02 01 04 05 / 01 01 04 03 06 / 01 04 01 03 02 05 | 01 02 01 04 / 01 01 04 03 / 01 04 01 03 02 |
-| 3.3 | Paza Soundcheck | 21 / 17 | 0.58–17.16 | 01 01 04 03 02 / 01 04 01 05 06 / 01 01 04 02 03 / 01 04 01 03 05 06 | 01 01 04 03 / 01 04 01 05 / 01 01 04 02 / 01 04 01 03 05 |
-| 3.4 | Thesis Night | 25 / 21 | 0.58–18.04 | 01 01 04 01 03 06 / 01 04 01 03 02 05 / 01 01 04 01 05 06 / 01 04 01 03 02 05 06 | 01 01 04 01 03 / 01 04 01 03 02 / 01 01 04 01 05 / 01 04 01 03 02 05 |
-| 4.1 | Sleepy Dreamy | 19 / 13 | 1.1–11.14 | 05 02 06 01 04 03 / 01 04 03 01 02 01 / 01 02 01 04 01 03 05 | 05 02 06 01 / 01 04 03 01 / 01 02 01 04 01 |
-| 4.2 | Candid Talk Pt. 3 | 19 / 13 | 0.58–11.1 | 02 06 01 04 03 01 / 04 03 01 02 01 04 / 02 01 04 01 03 05 02 | 02 06 01 04 / 04 03 01 02 / 02 01 04 01 03 |
-| 4.3 | Evil Dreamy | 25 / 17 | 0.58–16.6 | 06 01 04 03 01 02 / 03 01 18 01 04 01 / 01 04 01 03 05 02 / 03 05 02 06 01 04 03 | 06 01 04 03 / 03 01 18 01 / 01 04 01 03 / 03 05 02 06 01 |
-| 4.4 | The 30-Buck Cameo | 25 / 17 | 0.58–17.32 | 01 04 03 01 02 01 / 01 02 18 04 01 03 / 04 01 03 05 02 06 / 05 02 06 01 04 03 01 | 01 04 03 01 / 01 02 18 04 / 04 01 03 05 / 05 02 06 01 04 |
-| 5.1 | Dreamybot Boot | 19 / 13 | 1.1–11.14 | 06 01 04 03 01 02 / 03 01 18 01 04 01 / 01 04 01 03 05 02 06 | 06 01 04 03 / 03 01 18 01 / 01 04 01 03 05 |
-| 5.2 | Base Form | 22 / 16 | 0.58–11.26 | 01 04 03 01 02 01 04 / 01 02 18 04 01 03 05 / 04 01 03 05 02 06 01 04 | 01 04 03 01 02 / 01 02 18 04 01 / 04 01 03 05 02 06 |
-| 5.3 | Terminator Red Circle | 29 / 21 | 0.58–16.76 | 04 03 01 02 01 04 01 / 02 01 04 01 03 05 02 / 01 03 05 02 06 01 04 / 02 06 01 04 03 01 02 01 | 04 03 01 02 01 / 02 01 04 01 03 / 01 03 05 02 06 / 02 06 01 04 03 01 |
-| 5.4 | Mount Wordington | 36 / 26 | 0.58–22.74 | 03 01 02 01 04 01 03 / 01 04 01 03 05 02 06 / 03 05 02 06 01 04 03 / 06 01 04 03 01 02 01 / 03 01 02 01 04 01 03 05 | 03 01 02 01 04 / 01 04 01 03 05 / 03 05 02 06 01 / 06 01 04 03 01 / 03 01 02 01 04 01 |
-| 6.1 | Going to Hell | 22 / 16 | 1.1–11.3 | 09 10 09 11 05 09 10 / 11 05 09 10 04 09 11 / 10 04 09 11 09 10 09 11 | 09 10 09 11 05 / 11 05 09 10 04 / 10 04 09 11 09 10 |
-| 6.2 | Fever Dream | 22 / 16 | 0.58–11.26 | 10 09 11 05 09 10 04 / 05 09 10 04 09 11 09 / 04 09 11 09 10 09 11 05 | 10 09 11 05 09 / 05 09 10 04 09 / 04 09 11 09 10 09 |
-| 6.3 | Wordington Gains Sentience | 29 / 21 | 0.58–16.76 | 09 11 05 09 10 04 09 / 09 10 04 09 11 09 10 / 09 11 09 10 09 11 05 / 10 09 11 05 09 10 04 09 | 09 11 05 09 10 / 09 10 04 09 11 / 09 11 09 10 09 / 10 09 11 05 09 10 |
-| 6.4 | Fatal Encore | 33 / 25 | 0.58–17.64 | 11 05 09 10 04 09 11 09 / 10 04 09 11 09 10 09 11 / 11 09 10 09 11 05 09 10 / 09 11 05 09 10 04 09 11 09 | 11 05 09 10 04 09 / 10 04 09 11 09 10 / 11 09 10 09 11 05 / 09 11 05 09 10 04 09 |
-
-## Enemy catalog
-
-| File | Enemy                    | Base HP        | Base speed | Radius | Contact damage | Field note                                                                                                       |
-| ---- | ------------------------ | -------------- | ---------- | ------ | -------------- | ---------------------------------------------------------------------------------------------------------------- |
-| E-01 | Bussiness Rep            | 32             | 131        | 13     | 12             | A night-shift regular. Runs straight at you and crowds the corners.                                              |
-| E-02 | Transfer Clerk           | 40             | 90         | 15     | 12             | Circles you at midrange and tosses tickets. Expect a wider volley in later arenas.                               |
-| E-03 | Classy Bouncer           | 78             | 70         | 21     | 19             | A slow, heavily padded bot with a very formal stance.                                                            |
-| E-04 | Ambatufish               | 35             | 157        | 12     | 12             | Zigzags on fast skates like a fish on a line. Lead your shots.                                                   |
-| E-05 | Ambatuexplode            | 62             | 104        | 17     | 12             | A pink dash line shows where this hothead is about to charge.                                                    |
-| E-06 | Ambatusax Cabinet        | 48             | 77         | 16     | 12             | An amp on wheels. It drops rings of notes when it gets close.                                                    |
-| E-07 | Base Form Pod            | See boss notes | —          | —      | —              | Orbits the Third Impact chassis. Shoot both pods to break its shield.                                            |
-| E-08 | Ambatron // Third Impact | See boss notes | —          | —      | —              | Destroy both pods to clear the projectiles, restore Vibe, and expose the core.                                   |
-| E-09 | Angelic Kam Choir        | 43             | 154        | 16     | 12             | A flying trio on one chassis. It swerves at you and sings a short fan of embers.                                 |
-| E-10 | Sentient Pop-up          | 51             | 80         | 17     | 12             | Stops to paint a crosshair before it fires a long laser. Move off the line.                                      |
-| E-11 | Wordington Firewall      | 91             | 68         | 22     | 24             | An armored tower that tries to hem you in with slow ember rings.                                                 |
-| E-12 | The Lunk-Bot             | See boss notes | —          | —      | —              | Dash sideways when the Lunk-Bot lines up a charge.                                                               |
-| E-13 | The Dreamybus            | See boss notes | —          | —      | —              | The bus announces its lane before each pass. Step out and pop it as it drives by.                                |
-| E-14 | Sax Max                  | See boss notes | —          | —      | —              | Keep your distance and thread the gaps between notes.                                                            |
-| E-15 | The Omaygot Director     | See boss notes | —          | —      | —              | Move out of the marked camera spots and clear the stunt doubles.                                                 |
-| E-16 | Ambatron Prime           | See boss notes | —          | —      | —              | Watch for the beam markers. Save a Buss Burst to clear the spiral.                                               |
-| E-17 | Satan’s PC               | See boss notes | —          | —      | —              | Get into the green safe lane. The chassis shrugs off shots until the screen glows OVERHEAT.                      |
-| E-18 | Candid Camerabot         | 56             | 82         | 17     | 12             | A floating camera that projects two bright marks before the stage lights hit. Attack while it lines up the shot. |
-
-These are the effective regular enemy HP values by stage, shown as Arcade / Chill. A value is listed for tuning even if the enemy does not spawn in that stage. Speed gains 5 px/s per zero-based stage index.
-
-| Enemy | 1 | 2 | 3 | 4 | 5 | 6 |
+| Bot HP | Boss HP | Incoming damage | Shot speed | Wave heal | Boss heal | Vibe drop |
 | --- | --- | --- | --- | --- | --- | --- |
-| E-01 Bussiness Rep | 37 / 27 | 63 / 45 | 143 / 103 | 202 / 145 | 269 / 193 | 363 / 261 |
-| E-02 Transfer Clerk | 46 / 33 | 78 / 56 | 178 / 128 | 252 / 182 | 336 / 242 | 454 / 327 |
-| E-03 Classy Bouncer | 90 / 65 | 153 / 110 | 348 / 251 | 492 / 354 | 655 / 472 | 885 / 637 |
-| E-04 Ambatufish | 41 / 29 | 69 / 49 | 156 / 112 | 221 / 159 | 294 / 212 | 397 / 286 |
-| E-05 Ambatuexplode | 72 / 52 | 122 / 88 | 277 / 199 | 391 / 281 | 521 / 375 | 703 / 506 |
-| E-06 Ambatusax Cabinet | 56 / 40 | 94 / 68 | 214 / 154 | 303 / 218 | 403 / 290 | 544 / 392 |
-| E-09 Angelic Kam Choir | 50 / 36 | 84 / 61 | 192 / 138 | 271 / 195 | 361 / 260 | 488 / 351 |
-| E-10 Sentient Pop-up | 59 / 43 | 100 / 72 | 228 / 164 | 322 / 232 | 428 / 308 | 578 / 416 |
-| E-11 Wordington Firewall | 106 / 76 | 178 / 128 | 406 / 292 | 574 / 413 | 764 / 550 | 1032 / 743 |
-| E-18 Candid Camerabot | 65 / 47 | 110 / 79 | 250 / 180 | 353 / 254 | 470 / 339 | 635 / 457 |
+| 126% | 122% | 136% | 115% | 12% | 43% | 9% |
 
-## Upgrade catalog
+Regular waves apply these area multipliers on top of the campaign rules. Deployment and hazard columns scale the time between events.
 
-| File | Upgrade               | Rarity  | Max picks | Effect shown in game                                                            |
-| ---- | --------------------- | ------- | --------- | ------------------------------------------------------------------------------- |
-| U-01 | Bussiness Blend       | Common  | Uncapped  | +13% pop power                                                                  |
-| U-02 | Triple Buss Ticket    | Common  | Uncapped  | +11% fire rate                                                                  |
-| U-03 | Ambatufish Sliders    | Common  | 4         | +8% move speed                                                                  |
-| U-04 | Ambadonut             | Common  | Uncapped  | +16 max Vibe and refill                                                         |
-| U-05 | Classy Dreamy Edit    | Rare    | Uncapped  | +23% pop power                                                                  |
-| U-06 | Ambatusax Solo        | Rare    | Uncapped  | +20% fire rate                                                                  |
-| U-07 | Ambasing Choir        | Rare    | 2         | Two extra side pops at 34% power                                                |
-| U-08 | Tentacle Transfer     | Rare    | 3         | 22% shorter dash cooldown                                                       |
-| U-09 | Base Form Firmware    | Rare    | 2         | Pierce one extra bot and gain 9% power                                          |
-| U-10 | Thesis Night Reverb   | Rare    | Uncapped  | Buss Burst hits 28% harder and charges faster                                   |
-| U-11 | Amboutabass Echo Cast | Bussted | Uncapped  | Popped bots fire an echo bolt. Extra copies boost bolt damage.                  |
-| U-12 | Thank Your Driver     | Bussted | 1         | Dash drops a transfer ticket that pops nearby bots.                             |
-| U-13 | Thesis Night Finale   | Bussted | Uncapped  | Periodically launches a piercing fan. Extra copies make it more frequent.       |
-| U-14 | 30-Buck Cameo         | Bussted | 1         | Once per stage, survive a wipeout and recover 42% Vibe.                         |
-| U-15 | Ambatuexplode Encore  | Bussted | Uncapped  | Buss Burst leaves a second blast. Extra copies boost its power.                 |
-| U-16 | Candid Cut            | Common  | 4         | Pops travel 16% faster and hit 6% harder.                                       |
-| U-17 | Free Bird Request     | Rare    | 3         | +3 charge per shot dodged with a dash. Up to 3 dodges per dash.                 |
-| U-18 | High Quality Rip      | Bussted | 1         | Each of the first 3 shots dodged per dash fires a piercing pop toward your aim. |
+| Area | Bot HP | Damage | Shot speed | Wave recovery | Deployment | Hazard timing |
+| --- | --- | --- | --- | --- | --- | --- |
+| Bussiness Gym | 106% | 104% | 100% | 100% | 97% | 100% |
+| Bus Bus Terminal | 121% | 117% | 105.5% | 86% | 87% | 82% |
+| Ambasing FM | 100% | 100% | 100% | 100% | 100% | 100% |
+| Omaygot Edit Suite | 100% | 117% | 102.5% | 85% | 100% | 94% |
+| Ngawi Assembly | 119% | 112% | 104.5% | 81% | 94% | 90% |
+| The Burnt Server | 128% | 124% | 108.5% | 71% | 86% | 76% |
 
-## Audio cue regions
+## Route and bosses
 
-Voice gain is relative to the game’s 0.48 master gain. Playback uses source seconds, so a 2 s region at 1.25× takes 1.6 s. The queue holds **2** pending lines for up to **8 s**. Priority 0 chatter is skipped if busy. Priority 1–3 lines can wait. If full, the oldest lowest-priority line gives up its place. Playing voice lines finish before the next one begins. Music ducks to 53% of its normal gain during a recording and resumes from its previous offset when unpaused.
+| Area | Levels (total rounds) | Boss | Opening boss HP | Opening escorts | Deployment cap | Area music | Boss music |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| Bussiness Gym | 1-1: Ambatu Interview (4), 1-2: Ambadonut Break (4), 1-3: YEK! (4), 1-4: Stand on Bussiness (4), 1-X: Wash That (6, side) | Bussiness Rep XL | 3314 | stamper, stapler | 10 | Chase! | 8bit Action Miniboss Battle |
+| Bus Bus Terminal | 2-1: Thank Your Driver (5), 2-2: Tentacle Crossing (5), 2-3: Move Over! (5), 2-4: Ambatubus (5), 2-X: Self Pleasure (7, side) | The Dreamybus | 5215 | headlight, faregate | 12 | Darkness Road | Hard Boss Battle 1 |
+| Ambasing FM | 3-1: Paza (5), 3-2: Dreamyfantasia (5), 3-3: Poké Flute Rip (5), 3-4: Thesis Night (5), 3-X: At The Club (7, side) | Ambatusax | 6035 | tuningfork, choir | 11 | Chiptune Battle Music | Urban Boss Battle |
+| Omaygot Edit Suite | 4-1: Sleepy Edit (6), 4-2: Candid Talk Pt. 3 (6), 4-3: Classy Cut (6), 4-4: Going Insane (6), 4-X: Cream Factory (8, side) | Evil Dreamy | 6629 | clapper, lighting | 12 | Hard Battle 1 | Trance Boss Battle |
+| Ngawi Assembly | 5-1: Sungut Lele (6), 5-2: Terminator Red Circle (6), 5-3: Mas Amba Protocol (6), 5-4: Level 99 (6), 5-X: Nut Tree (8, side) | Ambatron → Ambatron - Third Impact | 7280 | induction, cutter | 13 | Hard Battle 2 | Heavy Boss Battle 1 |
+| The Burnt Server | 6-1: I'm Going to Hell (6), 6-2: Gains Sentience (6), 6-3: Fever Dream (6), 6-4: Rate This PC (6), 6-X: The Nail Theory (8, side) | Satan’s PC → Satan’s PC - Harder and Dirtier | 17408 | firewall, backup | 15 | Infinite Darkness | Raiders March |
 
-| Cue         | Recording     | Start s | End s | Gain | Rate | Min spacing s | Queue priority |
-| ----------- | ------------- | ------- | ----- | ---- | ---- | ------------- | -------------- |
-| stageIntro  | way.mp3       | 1.28    | 5.16  | 0.48 | 1.02 | 1             | 1              |
-| squad       | ambatubus.mp3 | 0.36    | 1.96  | 0.3  | 1.12 | 7             | 0              |
-| enemyAttack | take.mp3      | 0       | 1.26  | 0.25 | 1.1  | 4.6           | 0              |
-| down        | yek.mp3       | 0.63    | 1.88  | 0.3  | 1.19 | 1.8           | 0              |
-| hurt        | like.mp3      | 4.84    | 6.37  | 0.44 | 1.03 | 4.5           | 0              |
-| dash        | rtp.mp3       | 0.16    | 0.97  | 0.28 | 1.19 | 6             | 0              |
-| burst       | buss.mp3      | 0.16    | 2.36  | 0.55 | 1    | 0             | 2              |
-| fail        | tap.mp3       | 0.38    | 4.7   | 0.49 | 1    | 0             | 3              |
-| bossIntro   | insane.mp3    | 0       | 1.74  | 0.49 | 0.97 | 3             | 2              |
-| transform   | blow.mp3      | 0.11    | 1.92  | 0.56 | 0.94 | 0             | 3              |
-| bossDown    | dies.mp3      | 0.78    | 3.68  | 0.46 | 1.04 | 1             | 3              |
-| clear       | paza.mp3      | 0       | 1.23  | 0.33 | 1.08 | 2.5           | 0              |
-| pick        | acting.mp3    | 0.74    | 1.74  | 0.38 | 1.05 | 1             | 0              |
-| jackpot     | choir.mp3     | 0       | 2.92  | 0.45 | 1.05 | 1             | 1              |
-| reveal      | way.mp3       | 1.29    | 5.16  | 0.52 | 0.92 | 0             | 3              |
-| hellEntry   | choir.mp3     | 0.04    | 3.56  | 0.49 | 0.93 | 0             | 2              |
-| overload    | insane.mp3    | 1.94    | 6.44  | 0.48 | 0.94 | 0             | 2              |
-| victory     | paza.mp3      | 1.31    | 3.04  | 0.48 | 0.98 | 0             | 3              |
+## Speed Clear targets
 
-| Music file | Loop gain before ducking |
-| --- | --- |
-| tour.ogg | 0.17 |
-| castle.ogg | 0.14 |
-| boss.ogg | 0.11 |
-| climax.ogg | 0.11 |
+Earn the medal by clearing within the listed attempt time. Bonus waves advance immediately on a clear, or after the listed interval if the deployment queue is empty. Live threats carry over when time expires.
+
+| Level | Target | Bonus wave deadlines (s) |
+| --- | --- | --- |
+| 1-1: Ambatu Interview | 0:45 | — |
+| 1-2: Ambadonut Break | 0:50 | — |
+| 1-3: YEK! | 0:45 | — |
+| 1-4: Stand on Bussiness | 1:10 | — |
+| 1-X: Wash That | 1:20 | 11 / 12 / 12 / 12 / 12 |
+| 2-1: Thank Your Driver | 1:00 | — |
+| 2-2: Tentacle Crossing | 1:00 | — |
+| 2-3: Move Over! | 0:55 | — |
+| 2-4: Ambatubus | 1:20 | — |
+| 2-X: Self Pleasure | 1:40 | 12 / 13 / 13 / 13 / 13 / 13 |
+| 3-1: Paza | 1:10 | — |
+| 3-2: Dreamyfantasia | 1:10 | — |
+| 3-3: Poké Flute Rip | 1:05 | — |
+| 3-4: Thesis Night | 1:25 | — |
+| 3-X: At The Club | 1:40 | 12 / 13 / 13 / 13 / 13 / 13 |
+| 4-1: Sleepy Edit | 1:20 | — |
+| 4-2: Candid Talk Pt. 3 | 1:25 | — |
+| 4-3: Classy Cut | 1:15 | — |
+| 4-4: Going Insane | 1:35 | — |
+| 4-X: Cream Factory | 1:55 | 12 / 13 / 13 / 13 / 13 / 13 / 13 |
+| 5-1: Sungut Lele | 1:40 | — |
+| 5-2: Terminator Red Circle | 1:45 | — |
+| 5-3: Mas Amba Protocol | 1:25 | — |
+| 5-4: Level 99 | 2:20 | — |
+| 5-X: Nut Tree | 2:15 | 13 / 14 / 14 / 14 / 14 / 14 / 14 |
+| 6-1: I'm Going to Hell | 1:45 | — |
+| 6-2: Gains Sentience | 1:45 | — |
+| 6-3: Fever Dream | 1:55 | — |
+| 6-4: Rate This PC | 2:55 | — |
+| 6-X: The Nail Theory | 2:10 | 13 / 14 / 14 / 14 / 14 / 14 / 14 |
+
+## Regular waves
+
+Numbered waves begin at 0.75 s and stagger their bots by 0.22 s. Before area multipliers, main-route gaps are 3.5 s or 3.1 s for flanks. Side gaps are 2.65 s, or 2.95 s in Area 6. The active cap can delay main-route numbered deployments. Later squads repeat their first bot from wave two onward. Every Final Wave bot deploys at 0.75 s in one surge. The `edge>bots` prefix controls the entry edge. Unprefixed squads use standard spawn points.
+
+| Level | Wave | Bots | Squads |
+| --- | --- | --- | --- |
+| 1-1: Ambatu Interview | 1 | 6 | runner runner skater / runner runner thrower |
+| 1-1: Ambatu Interview | 2 | 7 | stapler skater runner / thrower runner guard |
+| 1-1: Ambatu Interview | 3 | 7 | flanks>timecard skater runner / north>thrower runner guard |
+| 1-1: Ambatu Interview | Final Wave | 9 | north>stapler stamper runner / south>timecard guard thrower / flanks>skater guard charger |
+| 1-2: Ambadonut Break | 1 | 6 | timecard runner thrower / runner guard skater |
+| 1-2: Ambadonut Break | 2 | 8 | stapler runner skater / thrower guard runner charger |
+| 1-2: Ambadonut Break | 3 | 10 | north>timecard guard thrower / flanks>skater runner charger / south>thrower runner |
+| 1-2: Ambadonut Break | Final Wave | 9 | south>timecard guard thrower / flanks>skater guard charger / north>stapler stamper runner |
+| 1-3: YEK! | 1 | 5 | west>timecard skater runner / east>guard thrower |
+| 1-3: YEK! | 2 | 9 | flanks>stapler skater runner / north>stamper guard / south>runner charger |
+| 1-3: YEK! | 3 | 10 | north>timecard thrower guard / flanks>charger runner skater / east>stamper skater |
+| 1-3: YEK! | Final Wave | 9 | flanks>skater guard charger / north>stapler stamper runner / south>timecard guard thrower |
+| 1-4: Stand on Bussiness | 1 | 8 | stamper timecard charger / thrower runner skater / guard runner |
+| 1-4: Stand on Bussiness | 2 | 11 | stapler thrower skater / runner stamper thrower / runner skater charger |
+| 1-4: Stand on Bussiness | 3 | 10 | west>stamper timecard charger / east>thrower guard runner / flanks>stamper skater |
+| 1-X: Wash That | 1 | 8 | flanks>timecard charger thrower / north>guard stamper runner / south>charger skater |
+| 1-X: Wash That | 2 | 11 | east>stamper stapler thrower / west>charger charger skater / flanks>timecard runner skater |
+| 1-X: Wash That | 3 | 11 | flanks>stamper timecard guard / south>skater thrower runner / north>stamper charger skater |
+| 1-X: Wash That | 4 | 6 | west>guard timecard / east>stamper stapler charger |
+| 1-X: Wash That | 5 | 6 | flanks>charger guard / north>timecard stapler stamper |
+| 1-X: Wash That | Final Wave | 11 | south>timecard guard thrower / flanks>skater guard charger / north>stapler stamper runner / east>stamper stapler |
+| 2-1: Thank Your Driver | 1 | 6 | thrower runner skater / thrower charger guard |
+| 2-1: Thank Your Driver | 2 | 11 | headlight skater thrower / charger runner thrower / guard skater runner |
+| 2-1: Thank Your Driver | 3 | 6 | west>inspector skater runner / east>charger guard |
+| 2-1: Thank Your Driver | 4 | 9 | south>faregate headlight thrower / north>skater charger / flanks>runner thrower |
+| 2-1: Thank Your Driver | Final Wave | 10 | west>headlight inspector faregate / east>faregate skater inspector / south>charger thrower guard / north>headlight |
+| 2-2: Tentacle Crossing | 1 | 9 | inspector skater faregate / guard runner charger / thrower skater runner |
+| 2-2: Tentacle Crossing | 2 | 11 | faregate headlight skater / guard charger faregate / skater skater runner |
+| 2-2: Tentacle Crossing | 3 | 9 | flanks>inspector faregate skater / north>charger guard / east>skater thrower |
+| 2-2: Tentacle Crossing | 4 | 10 | north>faregate headlight charger / south>guard thrower / west>charger thrower skater |
+| 2-2: Tentacle Crossing | Final Wave | 10 | east>faregate skater inspector / south>charger thrower guard / north>headlight / west>headlight inspector faregate |
+| 2-3: Move Over! | 1 | 5 | west>faregate inspector thrower / east>charger guard |
+| 2-3: Move Over! | 2 | 8 | south>speaker headlight / north>faregate charger / flanks>thrower skater |
+| 2-3: Move Over! | 3 | 9 | flanks>inspector skater faregate / north>guard speaker / east>charger thrower |
+| 2-3: Move Over! | 4 | 10 | east>faregate headlight guard / west>charger skater charger / south>speaker skater |
+| 2-3: Move Over! | Final Wave | 10 | south>charger thrower guard / north>headlight / west>headlight inspector faregate / east>faregate skater inspector |
+| 2-4: Ambatubus | 1 | 9 | faregate speaker inspector / charger guard thrower / runner skater speaker |
+| 2-4: Ambatubus | 2 | 11 | headlight skater thrower / guard charger runner / faregate speaker skater |
+| 2-4: Ambatubus | 3 | 9 | west>speaker faregate inspector / east>charger charger / south>guard thrower |
+| 2-4: Ambatubus | 4 | 9 | flanks>faregate headlight charger / north>speaker guard / south>thrower faregate |
+| 2-X: Self Pleasure | 1 | 8 | flanks>faregate inspector skater / north>speaker guard thrower / south>charger thrower |
+| 2-X: Self Pleasure | 2 | 10 | west>faregate faregate headlight / east>charger guard charger / flanks>speaker inspector |
+| 2-X: Self Pleasure | 3 | 10 | north>speaker faregate inspector / south>skater skater thrower / flanks>guard faregate |
+| 2-X: Self Pleasure | 4 | 11 | flanks>faregate headlight speaker / south>guard thrower skater / north>inspector faregate skater |
+| 2-X: Self Pleasure | 5 | 6 | north>headlight thrower / south>inspector faregate guard |
+| 2-X: Self Pleasure | 6 | 6 | west>headlight inspector / east>faregate speaker charger |
+| 2-X: Self Pleasure | Final Wave | 12 | west>headlight inspector faregate / east>faregate skater inspector / south>charger thrower guard / north>headlight / north>inspector faregate |
+| 3-1: Paza | 1 | 9 | speaker runner skater / speaker thrower guard / runner skater choir |
+| 3-1: Paza | 2 | 11 | choir tuningfork speaker / choir skater thrower / guard speaker runner |
+| 3-1: Paza | 3 | 9 | south>speaker feedback choir / north>thrower guard / east>speaker runner |
+| 3-1: Paza | 4 | 9 | flanks>choir tuningfork skater / west>speaker thrower / east>guard repeater |
+| 3-1: Paza | Final Wave | 11 | flanks>tuningfork choir repeater / south>feedback speaker choir / north>repeater skater guard / east>choir tuningfork |
+| 3-2: Dreamyfantasia | 1 | 9 | speaker feedback choir / thrower guard repeater / charger choir skater |
+| 3-2: Dreamyfantasia | 2 | 11 | choir repeater tuningfork / guard runner choir / repeater charger thrower |
+| 3-2: Dreamyfantasia | 3 | 9 | west>repeater feedback choir / east>charger thrower / north>speaker guard |
+| 3-2: Dreamyfantasia | 4 | 9 | flanks>repeater speaker tuningfork / south>choir guard / north>repeater skater |
+| 3-2: Dreamyfantasia | Final Wave | 11 | south>feedback speaker choir / north>repeater skater guard / east>choir tuningfork / flanks>tuningfork choir repeater |
+| 3-3: Poké Flute Rip | 1 | 6 | east>speaker choir / west>feedback repeater / north>runner guard |
+| 3-3: Poké Flute Rip | 2 | 9 | flanks>choir speaker tuningfork / south>thrower guard / north>repeater charger |
+| 3-3: Poké Flute Rip | 3 | 7 | north>repeater repeater feedback / flanks>skater thrower choir |
+| 3-3: Poké Flute Rip | 4 | 10 | south>choir speaker tuningfork / west>repeater guard / east>speaker thrower skater |
+| 3-3: Poké Flute Rip | Final Wave | 11 | north>repeater skater guard / east>choir tuningfork / flanks>tuningfork choir repeater / south>feedback speaker choir |
+| 3-4: Thesis Night | 1 | 6 | repeater choir feedback / skater speaker thrower |
+| 3-4: Thesis Night | 2 | 7 | speaker tuningfork choir / repeater skater thrower |
+| 3-4: Thesis Night | 3 | 14 | choir feedback repeater / speaker charger choir / guard skater thrower / choir runner |
+| 3-4: Thesis Night | 4 | 10 | flanks>repeater choir speaker / east>tuningfork charger guard / west>choir thrower |
+| 3-X: At The Club | 1 | 6 | flanks>repeater choir feedback / north>speaker charger guard |
+| 3-X: At The Club | 2 | 9 | south>choir choir tuningfork / north>repeater guard / east>speaker feedback |
+| 3-X: At The Club | 3 | 10 | east>repeater repeater feedback / west>choir charger guard / flanks>speaker thrower |
+| 3-X: At The Club | 4 | 10 | flanks>choir repeater speaker / north>tuningfork guard choir / south>repeater feedback |
+| 3-X: At The Club | 5 | 6 | flanks>choir repeater / north>feedback tuningfork speaker |
+| 3-X: At The Club | 6 | 6 | south>tuningfork guard / east>choir repeater feedback |
+| 3-X: At The Club | Final Wave | 13 | flanks>tuningfork choir repeater / south>feedback speaker choir / north>repeater skater guard / east>choir tuningfork / west>tuningfork choir |
+| 4-1: Sleepy Edit | 1 | 9 | camerabot runner skater / guard speaker camerabot / charger skater thrower |
+| 4-1: Sleepy Edit | 2 | 11 | camerabot clapper runner / speaker skater camerabot / charger thrower skater |
+| 4-1: Sleepy Edit | 3 | 6 | west>camerabot lighting runner / east>charger guard |
+| 4-1: Sleepy Edit | 4 | 6 | flanks>camerabot clapper charger / south>speaker skater |
+| 4-1: Sleepy Edit | 5 | 9 | north>camerabot lighting cutout / south>speaker charger / flanks>thrower runner |
+| 4-1: Sleepy Edit | Final Wave | 11 | east>clapper cutout lighting / west>lighting camerabot clapper / north>clapper charger guard / south>cutout lighting |
+| 4-2: Candid Talk Pt. 3 | 1 | 9 | lighting camerabot cutout / camerabot choir thrower / charger guard cutout |
+| 4-2: Candid Talk Pt. 3 | 2 | 11 | cutout camerabot clapper / guard speaker camerabot / choir skater thrower |
+| 4-2: Candid Talk Pt. 3 | 3 | 8 | east>cutout camerabot lighting / west>guard charger / north>speaker |
+| 4-2: Candid Talk Pt. 3 | 4 | 7 | flanks>cutout cutout clapper / south>camerabot choir guard |
+| 4-2: Candid Talk Pt. 3 | 5 | 9 | south>choir camerabot lighting / north>charger guard / east>cutout thrower |
+| 4-2: Candid Talk Pt. 3 | Final Wave | 11 | west>lighting camerabot clapper / north>clapper charger guard / south>cutout lighting / east>clapper cutout lighting |
+| 4-3: Classy Cut | 1 | 5 | north>cutout camerabot lighting / south>thrower skater |
+| 4-3: Classy Cut | 2 | 6 | flanks>camerabot speaker clapper / east>cutout guard |
+| 4-3: Classy Cut | 3 | 8 | east>camerabot cutout / west>choir lighting / south>skater guard |
+| 4-3: Classy Cut | 4 | 7 | north>camerabot camerabot clapper / flanks>cutout charger guard |
+| 4-3: Classy Cut | 5 | 9 | west>cutout choir camerabot / east>lighting speaker / north>guard skater |
+| 4-3: Classy Cut | Final Wave | 11 | north>clapper charger guard / south>cutout lighting / east>clapper cutout lighting / west>lighting camerabot clapper |
+| 4-4: Going Insane | 1 | 6 | camerabot lighting thrower / cutout speaker camerabot |
+| 4-4: Going Insane | 2 | 7 | cutout clapper guard / charger camerabot skater |
+| 4-4: Going Insane | 3 | 14 | camerabot cutout lighting / guard camerabot choir / speaker skater charger / camerabot runner |
+| 4-4: Going Insane | 4 | 7 | east>camerabot cutout clapper / west>charger thrower choir |
+| 4-4: Going Insane | 5 | 9 | flanks>cutout camerabot speaker / south>lighting charger / north>choir cutout |
+| 4-X: Cream Factory | 1 | 6 | flanks>camerabot cutout lighting / north>guard speaker choir |
+| 4-X: Cream Factory | 2 | 10 | west>cutout cutout clapper / east>camerabot camerabot charger / south>choir lighting |
+| 4-X: Cream Factory | 3 | 7 | south>camerabot speaker choir / north>lighting cutout guard |
+| 4-X: Cream Factory | 4 | 10 | flanks>camerabot clapper charger / west>choir cutout guard / east>speaker camerabot |
+| 4-X: Cream Factory | 5 | 10 | north>camerabot cutout choir / south>lighting charger cutout / flanks>camerabot skater |
+| 4-X: Cream Factory | 6 | 6 | north>clapper cutout / flanks>lighting camerabot choir |
+| 4-X: Cream Factory | 7 | 6 | east>camerabot lighting / south>clapper charger cutout |
+| 4-X: Cream Factory | Final Wave | 13 | east>clapper cutout lighting / west>lighting camerabot clapper / north>clapper charger guard / south>cutout lighting / flanks>clapper lighting |
+| 5-1: Sungut Lele | 1 | 9 | popup runner guard / camerabot skater firewall / charger popup guard |
+| 5-1: Sungut Lele | 2 | 11 | firewall induction popup / charger guard camerabot / skater choir firewall |
+| 5-1: Sungut Lele | 3 | 6 | flanks>popup cutter guard / north>firewall charger |
+| 5-1: Sungut Lele | 4 | 7 | west>firewall camerabot induction / east>popup choir guard |
+| 5-1: Sungut Lele | 5 | 9 | north>popup scout cutter / south>firewall guard / flanks>camerabot skater |
+| 5-1: Sungut Lele | Final Wave | 12 | north>induction scout cutter / south>cutter popup firewall / east>scout induction guard / west>charger cutter induction |
+| 5-2: Terminator Red Circle | 1 | 9 | popup firewall cutter / camerabot scout popup / charger choir firewall |
+| 5-2: Terminator Red Circle | 2 | 11 | scout popup induction / firewall camerabot skater / choir popup firewall |
+| 5-2: Terminator Red Circle | 3 | 7 | west>scout popup cutter / east>camerabot charger choir |
+| 5-2: Terminator Red Circle | 4 | 7 | south>firewall firewall induction / north>scout popup guard |
+| 5-2: Terminator Red Circle | 5 | 9 | flanks>scout popup choir / west>firewall cutter / east>camerabot scout |
+| 5-2: Terminator Red Circle | Final Wave | 12 | south>cutter popup firewall / east>scout induction guard / west>charger cutter induction / north>induction scout cutter |
+| 5-3: Mas Amba Protocol | 1 | 5 | north>scout popup cutter / south>charger skater |
+| 5-3: Mas Amba Protocol | 2 | 6 | flanks>popup firewall induction / west>camerabot scout |
+| 5-3: Mas Amba Protocol | 3 | 7 | south>firewall scout choir / north>popup cutter guard |
+| 5-3: Mas Amba Protocol | 4 | 7 | east>popup popup induction / west>scout firewall choir |
+| 5-3: Mas Amba Protocol | 5 | 9 | flanks>scout firewall popup / south>camerabot cutter / north>guard choir |
+| 5-3: Mas Amba Protocol | Final Wave | 12 | east>scout induction guard / west>charger cutter induction / north>induction scout cutter / south>cutter popup firewall |
+| 5-4: Level 99 | 1 | 6 | popup scout cutter / firewall camerabot skater |
+| 5-4: Level 99 | 2 | 7 | scout choir popup / camerabot induction firewall |
+| 5-4: Level 99 | 3 | 14 | popup popup cutter / firewall choir scout / charger camerabot firewall / popup skater |
+| 5-4: Level 99 | 4 | 7 | flanks>firewall popup scout / north>induction skater choir |
+| 5-4: Level 99 | 5 | 10 | west>scout camerabot popup / east>firewall choir cutter / south>popup charger |
+| 5-X: Nut Tree | 1 | 5 | west>scout firewall / east>cutter choir camerabot |
+| 5-X: Nut Tree | 2 | 9 | flanks>scout cutter induction / north>guard popup / south>charger choir |
+| 5-X: Nut Tree | 3 | 7 | north>cutter firewall popup / south>charger scout choir |
+| 5-X: Nut Tree | 4 | 9 | east>cutter scout induction / west>camerabot charger / flanks>choir cutter |
+| 5-X: Nut Tree | 5 | 9 | flanks>scout firewall charger / north>camerabot choir / south>cutter popup |
+| 5-X: Nut Tree | 6 | 6 | west>scout induction / east>cutter popup firewall |
+| 5-X: Nut Tree | 7 | 6 | flanks>charger induction / south>scout cutter camerabot |
+| 5-X: Nut Tree | Final Wave | 14 | north>induction scout cutter / south>cutter popup firewall / east>scout induction guard / west>charger cutter induction / south>cutter induction |
+| 6-1: I'm Going to Hell | 1 | 9 | choir choir popup / firewall skater charger / choir guard popup |
+| 6-1: I'm Going to Hell | 2 | 11 | popup choir firewall / ash choir skater / firewall popup choir |
+| 6-1: I'm Going to Hell | 3 | 7 | north>choir ghost popup / south>firewall skater guard |
+| 6-1: I'm Going to Hell | 4 | 6 | flanks>choir popup firewall / west>ash choir |
+| 6-1: I'm Going to Hell | 5 | 10 | west>backup choir popup / east>firewall ghost guard / south>choir skater |
+| 6-1: I'm Going to Hell | Final Wave | 12 | north>ash ghost backup / south>choir firewall backup / east>ash ash backup ghost / west>ghost firewall |
+| 6-2: Gains Sentience | 1 | 9 | backup firewall choir / popup ghost charger / firewall choir backup |
+| 6-2: Gains Sentience | 2 | 14 | firewall popup ash / choir firewall guard / backup choir firewall / choir skater |
+| 6-2: Gains Sentience | 3 | 7 | flanks>backup popup ghost / east>choir charger firewall |
+| 6-2: Gains Sentience | 4 | 7 | west>firewall popup backup / east>choir ash charger |
+| 6-2: Gains Sentience | 5 | 9 | north>backup choir firewall / south>popup ghost / flanks>choir charger |
+| 6-2: Gains Sentience | Final Wave | 12 | south>choir firewall backup / east>ash ash backup ghost / west>ghost firewall / north>ash ghost backup |
+| 6-3: Fever Dream | 1 | 5 | flanks>backup choir popup / north>ghost charger |
+| 6-3: Fever Dream | 2 | 7 | west>firewall ash choir / east>backup popup charger |
+| 6-3: Fever Dream | 3 | 6 | south>choir choir firewall / north>popup ghost |
+| 6-3: Fever Dream | 4 | 7 | east>backup backup ash / west>firewall choir skater |
+| 6-3: Fever Dream | 5 | 10 | flanks>backup popup firewall / north>choir ghost charger / south>popup skater |
+| 6-3: Fever Dream | Final Wave | 12 | east>ash ash backup ghost / west>ghost firewall / north>ash ghost backup / south>choir firewall backup |
+| 6-4: Rate This PC | 1 | 6 | choir firewall backup / popup ghost choir |
+| 6-4: Rate This PC | 2 | 7 | choir backup ash / firewall choir skater |
+| 6-4: Rate This PC | 3 | 15 | firewall backup choir / choir choir ghost / popup firewall guard / choir popup firewall |
+| 6-4: Rate This PC | 4 | 7 | flanks>backup firewall choir / north>popup ash guard |
+| 6-4: Rate This PC | 5 | 10 | east>firewall backup popup / west>choir ghost skater / south>firewall choir |
+| 6-X: The Nail Theory | 1 | 6 | north>backup firewall choir / south>popup ghost firewall |
+| 6-X: The Nail Theory | 2 | 9 | flanks>ash choir backup / east>firewall ash / west>ghost skater |
+| 6-X: The Nail Theory | 3 | 9 | west>backup firewall / east>choir ash ghost / north>popup guard |
+| 6-X: The Nail Theory | 4 | 9 | flanks>firewall ash backup / south>choir charger / north>popup choir |
+| 6-X: The Nail Theory | 5 | 10 | north>ash firewall backup / south>popup ghost / flanks>ghost skater ash |
+| 6-X: The Nail Theory | 6 | 6 | south>ghost firewall / north>ash backup popup |
+| 6-X: The Nail Theory | 7 | 6 | flanks>ghost ash / east>firewall backup choir |
+| 6-X: The Nail Theory | Final Wave | 14 | north>ash ghost backup / south>choir firewall backup / east>ash ash backup ghost / west>ghost firewall / flanks>ash firewall |
+
+## Enemies
+
+| ID | Name | Base HP | Base speed | Radius | Contact damage | Specialist behavior |
+| --- | --- | --- | --- | --- | --- | --- |
+| stapler | Spring Stapler | 43 | 109 | 15 | 14 | Crouches, then springs along its dotted aim line. |
+| timecard | Punch Clock | 60 | 64 | 20 | 15 | Plants its feet and stamps a delayed mark at the player’s position. |
+| headlight | High Beam Hopper | 36 | 155 | 12 | 12 | Follows grid lines, then races down a lane in a single direction. |
+| inspector | Last-Fare Inspector | 54 | 85 | 17 | 13 | Backs away and throws tickets that curve across its firing lane. |
+| tuningfork | Tuning Fork | 38 | 139 | 13 | 11 | Orbits its target and scatters a triplet sideways across the beat. |
+| feedback | Feedback Drum | 66 | 55 | 21 | 15 | Bangs out a twelve-note ring. Its last beat comes from a different angle. |
+| clapper | Clapper Cut | 41 | 130 | 14 | 12 | Zigzags between takes and fires a cross from its current heading. |
+| lighting | Followspot Rig | 62 | 78 | 20 | 13 | Moves along the lighting rails. Its paired pools close on your previous position. |
+| induction | Induction Coil | 70 | 62 | 22 | 16 | A heavy coil with twin beams. Step through the center opening or behind it. |
+| cutter | Assembly Cutter | 46 | 146 | 14 | 13 | Hunts in arcs and throws plasma blades that curve away from each other. |
+| ash | Ash Wisp | 36 | 174 | 11 | 12 | A fast, erratic ember that hurls slow fire in four diagonal directions. |
+| ghost | Reboot Ghost | 62 | 89 | 18 | 14 | Marks a reboot location, then jumps there and launches a fan of embers. |
+| runner | Bussiness Rep | 32 | 131 | 13 | 12 | — |
+| thrower | Transfer Clerk | 40 | 90 | 15 | 12 | — |
+| guard | Classy Bouncer | 78 | 70 | 21 | 19 | — |
+| skater | Ambatufish | 35 | 157 | 12 | 12 | — |
+| charger | Ambatuexplode | 62 | 104 | 17 | 12 | — |
+| speaker | Ambatusax Cabinet | 48 | 77 | 16 | 12 | — |
+| choir | Angelic Kam Choir | 43 | 154 | 16 | 12 | — |
+| popup | Sentient Pop-up | 51 | 80 | 17 | 12 | — |
+| firewall | Wordington Firewall | 91 | 68 | 22 | 24 | — |
+| camerabot | Candid Camerabot | 56 | 82 | 17 | 12 | — |
+
+| Variant | Base bot | HP multiplier | Speed multiplier | Radius | Behavior |
+| --- | --- | --- | --- | --- | --- |
+| Gym Floor Monitor | Classy Bouncer | 1.05 | 0.84 | 24 | Stops at arm’s length to stamp a warning zone at your feet. |
+| Tentacle Faregate | Transfer Clerk | 1.23 | 0.87 | 19 | Patrols the grid and telegraphs a beam on each side of its aim. |
+| High Quality Repeater | Ambatusax Cabinet | 0.95 | 1.25 | 15 | Circles close to you and releases a five-note fan. |
+| Classy Stunt Double | Ambatufish | 0.9 | 1.08 | 11 | Skates in wide loops and drops a timed spotlight as it passes. |
+| Sungut Lele Scout | Classy Bouncer | 0.73 | 1.46 | 16 | Bounces away at midrange and tracks your last position with a narrow beam. |
+| Wordington Backup | Sentient Pop-up | 1.16 | 1.08 | 20 | Drifts erratically between its laser and slow ember rings. |
+
+## Equipment
+
+| Slot | Item | Unlock | Effect |
+| --- | --- | --- | --- |
+| Popper | Standard Popper | Starter | Balanced single shot. |
+| Popper | Ambasing Scatter | 1-2: Ambadonut Break | Three equal-strength shots in a forward fan. |
+| Popper | Double Take | 1-4: Stand on Bussiness | Fires two parallel shots. |
+| Popper | Transfer Repeater | 2-1: Thank Your Driver | Fastest sustained fire at short range. |
+| Popper | Bass Drop | 3-1: Paza | Slow heavy single shot with a short reach. |
+| Popper | Red Circle Needle | 3-2: Dreamyfantasia | Fast, long-range single shot. |
+| Popper | Eight-Way Cut | 4-3: Classy Cut | Fires one shot in each of the eight compass directions. |
+| Popper | Sungut Lele Overdrive | 5-2: Terminator Red Circle | Every fourth volley fires a six-pop fan. |
+| Popper | Nut Cracker | 1-X: Wash That | Five wide pellets with a short range. |
+| Popper | Reverse Playback | 3-3: Poké Flute Rip | Fires at 80% pop power forward and 180% backward. |
+| Nut Effect | Plain Kernels | Starter | Standard projectiles. |
+| Nut Effect | It Cold | 1-1: Ambatu Interview | Cuts speed and attack tempo by 36% for 1.25 s. Bosses lose 18% for 0.625 s. |
+| Nut Effect | Ambalien Goo | 1-X: Wash That | Poisons for 2 s at 100% pop power per second before defenses. Hits refresh poison. |
+| Nut Effect | YEK Circuit | 2-X: Self Pleasure | Every third volley stuns for 0.8 s. Bosses receive a shorter heavy slow. |
+| Nut Effect | Ambatuexplode | 3-1: Paza | Hits deal 45% splash damage around the target. |
+| Nut Effect | Base Form Tip | 3-2: Dreamyfantasia | Each pellet pierces one extra enemy at full damage. |
+| Nut Effect | Tracer | 4-2: Candid Talk Pt. 3 | Shots curve toward nearby enemies and deal 25% less damage. |
+| Nut Effect | Rebound Cut | 4-4: Going Insane | Shots ricochet once and deal 45% more damage after the bounce. |
+| Buss Burst | Confetti Cone | Starter | A wide forward sweep. |
+| Buss Burst | Paza Halo | 1-2: Ambadonut Break | A tight ring centered on you at 140% of standard Burst damage. |
+| Buss Burst | Express Lane | 2-4: Ambatubus | A long, narrow beam at 115% of standard Burst damage. |
+| Buss Burst | Six-Point Signal | 3-4: Thesis Night | A six-pointed star centered on you. Covers most of the arena when cast near the middle. |
+| Buss Burst | Red Circle Strike | 5-4: Level 99 | Projects a high-damage blast ahead. |
+| Buss Burst | Bootleg Overdub | 3-X: At The Club | A wide ring followed 1.5 s later by a smaller blast that deals 70% of the initial damage. |
+| Buss Burst | Switchback | 2-3: Move Over! | Fires forward and backward beams at 105% of standard Burst damage. |
+| Buss Burst | Censor Bar | 4-X: Cream Factory | Wide short beam. Erase three shots to stagger nearby bots and gain 1.0 s of protection. |
+| Boots | Stock Trainers | Starter | Balanced movement and dash. |
+| Boots | Transfer Ticket | 2-2: Tentacle Crossing | Dash cooldown is 20% shorter. |
+| Boots | Classy Stabilizer | 4-2: Candid Talk Pt. 3 | Store up to two dashes. Each charge takes 35% longer to refill, one at a time. |
+| Boots | Stretch This | 4-1: Sleepy Edit | Dash lasts 55% longer. |
+| Boots | Firewall Soles | 6-1: I'm Going to Hell | Dashing leaves a pulse that damages enemies and clears nearby shots. |
+| Boots | Night Return | 2-X: Self Pleasure | Each Close Call refunds 0.5 seconds of dash cooldown. |
+| Boots | Jomok Drift Soles | 3-3: Poké Flute Rip | Walk 45% faster for 1.5 seconds after a dash. |
+| Boots | Paza Runners | 3-X: At The Club | Popping a bot resets dash cooldown. |
+| Vibe Guard | Softshell | Starter | Standard Vibe and recovery. |
+| Vibe Guard | Bussiness Lifting Belt | 1-4: Stand on Bussiness | Increases max Vibe. |
+| Vibe Guard | Bouncer Plate | 2-4: Ambatubus | Take 14% less damage and move 8% slower. |
+| Vibe Guard | Ambadonut Lining | 3-1: Paza | Vibe pickups and wave refills heal 40% more. |
+| Vibe Guard | Core Padding | 5-1: Sungut Lele | +2.5 s of hit protection. |
+| Vibe Guard | Red Tag Guard | 5-X: Nut Tree | Start every wave with 6.7 seconds of protection. |
+| Vibe Guard | Breakaway Jacket | 4-2: Candid Talk Pt. 3 | Blocks the first projectile hit in each wave. |
+| Vibe Guard | Spam Filter | 6-1: I'm Going to Hell | Taking a hit erases shots within 200 px and adds 1.0 s of hit protection. Recharges in 5 s. |
+| Pendant | nuthing | Starter | A plain dispatch token. |
+| Pendant | Nitro PC Charger | 3-4: Thesis Night | Start with extra Burst charge. Gain 35% at the start of each later wave. |
+| Pendant | Pop Me | 3-2: Dreamyfantasia | Popped bots fire an echo worth 3× pop power. Each echo hits one enemy. |
+| Pendant | 30-Buck Cameo | 4-4: Going Insane | Survive one lethal hit per attempt at 30% Vibe with 2.0 s of extra hit protection. |
+| Pendant | Take It Take It Take It | 5-2: Terminator Red Circle | Close Calls return a piercing shot with 3× pop power. |
+| Pendant | I Need That Nut | 6-X: The Nail Theory | Restore 10 Vibe for every fourth bot popped and 2 Vibe for every tenth shot that hits a boss. |
+| Pendant | Coldest Moment | 4-X: Cream Factory | Buss Burst freezes all enemies for 5 seconds. Bosses are heavily slowed for 2.5 seconds. |
+| Pendant | Batu Khan's Revenge | 5-X: Nut Tree | Taking damage clears hostile shots, deals 2× pop power to all enemies, and grants 5% Burst charge. |
+
+## Skill tree
+
+| Branch | Node | Cost (SP) | Prerequisite | Effect |
+| --- | --- | --- | --- | --- |
+| Pop | Bussiness Blend | 1 | Root | +12% pop power. |
+| Pop | Classy Edit | 2 | Bussiness Blend | +12% fire rate. |
+| Pop | First Impressions | 2 | Classy Edit | Opening hits on full-health bots deal 40% extra damage. |
+| Pop | Crowd Control | 3 | Classy Edit | Each pop in your current streak adds 4% shot power, up to 20%. |
+| Pop | Candid Cut | 1 | Bussiness Blend | +24% projectile speed. |
+| Pop | No Mercy | 3 | First Impressions | Shots deal 50% more damage to regular bots below 30% Vibe. |
+| Pop | Quick Draw | 2 | First Impressions | The first volley within 1.0 s of dashing deals 100% extra damage. |
+| Dash | Ambatufish Sliders | 1 | Root | +10% move speed. |
+| Dash | Tentacle Transfer | 1 | Ambatufish Sliders | 10% less dash cooldown. |
+| Dash | Close Shave | 2 | Tentacle Transfer | +3% Burst charge per Close Call. |
+| Dash | Move Over! | 1 | Tentacle Transfer | +40% dash speed. |
+| Dash | Change for the Bus | 2 | Tentacle Transfer | A Close Call restores 2 Vibe. |
+| Dash | Last Flare | 3 | Change for the Bus | Stay invulnerable for 0.25 seconds after a dash. |
+| Burst | Thesis Reverb | 1 | Root | +12% Burst damage. |
+| Burst | Encore Reach | 1 | Thesis Reverb | +20% Burst reach. |
+| Burst | Bass Boost | 2 | Encore Reach | Deal 20% more damage to bots and bosses at 50% Vibe or higher. |
+| Burst | Final Encore | 3 | Bass Boost | Get 35% charge back when a Burst erases five or more hostile shots. |
+| Burst | Second Wind | 2 | Encore Reach | Using Burst restores 8 Vibe. |
+| Burst | Soundcheck | 1 | Thesis Reverb | +20% starting Burst charge. |
+| Vibe | Ambadonut Break | 1 | Root | +20 max Vibe. |
+| Vibe | Classy Guard | 2 | Ambadonut Break | Take 7% less damage. |
+| Vibe | Clean Cut | 2 | Classy Guard | +0.5 seconds of hit protection. |
+| Vibe | Second Serving | 2 | Classy Guard | Vibe pickups heal 25% more. |
+| Vibe | Reset the Set | 1 | Ambadonut Break | Restore 20 Vibe when a regular wave ends. |
+| Vibe | No Signal | 1 | Reset the Set | Arena hazards deal 35% less damage. |
+| Signal | Ambasing Choir | 1 | Root | +2 Burst charge per bot pop. |
+| Signal | Mas Amba Edit | 2 | Ambasing Choir | Gain 15% Burst charge at the start of each wave. |
+| Signal | Red Circle Lock | 2 | Mas Amba Edit | +0.5% Burst charge per boss hit. |
+| Signal | Bass Echo | 2 | Mas Amba Edit | Taking damage deals 1× pop power to all enemies. |
+| Signal | Clean Plate | 3 | Red Circle Lock | Finishing a wave without a hit fully charges Burst. |
+| Signal | Standing Ovation | 1 | Ambasing Choir | Streaks stay active for an extra 1.5 seconds between kills. |
+| Vibe | Nut Break | 3 | Second Serving | Restore 4 Vibe for every fourth bot popped. |
+
+## Burst shapes
+
+| Shape | Range or radius (px) | Extra geometry |
+| --- | --- | --- |
+| cone | 330 | 49.5° half-angle |
+| star | 760 | Player-centered hexagram |
+| halo | 145 | Player-centered |
+| ring | 178 | Player-centered |
+| beam | 535 | 48 px half-width |
+| remote | 138 | 230 px forward center |
+| crossbeam | 395 | 42 px half-width |
+| widebeam | 250 | 96 px half-width |
+
+## Soundtrack and narration
+
+| Track | Creator | File | Authored gain | Source |
+| --- | --- | --- | --- | --- |
+| Sci-fi Puzzle Stage Select | MintoDog | dispatch.ogg | 0.1 | [CC0 release](https://opengameart.org/content/sci-fi-puzzle-stage-select) |
+| Chase! | Ted Kerr (Wolfgang_) | action-district.ogg | 0.145 | [CC0 release](https://opengameart.org/content/chase) |
+| Darkness Road | MintoDog | road.ogg | 0.087 | [CC0 release](https://opengameart.org/content/darkness-roadremake) |
+| Chiptune Battle Music | pmiller | action-radio.ogg | 0.162 | [CC0 release](https://opengameart.org/content/chiptune-battle-music) |
+| Hard Battle 1 | MintoDog | hard-battle-1.ogg | 0.127 | [CC0 release](https://opengameart.org/content/hard-battle-1) |
+| Hard Battle 2 | MintoDog | action-core.ogg | 0.115 | [CC0 release](https://opengameart.org/content/hard-battle-2) |
+| Infinite Darkness | HydroGene | action-server.ogg | 0.12 | [CC0 release](https://opengameart.org/content/8-bit-infinite-darkness) |
+| 8bit Action Miniboss Battle | MintoDog | 8bit-action-miniboss-battle.ogg | 0.134 | [CC0 release](https://opengameart.org/content/8bit-action-miniboss-battle) |
+| Hard Boss Battle 1 | MintoDog | hard-boss-battle-1.ogg | 0.145 | [CC0 release](https://opengameart.org/content/hard-boss-battle-1) |
+| Urban Boss Battle | MintoDog | urban-boss-battle.ogg | 0.146 | [CC0 release](https://opengameart.org/content/urban-boss-battle) |
+| Trance Boss Battle | MintoDog | trance-boss-battle.ogg | 0.141 | [CC0 release](https://opengameart.org/content/trance-boss-battle) |
+| Heavy Boss Battle 1 | MintoDog | core-boss.ogg | 0.132 | [CC0 release](https://opengameart.org/content/heavy-boss-battle-1) |
+| Raiders March | bobjt | server-boss.mp3 | 0.181 | [CC0 release](https://opengameart.org/content/raiders-march) |
+| Boss Battle #8 Metal | nene | hellboot.ogg | 0.192 | [CC0 release](https://opengameart.org/content/boss-battle-8-metal) |
+
+Satan’s PC - Harder and Dirtier switches to **Boss Battle #8 Metal** on transformation. The gameplay music mix is 1.38× each track’s authored gain. The menu uses its own quieter gain.
+
+Narration uses complete source recordings at normal speed. The queue holds 2 pending cues for up to 16 seconds. Failure and revival play immediately on the foreground channel.
+
+| Cue | File | Cooldown (s) | Priority |
+| --- | --- | --- | --- |
+| terminal | buss.mp3 | 35 | 1 |
+| radio | paza.mp3 | 35 | 1 |
+| studio | insane.mp3 | 35 | 1 |
+| transform | blow.mp3 | 12 | 3 |
+| revive | choir.mp3 | 0 | 4 |
+| fail | tap.mp3 | 0 | 4 |
+| victory | dies.mp3 | 35 | 3 |
+
+Each combat event plays its authored cue with overlap compensation. Settings can turn combat chatter off. A short edit starts at the listed timestamp and ends at the first detected quiet window after its earliest end. The audio check flags any edit that falls back to a fade.
+
+| Event | File | Start (s) | Earliest end (s) | Gain |
+| --- | --- | --- | --- | --- |
+| down | yek.mp3 | 0.49 | 2.02 | 0.16 |
+| down | yek.mp3 | 2.27 | 2.61 | 0.15 |
+| hurt | like.mp3 | 4.77 | 6.23 | 0.28 |
+| dash | rtp.mp3 | 0.16 | 1.71 | 0.17 |
+| burst | nut.mp3 | 0 | 1.75 | 0.35 |
+| burst | buss.mp3 | 0.16 | 1.07 | 0.27 |
+| clean | blow.mp3 | 0 | 2.15 | 0.19 |
 
 <!-- END GENERATED TABLES -->
 
-## Tour and controls
+## Combat rules
 
-- The simulation ticks at 90 Hz. The actor-center bounds are x = 32–928 and y = 69–505, inset by the actor's radius. The player starts each stage at (480, 397) with radius 15, 0.40 s of invulnerability, full Vibe, and at least 48% Burst charge.
-- WASD and arrows move. Mouse aims, and the primary mouse button or F fires. Shift dashes in the movement direction or along aim while standing still. Space fires Buss Burst at 100% charge. Escape or P pauses. Touch provides a stick plus Pop, Dash, and Buss. Pop auto-aims at the closest active enemy.
-- Enemy spawns try up to 20 edge points more than 205 px from the player. Top and bottom points have x = 92–868 and y = 94 or 472. Side points have x = 64 or 896 and y = 125–445. The fallback is x = 88 on the player's left or x = 872 on the right, y = 110. Standard bots materialize in 0.42 s and bosses in 1.22 s. The starting attack cooldown is randomly 0.65–1.75 s for bots and 0.53 s after a boss materializes.
-- Every stage offers one upgrade after regular wave 2 and one after the boss. The final reward still appears before the run report. The three card slots independently roll 60% Common, 30% Rare, and 10% Bussted. Eligible cards of the rolled rarity have equal odds within that slot. A card can appear only once in an offer. Encore can replace one offer per run, with the same odds and no extra pick. Cards enter Files when offered and enemy files enter it when encountered. Numbers follow the catalog order and are independent of discovery order.
-- The first five stops are listed at the start. Their titles unlock on entry and the Burnt Server appears only after Ambatron is defeated. Campaign checkpoints store Vibe capacity, upgrades, score, difficulty, and statistics at the start of each stage. Retry restarts that stage from the saved build. Browser-local records also include high score, map discoveries, and Files entries.
-- Boss Practice unlocks on encounter. Ambatron Phase II has its own entry after the first transformation. Practice uses the loadout in the tables above and the selected difficulty. Practice leaves the campaign checkpoint, score record, and stage unlocks untouched. Boss and enemy discoveries count as encounters in either mode.
+The engine ticks at 90 Hz in a 960 × 544 arena. Actors stay within the bounds inset by their radius. The mouse is projected through the rendered canvas bounds. Touch fire aims at the nearest materialized enemy. Dash grants invulnerability and consumes intercepted bullets. Only one contact per dash grants Close Call charge, score, or upgrades. Later intercepted bullets are still cleared.
 
-## Damage, recovery, and scoring
+Pop damage includes the area power multiplier and the current build. A projectile can hit each enemy at most once, and piercing adds distinct hits. Splash damages nearby bots on impact. Echo and reflected projectiles use their own power and skip the equipped popper's special effects. Bosses and Ambatron’s pods receive half the duration and strength of slows. Stuns reduce their speed and attack tempo by 70% for half the original duration. Coldest Moment stuns regular enemies for five seconds. The standard streak lasts 2.5 seconds between pops and Standing Ovation raises that to 4.0 seconds.
 
-| Mechanic     | Exact rule                                                                                                                                                                                                                                              |
-| ------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Player shot  | Radius 5, fired 26 px forward, lifespan 1.28 s, aim jitter −0.027 to +0.027. Pop power is player damage × stage scale. The normal shot stops on the first valid hit, with one additional hit per pierce.                                                |
-| Hostile shot | Radius 6, or 7 for notes. Lifespan 6 s. Chill multiplies the listed speed by 0.82. A fan uses the listed angle between shots and is centered on aim. Ring bullets are evenly spaced around 2π. Ring damage is 13 unless specified.                      |
-| Player hit   | Rounds base damage × difficulty multiplier. Grants 0.72 s of invulnerability and resets the streak. A dash is invulnerable and consumes projectile contacts. A floor or laser hit during a dash awards no Close Call charge.                            |
-| Burst        | 330 px reach and 49.5° to each side of aim. Targets behind the player are outside the cone. Removes projectiles in the cone. Does 86 damage to bots or 245 to bosses, × stage power × (1 + 0.28 × Reverb copies). The visual lasts 0.46 s.              |
-| Charge       | Regular bot pop gives 7 + 2 × Reverb copies. A boss pop gives 31. The first scoring hit of each projectile on a boss gives 1.6 + 0.24 × Reverb copies. All charge is capped at 100.                                                                     |
-| Vibe pickup  | Restores 19 Vibe. Lasts 9 s, attracts inside 80 px at 180 px/s, and is collected inside 24 px. See mode table for drop odds. Wave and boss entry refills are fractions of max Vibe and cap at max.                                                      |
-| Score        | Each bot pop is worth 100, a Classy Bouncer 160, and a boss 1,000 before streak multiplier. Streak window is 2.1 s between pops. Multiplier = min(5, 1 + floor((streak − 1) / 3)). Boss rounds pay another 5 × ceiling(remaining Vibe) after the clear. |
-| Close Call   | Removes the projectile and grants the listed reward for the first three contacts of that dash. Reflected pops count as player shots. A single piercing shot counts at most once toward accuracy.                                                        |
-| Clean Wave   | Any regular wave cleared without losing Vibe qualifies. A prevented hit during a dash or invulnerability window preserves it. Bonus is awarded once per wave.                                                                                           |
-| Wave clear   | Removes remaining hostile shots and floor hazards. Standard rounds pause 0.86 s before moving on. Boss rounds pause 1.28 s.                                                                                                                             |
+Buss Burst consumes a full meter, hits bots and bosses, and clears hostile shots in its shape. Cone covers the front, Halo covers a circle around the player, Express Lane runs a narrow beam toward the aim, and Red Circle Strike projects a circle ahead. Six-Point Signal covers a player-centered hexagram regardless of aim, with the broadest coverage from the middle of the arena. Bootleg Overdub adds a 90 px blast after 1.5 s at 70% of the first blast's damage to bots and bosses before target defenses. Burst damage is shown as base hit damage in Upgrades and scales by area, with a separate boss coefficient. Armor, healing, and revival effects are applied at attempt start through the selected build. Bass Boost checks the current health bar for each target, including each boss phase, and applies at 50% or higher.
 
-## Regular enemy attacks
+Main waves advance once the spawn queue and enemies are empty. Bonus waves advance on an early clear or when their timer expires. Pending deployments must finish, and live threats carry over. Boss rounds occur on the fourth level of each area. Scripted hazards telegraph before dealing damage. Vibe drops restore 19 before healing modifiers. Clean regular waves award score and charge. Skill points and gear come from first clears.
 
-All regular enemies have the contact damage in the generated catalog. Bots slow to 36% of normal movement while winding up a ranged shot. Those windups lock aim before release. A Sentient Pop-up or Camerabot cancels its own warning zones if it is popped before the attack activates.
+The recorded timer stops on the last lethal hit in the final round. The victory animation stays visible for roughly 1.3 seconds after the timer freezes. Old stored times retain their original measurement.
 
-| File | Attack and movement tuning |
-| --- | --- |
-| E-01 Bussiness Rep | Direct chase. |
-| E-02 Transfer Clerk | Orbits at 151–252 px with tangent factor 0.55. Attack range 440, windup 0.31, rest 1.45–2.30 minus 0.08 × stage index. Fires 1 ticket in stages 1–2 or 3 tickets from stage 3. Spread 0.15, speed 243 + 10 × stage index, damage 12. |
-| E-03 Classy Bouncer | Direct chase at the slow speed in its table. Armored HP and 19 contact damage. |
-| E-04 Ambatufish | Chase angle oscillates by up to 0.74 rad. Visual/steer phase advances 16 rad/s and the steering sine uses phase × 0.57. |
-| E-05 Ambatuexplode | Starts a lunge within 265 px. Windup 0.52, charge lasts 0.42 at speed 420, charge damage 18. Cooldown random 1.3–1.8 before the next windup. |
-| E-06 Ambatusax Cabinet | Orbits at 151–218 px with tangent factor 0.55. Range 375, windup 0.42, rest 2.10–2.80. Ring of 8 notes at speed 171 and damage 13, offset by animation phase × 0.25. |
-| E-07 Base Form Pod | Ambatron Phase II only. Two pods. Each has 1,460 Arcade or 960 Chill HP, radius 15, and no contact damage. Orbit radii 114 × 83. Shield and attack contribution are in the Ambatron section. |
-| E-08 Ambatron Phase II | See boss section. |
-| E-09 Angelic Kam Choir | Sways up to 0.92 rad from chase angle. Range 350, windup 0.33, rest 2.25–3.05. Fan of 4 embers at spread 0.27, speed 193, damage 15. |
-| E-10 Sentient Pop-up | Approaches outside 245 px, backs away inside 177 px, and holds between. Range 440. Laser width 24, delay 0.82, active 0.37, damage 18. Holds position through its windup. Rest 3.20–4.20. |
-| E-11 Wordington Firewall | Direct chase. Range 420, windup 0.48, rest 3.00–3.75. Ring of 10 embers at speed 145 and damage 13. |
-| E-18 Candid Camerabot | Same range control as Pop-up. At ≤440 px, focuses for 0.87 s and marks the player's snapshot with radius 47, delay 0.87, damage 16. The second mark is 91 px to a flank, radius 43, delay 1.12, damage 14. Each spot is active 0.34. Rest 3.40–4.40. First appears in Studio wave 3. |
+## Equipment balance notes
 
-## Perk formulas
+- Ambasing Scatter retains 1.96× standard pop power across three equal pellets. Eight-Way Cut totals 2.8× standard pop power per volley and sends 0.35× in any one direction. Red Circle Needle travels at 1.60× standard projectile speed. Overdrive’s fourth volley fires six equal 0.68× pellets, for up to 4.08× pop power before Nut Effects and defenses. Reverse Playback directs 0.8× forward and 1.8× backward.
+- Base Form Tip pays a full second hit when enemies line up. Ambatuexplode pays 45% per neighbor and needs three neighbors to exceed one full extra hit. Tracer needs about 33% more hits to offset its 25% damage penalty.
+- Transfer Ticket saves about 0.30 s per base dash. Classy Stabilizer stores two dashes for back-to-back escapes at 2.00 s per charge before skills. Stretch This extends protection during the dash without changing its cooldown. Night Return saves up to 0.5 s per dash by landing a Close Call. Paza Runners skip the entire remaining cooldown on a kill and can chain dashes in crowds. Drift Soles increase walk speed by 45% for 1.5 s after each dash.
+- Red Tag Guard covers the first 6.7 s of each wave and can make Clean Plate easy to trigger. Reset the Set heals 20 Vibe after each regular wave, including timed transitions with surviving enemies.
+- Pop Me can create a new echo when an echo kills a bot. Bass Drop delivers about 115 raw base damage per echo impact before area and skill scaling. Each echo hits one target.
+- Batu Khan's Revenge clears all hostile shots, hits each active enemy for 2× pop power before scaling and defenses, and adds five points to the Burst meter on every damaging hit. Bass Echo adds its 1× pop power to the same retaliation.
 
-- Stat multipliers in the upgrade catalog apply multiplicatively to the current value. Fire rate multipliers divide the fire interval. Ambadonut adds 16 to max Vibe and immediately refills. Base Form Firmware adds one pierce and multiplies shot power by 1.09.
-- Ambasing Choir adds side shots at ±0.16 rad per stack index. Each side shot has 34% of the main shot power. Thesis Night Finale adds 7 shots at −0.48 to +0.48 rad in 0.16 rad steps, at 95% power with two additional pierces, every max(3, 8 − copies) volleys.
-- Amboutabass Echo Cast sends one shot to the closest remaining active enemy within 330 px of a defeated bot. Echo damage is pop power × (0.90 + 0.24 × copies). It has no extra pierce.
-- Thank Your Driver leaves a mine at the dash origin. Its delay is 0.32 s, radius 88, and damage 3.1 × pop power. Ambatuexplode Encore leaves a radius-102 blast 265 px along aim, clamped to x = 48–912 and y = 85–489. It triggers after 0.35 s and deals (76 + 22 × copies) × stage scale × Reverb multiplier. Both erase hostile shots in their blast circles.
-- 30-Buck Cameo revives at ceiling(42% max Vibe) with 1.65 s invulnerability once per stage. Free Bird Request adds 3 charge per copy to each rewarded Close Call. High Quality Rip fires a 130% pop-power shot 16 px forward along aim for each rewarded Close Call and adds one pierce.
+On the November 15 matched replay check, Bass Drop with Amboutabass Echo cleared 4-X and 5-X in 59.50 s and 73.82 s. Swapping only the pendant to 30-Buck Cameo took 80.92 s and 98.38 s. Removing Clean Plate had little effect on clear time in that seed. Eight-Way Cut cleared both bonus stages but failed all six attempts at 5-4, even with compass-aware movement. Reverse Playback cleared 5-4 in 91.90 s with the pilot aiming its stronger shot at the target. These are single-seed comparisons.
 
-## Boss patterns
+In the matched single-seed Echo replay, removing piercing added 1.26 s on 4-X and 2.10 s on 5-X. The single-target version still cleared those levels 20.16 s and 22.46 s faster than the same kit with 30-Buck Cameo.
 
-Boss cooldowns below start when the attack is selected and include any listed windup unless otherwise stated. Angles track the player when the warning or salvo begins. Ground spots remain live 0.34 s, arena lanes 0.36 s, and directed aim beams 0.37 s unless specified. Standard boss contact is 20, Sax Max contact is 17, and an active charge is 26. Vibe lost from all these attacks is adjusted by the selected difficulty.
+## Boss cues
 
-### E-12 The Lunk-Bot
+- **Bussiness Rep XL** telegraphs charges and adds a three-mark Overtime Stamp. Move perpendicular to the charge lane.
+- **The Dreamybus** alternates lane charges and ticket fire. Express Service paints ghost lanes to both sides of the player.
+- **Ambatusax** follows musical rings and a solo warning with double note fans. Keep space between you and the speaker stacks.
+- **Evil Dreamy** uses spot marks and split-screen retakes. Clear summoned Camerabots to open space.
+- **Ambatron** marks the player's last position and transforms after the first health bar. Destroy both orbiting pods to remove the second form's damage reduction.
+- **Satan’s PC** exposes a green safe lane during quarantine. The OVERHEAT window increases damage dealt to the chassis. In the second phase, glass cracks at 75%, 50%, and 25% health, with portraits appearing at half health. The last hit shatters the glass, blacks out the background, and triggers an explosion while the clear time stays frozen.
 
-- Pursues at 70 px/s when farther than 102 px, with a heading sway of up to 0.54 rad.
-- Pattern order is charge, fan, charge, slam. Charge warning is 70 px wide and 540 px long with a 0.78 s tell. Physical lunge is 675 px/s for 0.58 s. Cooldown is 2.12 s, or 1.68 s below 50% HP. The late charge adds a width-43 aim beam offset by ±0.47 rad, delay 0.99, damage 16.
-- Fan sends 7 plates or 9 below 50% HP, with spread 0.23, speed 246, damage 15, cooldown 1.15. Slam adds a ring of 12 or 17 plates at speed 170 and a targeted radius-60 or radius-81 spot with a 0.81 s tell and 20 damage. Slam cooldown 1.34.
+## Audio routing
 
-### E-13 The Dreamybus
-
-- Pursues at 70 px/s outside 230 px between charges. Its four-part rotation is lane charge, fan, vertical lane charge, lane charge. Direction flips on the k modulo 3 schedule. The fan fires 9 or 13 tickets below 50% HP, spread 0.22, speed 231, damage 13, cooldown 1.35.
-- Horizontal lane center clamps to y = 153–434, width 101, run speed 727, duration 1.19 s. Vertical center clamps to x = 148–812, width 103, run speed 725, duration 0.58 s. Both show a 0.87 s warning and deal contact damage during the pass. The exit ring fires 12 or 17 tickets at speed 142 and offset π/12.
-- The last lane in every cycle, and all lanes below 50% HP, add a ghost lane. Its center is 108 px horizontally across the y-axis or 166 px vertically across the x-axis from the first lane, toward the center. Width 74, tell 1.03, damage 18. Lane cooldown 2.57 normally or 2.19 late.
-
-### E-14 Sax Max
-
-- Moves at 83 px/s around a target at (480 + 248 × sin(0.77t), 267 + 128 × cos(0.90t)). Contact does 17. Below 50% HP, uses the late counts in the patterns below.
-- **Double ring.** 0.46 s tell. Outer ring has 16 or 20 notes at 164 px/s and inner ring has 10 at 101 px/s. Damage 12. Cooldown 1.70 or 1.40.
-- **Duet.** 0.46 s tell, with a marked corner speaker. The speaker's fan has 6 or 8 notes at speed 190 and spread 0.235. The boss fan has 6 notes at speed 241 and spread 0.20. All notes deal 12. Cooldown 1.59.
-- **Floor beat.** Snapshots the player's y at x = 240, 480, and 720. Spots have radius 58 or 72, delay 1.02, damage 17. A 13-note ring at speed 126 accompanies the warning and deals 12. Cooldown 1.72.
-
-### E-15 The Omaygot Director
-
-- Moves at 92 px/s toward the player's reflected position, with x clamped to 174–786 and y to 138–408. The cycle is spotlight cluster, stunt doubles, crossing lanes.
-- **Spotlights.** Main spot radius 75, delay 0.87, damage 21. Four outer spots, or five below 50% HP, form a radius-155 × 137 ellipse before arena clamping. Outer spot radius 62, delay 1.02 + 0.08 × spot index, damage 18. Cooldown 1.88 or 1.68.
-- **Stunt doubles.** Spawns 2 or 3 Ambatufish, capped so boss and adds total at most 6. They materialize in 0.60 s. Fires 8 shots at speed 239, spread 0.23, damage 13. Cooldown 1.45.
-- **Crossing lanes.** Width 59, one x-lane with 0.86 delay and one y-lane with 0.99 delay, both damage 21. Cooldown 1.65.
-
-### E-16 Ambatron Prime and E-08 Third Impact
-
-- First form moves at 112 px/s around (480 + 205 × sin(0.53t), 214 + 80 × sin(1.06t)). Its three attacks are lanes, rings, and fan. Lanes number 2 or 3 under 50% HP, width 50, delays 0.78 + 0.11 × lane index, damage 22, cooldown 1.52. Offset lanes sit at x − 132 / x + 150 or y + 99 / y − 106 before clamping.
-- The first form's rings have 17 and 12 bullets or 22 and 16 late, speeds 199 and 119, damage 13, cooldown 1.30 or 1.24. Its fan has 9 or 13 bullets, spread 0.14, speed 279, damage 13, cooldown 1.17 or 1.30. The late fan adds a 0.27 s tell and summons one Bouncer every other volley if fewer than three enemies remain. The Bouncer materializes in 0.59 s.
-- At zero HP, a 2.40 s invulnerable transformation creates a new bar of round(82% of the first bar), which is **7,528 Arcade / 5,721 Chill**. Radius grows to 52. The player regains 53% of max Vibe in Arcade or 72% in Chill, capped at max, and receives 100% Burst charge. Both pods reduce incoming core damage to 32% while at least one survives. Destroying the second clears hostile shots, grants at least 0.8 s invulnerability, and restores 34% max Vibe.
-- **Five beams.** Aim offsets −0.92, −0.46, 0, 0.46, 0.92. Width 49, delay 0.76 s for center, +0.14 s per step outward, damage 29. Cooldown 1.65.
-- **Plasma rings.** Each live pod sends 16 shots at 158 px/s. Core sends rings of 23 at 222 px/s and 15 at 114 px/s. Damage 13. Cooldown 1.42.
-- **Spot cluster.** Center radius 86, delay 0.78, damage 28. Two radius-77 spots offset by (±137, ±90) with 1.01 s tells. Two radius-69 spots offset by (±147, ∓106) with 1.22 s tells. Both outer pairs do 24. Cooldown 1.58.
-- **Crossing cage.** Width-66 vertical lane and width-64 horizontal lane at the player snap, delays 0.79 and 0.94, damage 30 and 29. Two vertical side lanes at ±124, width 49, delay 1.17, damage 25. Cooldown 1.70.
-- **Fans and backup.** Each live pod sends 7 shots with spread 0.19 at 290 px/s. Core sends 11 with spread 0.18 at 265 px/s. Damage 17. Summons one Charger or Cabinet if fewer than five enemies remain. Cooldown 1.05.
-- Phase II pursues its moving target at 116 px/s. Target oscillation is ±216 x and ±113 y around (480, 278), driven by walk phase × 0.093 and × 0.16. Walk phase advances 8 rad/s. Pod orbit phase uses walk phase × 0.24 and a π offset for the second pod.
-
-### E-17 Satan’s PC
-
-- Moves at 108 px/s toward (480 + 238 × sin(0.47t), 232 + 74 × cos(0.72t)). The x frequency increases to 0.64 below 34% HP. Pattern intensity rises below 70%, then again below 34%. Contact damage is 20.
-- Outside Overheat, takes 48% damage in Arcade or 66% in Chill. While green, takes 165% damage. Overheat occurs during the safe lane and floor-cluster patterns.
-- **Quarantine lanes.** Blocks both sides of a safe lane. The safe lane is 154 px wide, or 116 px below 34% HP. Its center is shifted 104 px from the player before clamping. Warning is 1.07 s normally or 0.96 late. Damage 35. Overheat lasts 1.94 or 1.22. Cooldown 2.08.
-- **Three fans.** Core sends 13 or 17 embers below 34%, spread 0.16, speed 234, damage 20. Two emitters at (70, 106) and (890, 435) send 5 or 8 below 70%, spread 0.21, speed 178, damage 17. Cooldown 1.75 or 1.46.
-- **Firewall.** A screen-edge wall leaves a gap of ±80 px around the snapshot, or ±68 late. Shots are spaced by 33 px or 26 late, travel at 183 or 205, and deal 20. The core also sends a ring of 15 or 21 below 70% at speed 148, damage 13. Cooldown 1.83 or 1.52 below 34%.
-- **Floor cluster.** Main radius 78 or 96 below 34%, delay 0.77, damage 30. Four marks form a 154 × 122 ellipse with offset angle 0.44. Their radius is 57 or 71 below 70%, delay 0.93 + 0.08 × mark index, damage 24. Below 70%, adds width-44 beam at +0.38 rad, delay 1.21, damage 26. Overheat 1.80 or 1.26 below 34%, cooldown 2.00.
-- **Beam fan.** Three beams at −0.65, 0, +0.65 rad. Width 40 or 55 late, delay 0.82 + 0.30 × absolute offset, damage 29. Ring of 18 or 24 below 70% at speed 124, damage 13. Spawns one Choir or, below 34%, one Pop-up when fewer than three enemies remain. Its spawn warning lasts 0.66. Cooldown 1.89.
-
-## Design references
-
-- Readable dodges and projectile clearing draw on Dave Crooks's description of the dodge-roll and table-flip mechanics in *Enter the Gungeon*. The Close Call reward applies that idea to this game's dash. [Developer interview](https://www.gamedeveloper.com/design/q-a-the-guns-and-dungeons-of-i-enter-the-gungeon-i-)
-- The explicit tells and distinct recovery windows follow the kind of enemy telegraph tuning Supergiant documented for *Hades*. [Supergiant patch notes](https://www.supergiantgames.com/blog/hades-updates/)
-- Recoil, hit deformation, and small impact effects follow Jan Willem Nijman's examples of making actions readable through animation and feedback. [The Art of Screenshake](https://www.youtube.com/watch?v=AJdEqssNZ-U)
-- The dark cabinet preserves the thick ink outlines and bright color accents of the previous *Hi-Fi RUSH*-inspired design. [Visual reference](https://news.xbox.com/en-us/2023/01/25/hi-fi-rush-preview-out-now-hands-on/)
+Map, Upgrades, Files, and Settings share the dispatch theme. Each combat area has one arena track and one boss track. Playback crossfades when a decoded successor is ready. Pause and return preserve each track's offset. The cache keeps up to four decoded music tracks and protects the active one. Common actions use short synthesized effects. Enemy pops, dashes, hurt events, and repeated Burst use never enqueue narration. Terminal, FM, and Studio boss intros, Third Impact, entry to area six, and the ending use the six complete voice recordings. Voice ducks music while it plays. Leaving an attempt or retrying stops its narration, stingers, and synthesized effects. The loss cue can play in full if the player stays on the results screen.

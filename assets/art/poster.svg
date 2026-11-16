@@ -29,21 +29,7 @@
     <path d="M174 253l50 45-34 27-21 145h-27l6-130-16-37zM279 245l-25 49 31 23 13 153h32l-19-137 14-43z" fill="#b67cff"/>
     <path d="M151 368l-4 102m168-98l14 98" stroke="#e9d5ff" stroke-width="3"/>
     <path d="M183 346l35 18 39-25-10 46-26 22-29-20z" fill="#d9ff53" stroke-width="4"/><path d="M206 377h4m15 0h4" stroke-width="4"/>
-    <!-- face, cheek and expressive features -->
-    <path d="M164 144q-15-12-20 3l-1 22 10 19 21-2m105-33q21-14 27 5l-1 23-18 17-12-9" fill="#a55a3c"/>
-    <path d="M166 112l45-40 56 14 24 33-1 57-14 38-26 22-37 3-34-19-17-33z" fill="#a86045"/>
-    <path d="M168 138l9 56 26 30 39 2 27-19 17-40-7 41-27 28-39 3-34-19-17-33z" fill="#6f352c" stroke="none"/>
-    <path d="M182 141q11-9 24-2m29 0q18-12 31 2" fill="none" stroke-width="7"/>
-    <path d="M180 153q11-9 24 0-12 13-23 2zm55 0q16-12 29-1-11 15-27 4z" fill="#fff1dc" stroke-width="3"/>
-    <path d="M195 151v6m55-6v6" stroke-width="6"/>
-    <path d="M218 151l-8 23 10 6 11-5" fill="none" stroke="#6e332a" stroke-width="3"/>
-    <path d="M198 192q27 9 55-4-8 27-28 30-18-1-27-26z" fill="#271522" stroke-width="4"/>
-    <path d="M204 193q21 5 45-3l-5 8q-19 8-35 3z" fill="#fff2da" stroke="none"/>
-    <path d="M190 177l7-2m52 2l9-2" fill="none" stroke="#d68761" stroke-width="3"/>
-    <!-- locs and sweatband -->
-    <path d="M164 149l-11-12-10 35-12-8 6-51 17-26-18 3 11-19 28-21 25-6 3-13 25-2 14 10 25-2 24 17 17 27-12 11 13 30-6 28-17 1-6-28-9-18-24-9-29 6-30 3-18 20z" fill="#251c2d"/>
-    <path d="M153 109q35-33 83-36 31-4 58 11l5 20q-36-17-72-10-36 6-64 28z" fill="#d8ff54" stroke-width="4"/>
-    <path d="M204 50l-19 12m41-14l-9 14m33-14l13 11m-120 65l-5 22m155-27l5 15" stroke="#5a405c" stroke-width="3" fill="none"/>
+    <use href="#dreamy-head"/><use href="#dreamy-grin"/>
     <!-- foam cannon at a Dutch angle -->
     <g transform="translate(42 272) rotate(18)">
       <path d="M105 67l13 30-1 37-32 2-13-53z" fill="#a159ee"/>
