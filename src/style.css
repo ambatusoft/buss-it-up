@@ -38,7 +38,7 @@ h1 span{color:var(--lime)}
 }
 .hud-meter #vibe-meter{height:clamp(6px,1cqw,14px)}
 .hud-meter #hp-fill{background:#c9ef63}
-.hud-meter #dash-fill{background:#79baff;transition:none}
+.hud-meter #dash-fill{background:#79baff;transition:width 60ms ease-out}
 .hud-meter .two-charges::after{content:"";position:absolute;inset:0 auto 0 50%;width:clamp(2px,.24cqw,4px);transform:translateX(-50%) skewX(-28deg);background:#141217}
 .hud-meter #buss-fill{background:#d38df0}
 .hud-player:has(#buss-meter[data-full="true"]) :is(#buss-fill,#buss-status){animation:buss-ready-pulse 2.4s ease-in-out infinite}

@@ -49,7 +49,7 @@ h1 span{color:var(--lime)}
 }
 .hud-meter #vibe-meter{height:clamp(6px,1cqw,14px)}
 .hud-meter #hp-fill{background:#c9ef63}
-.hud-meter #dash-fill{background:#79baff;transition:none}
+.hud-meter #dash-fill{background:#79baff;transition:width 60ms ease-out}
 .hud-meter .two-charges::after{content:"";position:absolute;inset:0 auto 0 50%;width:clamp(2px,.24cqw,4px);transform:translateX(-50%) skewX(-28deg);background:#141217}
 .hud-meter #buss-fill{background:#d38df0}
 .hud-player:has(#buss-meter[data-full="true"]) :is(#buss-fill,#buss-status){animation:buss-ready-pulse 2.4s ease-in-out infinite}
@@ -919,7 +919,7 @@ const campaignAreas = [
           ["west>firewall popup backup","east>choir ash charger"],
           ["north>backup choir firewall","south>popup ghost","flanks>choir charger"]
         ]},
-      {id:"cold-cache",name:"Fever Dream",
+      {id:"cold-cache",name:"I Can Tell You're Hungry",
         waves:[
           ["flanks>backup choir popup","north>ghost charger"],
           ["west>firewall ash choir","east>backup popup charger"],
@@ -1032,7 +1032,7 @@ const campaignGear={
   beam:{slot:'burst',name:'Express Lane',unlock:'bus-edit',text:'A long, narrow beam at 115% of standard Burst damage.',icon:'M2 10h17l3 2-3 2H2zM7 6h10m-6 12h7',apply:p=>{p.burstShape='beam';p.burstDamage*=1.15;}},
   echo:{slot:'burst',name:'Six-Point Signal',unlock:'thesis',text:'A six-pointed star centered on you. Covers most of the arena when cast near the middle.',icon:'M12 2 3.34 17h17.32zM12 22 3.34 7h17.32z',apply:p=>{p.burstShape='star';p.burstDamage*=.90;}},
   remote:{slot:'burst',name:'Red Circle Strike',unlock:'third-impact',text:'Projects a high-damage blast ahead.',icon:'M15 5a7 7 0 1 1-.01 0M15 9v6m-3-3h6M2 12h4',apply:p=>{p.burstShape='remote';p.burstDamage*=1.30;}},
-  overdub:{slot:'burst',name:'Bootleg Overdub',unlock:'bootleg-mix',text:'A wide ring followed 1.5 s later by a smaller blast that deals 70% of the initial damage.',icon:'M12 2a10 10 0 1 1-.01 0M12 7a5 5 0 1 1-.01 0M11 12h2',apply:p=>{p.burstShape='ring';p.burstReach*=1.40;p.burstDamage*=.88;p.aftershock=.70;}},
+  overdub:{slot:'burst',name:'Bootleg Overdub',unlock:'bootleg-mix',text:'A wide ring followed 1.5 s later by a smaller blast that deals 80% of the initial damage.',icon:'M12 2a10 10 0 1 1-.01 0M12 7a5 5 0 1 1-.01 0M11 12h2',apply:p=>{p.burstShape='ring';p.burstReach*=1.40;p.burstDamage*=.88;p.aftershock=.80;}},
   switchback:{slot:'burst',name:'Switchback',unlock:'layover',text:'Fires forward and backward beams at 105% of standard Burst damage.',icon:'M3 12h18m-14-4-4 4 4 4m10-8 4 4-4 4M12 5v14',apply:p=>{p.burstShape='crossbeam';p.burstDamage*=1.05;}},
   cutoff:{slot:'burst',name:'Censor Bar',unlock:'lost-take',text:'Wide short beam. Erase three shots to stagger nearby bots and gain 1.0 s of protection.',icon:'M3 7h18v10H3zM7 10h10v4H7z',apply:p=>{p.burstShape='widebeam';p.burstPush=1;}},
   stock:{slot:'boots',name:'Stock Trainers',text:'Balanced movement and dash.',icon:'M5 4h8v9l7 3v4H3v-6l2-1zM4 17h15'},
@@ -1458,7 +1458,7 @@ let backdrop=null,musicTimer=0;
 function clearInput(){
   input.keys.clear();input.down=false;input.touchFire=false;
   input.dx=input.dy=0;input.dash=input.buss=false;g.p.dashBuffer=0;
-  $('stick').firstElementChild.style.transform='';
+  clearTouchPointers();
 }
 function setMode(mode){
   const menu=mode==='title'||mode==='campaign';
@@ -1771,7 +1771,7 @@ function firewallWall(vertical,reverse,gap,critical){
   }
 }
 function transformSatan(e){
-  e.satanPhase=true;e.max=Math.round(e.max*1.04);e.hp=e.max;e.transform=primeEntrance;
+  e.satanPhase=true;e.max=Math.round(e.max*1.248);e.hp=e.max;e.transform=primeEntrance;
   g.serverGlass={stage:0,at:g.clock,x:e.x,y:e.y,portraitsAt:null};
   e.hot=0;e.cd=.55;e.pattern=0;e.r=59;e.hit=0;
   e.slow=e.stun=e.stunLock=0;e.poison=null;
@@ -4452,8 +4452,15 @@ document.addEventListener('click',event=>{
 const resizeArena=()=>{if(g.story){syncArenaResolution();render();}};
 new ResizeObserver(resizeArena).observe(canvas);
 window.addEventListener('resize',resizeArena);
-const stick=$('stick');
+const stick=$('stick'), touchFire=$('touch-fire');
 let stickId=null,fireId=null;
+function clearTouchPointers(){
+  const previousStick=stickId, previousFire=fireId;
+  stickId=fireId=null;
+  if(previousStick!==null&&stick.hasPointerCapture(previousStick))stick.releasePointerCapture(previousStick);
+  if(previousFire!==null&&touchFire.hasPointerCapture(previousFire))touchFire.releasePointerCapture(previousFire);
+  stick.firstElementChild.style.transform='';
+}
 function stickMove(e){
   if(e.pointerId!==stickId||g.mode!=='play')return;
   const r=stick.getBoundingClientRect(),x=e.clientX-r.left-r.width/2,y=e.clientY-r.top-r.height/2, radius=r.width*.39,m=Math.max(radius,Math.hypot(x,y));
@@ -4463,9 +4470,9 @@ stick.addEventListener('pointerdown',e=>{if(stickId!==null||g.mode!=='play')retu
 stick.addEventListener('pointermove',stickMove);
 for(const name of ['pointerup','pointercancel','lostpointercapture']){
   stick.addEventListener(name,e=>{if(e.pointerId!==stickId)return;stickId=null;input.dx=input.dy=0;stick.firstElementChild.style.transform='';});
-  $('touch-fire').addEventListener(name,e=>{if(e.pointerId===fireId){input.touchFire=false;fireId=null;}});
+  touchFire.addEventListener(name,e=>{if(e.pointerId===fireId){input.touchFire=false;fireId=null;}});
 }
-$('touch-fire').addEventListener('pointerdown',e=>{
+touchFire.addEventListener('pointerdown',e=>{
   if(fireId!==null||g.mode!=='play')return;
   fireId=e.pointerId;e.currentTarget.setPointerCapture(e.pointerId);input.touchFire=true;sound.wake();
 });

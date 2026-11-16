@@ -119,6 +119,16 @@ function verifyTouchControls(){
     check(g.stats.shots===1&&Math.abs(g.p.aim-angle(g.p,target))<.04,'Touch pop aims at nearest bot');
     pointer(fire,'pointerup',2);
     check(!input.touchFire,'Touch fire releases');
+    pointer(stick,'pointerdown',5,bounds.right,bounds.top+bounds.height/2);
+    pointer(fire,'pointerdown',6);
+    pause();
+    check(g.mode==='pause'&&input.dx===0&&!input.touchFire,'Pausing drops held touch inputs');
+    unpause();
+    pointer(stick,'pointerdown',7,bounds.left,bounds.top+bounds.height/2);
+    pointer(fire,'pointerdown',8);
+    check(input.dx<0&&input.touchFire,'Fresh touches work after pausing even without release events from the old pointers');
+    pointer(stick,'pointercancel',7);
+    pointer(fire,'pointercancel',8);
     g.p.charge=100;
     pointer($('touch-dash'),'pointerdown',3);
     pointer($('touch-buss'),'pointerdown',4);
@@ -234,9 +244,10 @@ function verifyBuildEffects(){
     dashMeter.getAttribute('aria-valuetext')==='2 of 2 dashes ready','Classy Stabilizer starts with two longer-recharging charges and a split meter');
   input.dash=true;update(1/90);
   check(readyDashes(g.p)===1&&g.stats.dashes===1,'One dash spends one charge');
-  check(getComputedStyle($('dash-fill')).transitionDuration==='0s'&&
-    Math.abs($('dash-fill').getBoundingClientRect().width/dashMeter.getBoundingClientRect().width-.5)<.01,
-    'Spending one of two charges immediately drops the meter to half');
+  const dashFill=$('dash-fill');
+  check(getComputedStyle(dashFill).transitionDuration==='0.06s'&&dashFill.style.width==='50%'&&
+    dashMeter.getAttribute('aria-valuetext')==='1 of 2 dashes ready',
+    'Spending one of two charges gives the meter a brief transition to half and updates the ready count immediately');
   for(let i=0;i<17;i++)update(1/90);
   const firstRecharge=g.p.dashCd;
   input.dash=true;update(1/90);
@@ -257,7 +268,7 @@ function verifyBuildEffects(){
   equipCampaignGear('stock');startCampaignLevel('interview');
   check(!dashMeter.classList.contains('two-charges')&&!dashMeter.hasAttribute('aria-valuetext'),'Single-dash builds reset the meter');
   input.dash=true;update(1/90);
-  check($('dash-fill').getBoundingClientRect().width===0,'Spending a single charge immediately empties the meter');
+  check(dashFill.style.width==='0%'&&dashMeter.getAttribute('aria-valuenow')==='0','Spending a single charge sets the target and accessible value to zero');
   equipCampaignGear('overdrive');startCampaignLevel('interview');g.volley=3;fire();
   check(g.pops.length===6&&g.pops.every(pop=>pop.d===g.p.dmg*.68),'Overdrive fourth volley fires six equal-strength pellets');
   equipCampaignGear('playback');startCampaignLevel('interview');g.p.aim=0;fire();
@@ -403,17 +414,20 @@ function verifyBuildEffects(){
   for(let i=0;i<134;i++)updateBlasts(1/90);
   check([innerTarget,outerTarget,burstBoss].every((target,index)=>target.hp===firstHit[index]),'Bootleg Overdub waits the full 1.5 s');
   updateBlasts(1/90);
-  check(Math.abs(firstHit[0]-innerTarget.hp-.70*(600-firstHit[0]))<1e-8&&
-    Math.abs(firstHit[2]-burstBoss.hp-.70*(1500-firstHit[2]))<1e-8&&outerTarget.hp===firstHit[1],
-    'The smaller aftershock deals 70% of the first blast to a bot and a boss');
+  check(Math.abs(firstHit[0]-innerTarget.hp-.80*(600-firstHit[0]))<1e-8&&
+    Math.abs(firstHit[2]-burstBoss.hp-.80*(1500-firstHit[2]))<1e-8&&outerTarget.hp===firstHit[1],
+    'The smaller aftershock deals 80% of the first blast to a bot and a boss');
   for(const id of ['reverb','reach','loud'])check(purchaseCampaignSkill(id),'Bass Boost prerequisite '+id);
   startCampaignLevel('encore',true);
   const satan=g.enemies[0];
   satan.spawn=0;
+  const openingMax=satan.max;
   const beforeHit=satan.hp;
   damage(satan,100);
   check(Math.abs(beforeHit-satan.hp-100*.53*1.2)<1e-8,'Bass Boost applies through first-phase boss defenses');
-  transformSatan(satan);
+  damage(satan,1e7);
+  check(satan.satanPhase&&satan.hp===satan.max&&satan.max===Math.round(Math.round(openingMax*1.04)*1.20),
+    'Depleting the first health bar starts a second phase with 20% more health than before');
   satan.transform=0;
   check(g.serverGlass.stage===0,'The second phase begins with intact glass');
   satan.hp=satan.max*.75+1;
@@ -452,6 +466,7 @@ function verifyBuildEffects(){
 try{
   sound.enabled=false;
   check(campaignLevels.length===30&&campaignLevelById.size===30,'Unique story levels');
+  check(levelLabel(campaignLevelById.get('cold-cache'))==="6-3: I Can Tell You're Hungry",'Server stage title uses its new name at the same save ID');
   check(campaignLevels.every(level=>level.speedTarget%5===0),'Medal targets are in five-second steps');
   check(campaignAreas.every(area=>!area.boss.includes('//')),'Boss names have no suffix separators');
   check(!document.querySelector('[name="difficulty"]'),'Single campaign ruleset');

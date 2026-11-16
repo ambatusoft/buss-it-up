@@ -94,7 +94,7 @@ let backdrop=null,musicTimer=0;
 function clearInput(){
   input.keys.clear();input.down=false;input.touchFire=false;
   input.dx=input.dy=0;input.dash=input.buss=false;g.p.dashBuffer=0;
-  $('stick').firstElementChild.style.transform='';
+  clearTouchPointers();
 }
 function setMode(mode){
   const menu=mode==='title'||mode==='campaign';
@@ -407,7 +407,7 @@ function firewallWall(vertical,reverse,gap,critical){
   }
 }
 function transformSatan(e){
-  e.satanPhase=true;e.max=Math.round(e.max*1.04);e.hp=e.max;e.transform=primeEntrance;
+  e.satanPhase=true;e.max=Math.round(e.max*1.248);e.hp=e.max;e.transform=primeEntrance;
   g.serverGlass={stage:0,at:g.clock,x:e.x,y:e.y,portraitsAt:null};
   e.hot=0;e.cd=.55;e.pattern=0;e.r=59;e.hit=0;
   e.slow=e.stun=e.stunLock=0;e.poison=null;

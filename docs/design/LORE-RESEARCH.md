@@ -56,7 +56,7 @@ Research and voice source links updated 2026-11-12 at 23:06 EET. The fictional c
 
 ### The Burnt Server
 
-- **I’m Going to Hell** uses the caption associated with the choir version. **Fever Dream** and **Wordington Gains Sentience** come from community comments. The game takes those ideas literally by turning a comment archive into sentient pop-ups, backup bots, and a server firewall. [Ambatukam remix notes](https://siivagunner.fandom.com/wiki/Ambatukam) [Fever Dream thread](https://www.reddit.com/r/wordington/comments/15uf0e5/) [Sentience thread](https://www.reddit.com/r/wordington/comments/1ftqtmh/)
+- **I’m Going to Hell** uses the caption associated with the choir version. **Gains Sentience** draws on a community comment, and the stage now titled **I Can Tell You're Hungry** took its earlier **Fever Dream** name from another. The game takes those ideas literally by turning a comment archive into sentient pop-ups, backup bots, and a server firewall. [Ambatukam remix notes](https://siivagunner.fandom.com/wiki/Ambatukam) [Fever Dream thread](https://www.reddit.com/r/wordington/comments/15uf0e5/) [Sentience thread](https://www.reddit.com/r/wordington/comments/1ftqtmh/)
 - **Satan’s PC** is the game's final boss. Its quarantine lanes, OVERHEAT window, and Hellboot chassis are gameplay inventions. On 2026-11-12 at 19:56 EET, searches for the requested “that PC belongs to Satan” line found no verifiable Dreamybull recording. The game uses it as a title card with an original synthesized cue. The ending shuts down the fictional broadcast.
 
 ## Asset sources

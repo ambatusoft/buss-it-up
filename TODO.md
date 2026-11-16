@@ -1,5 +1,13 @@
 # TODO
 
+## 2026-11-16 · Final balance and release checks
+
+- [x] Increase the second-phase HP and Overdub damage, ease the dash meter, and rename 6-3.
+- [x] Fix and verify held touch controls across pause and resume.
+- [x] Run both campaign seeds offline and over local HTTP. Check audio, builds, save migration, narrow HUD, and desktop finale captures.
+- [ ] Check touch play on a physical phone.
+
+
 ## 2026-11-16 · Stage retitles and combat polish
 
 - [x] Retitle eight levels and keep their save IDs. Reveal equipment descriptions on unlock.

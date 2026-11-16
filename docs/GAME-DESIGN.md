@@ -32,7 +32,7 @@ Regular waves apply these area multipliers on top of the campaign rules. Deploym
 | Ambasing FM | 3-1: Paza (5), 3-2: Dreamyfantasia (5), 3-3: Poké Flute Rip (5), 3-4: Thesis Night (5), 3-X: At The Club (7, side) | Ambatusax | 6035 | tuningfork, choir | 11 | Chiptune Battle Music | Urban Boss Battle |
 | Omaygot Edit Suite | 4-1: Sleepy Edit (6), 4-2: Candid Talk Pt. 3 (6), 4-3: Classy Cut (6), 4-4: Going Insane (6), 4-X: Cream Factory (8, side) | Evil Dreamy | 6629 | clapper, lighting | 12 | Hard Battle 1 | Trance Boss Battle |
 | Ngawi Assembly | 5-1: Sungut Lele (6), 5-2: Terminator Red Circle (6), 5-3: Mas Amba Protocol (6), 5-4: Level 99 (6), 5-X: Nut Tree (8, side) | Ambatron → Ambatron - Third Impact | 7280 | induction, cutter | 13 | Hard Battle 2 | Heavy Boss Battle 1 |
-| The Burnt Server | 6-1: I'm Going to Hell (6), 6-2: Gains Sentience (6), 6-3: Fever Dream (6), 6-4: Rate This PC (6), 6-X: The Nail Theory (8, side) | Satan’s PC → Satan’s PC - Harder and Dirtier | 17408 | firewall, backup | 15 | Infinite Darkness | Raiders March |
+| The Burnt Server | 6-1: I'm Going to Hell (6), 6-2: Gains Sentience (6), 6-3: I Can Tell You're Hungry (6), 6-4: Rate This PC (6), 6-X: The Nail Theory (8, side) | Satan’s PC → Satan’s PC - Harder and Dirtier | 17408 | firewall, backup | 15 | Infinite Darkness | Raiders March |
 
 ## Speed Clear targets
 
@@ -67,7 +67,7 @@ Earn the medal by clearing within the listed attempt time. Bonus waves advance i
 | 5-X: Nut Tree | 2:15 | 13 / 14 / 14 / 14 / 14 / 14 / 14 |
 | 6-1: I'm Going to Hell | 1:45 | — |
 | 6-2: Gains Sentience | 1:45 | — |
-| 6-3: Fever Dream | 1:55 | — |
+| 6-3: I Can Tell You're Hungry | 1:55 | — |
 | 6-4: Rate This PC | 2:55 | — |
 | 6-X: The Nail Theory | 2:10 | 13 / 14 / 14 / 14 / 14 / 14 / 14 |
 
@@ -224,12 +224,12 @@ Numbered waves begin at 0.75 s and stagger their bots by 0.22 s. Before area mul
 | 6-2: Gains Sentience | 4 | 7 | west>firewall popup backup / east>choir ash charger |
 | 6-2: Gains Sentience | 5 | 9 | north>backup choir firewall / south>popup ghost / flanks>choir charger |
 | 6-2: Gains Sentience | Final Wave | 12 | south>choir firewall backup / east>ash ash backup ghost / west>ghost firewall / north>ash ghost backup |
-| 6-3: Fever Dream | 1 | 5 | flanks>backup choir popup / north>ghost charger |
-| 6-3: Fever Dream | 2 | 7 | west>firewall ash choir / east>backup popup charger |
-| 6-3: Fever Dream | 3 | 6 | south>choir choir firewall / north>popup ghost |
-| 6-3: Fever Dream | 4 | 7 | east>backup backup ash / west>firewall choir skater |
-| 6-3: Fever Dream | 5 | 10 | flanks>backup popup firewall / north>choir ghost charger / south>popup skater |
-| 6-3: Fever Dream | Final Wave | 12 | east>ash ash backup ghost / west>ghost firewall / north>ash ghost backup / south>choir firewall backup |
+| 6-3: I Can Tell You're Hungry | 1 | 5 | flanks>backup choir popup / north>ghost charger |
+| 6-3: I Can Tell You're Hungry | 2 | 7 | west>firewall ash choir / east>backup popup charger |
+| 6-3: I Can Tell You're Hungry | 3 | 6 | south>choir choir firewall / north>popup ghost |
+| 6-3: I Can Tell You're Hungry | 4 | 7 | east>backup backup ash / west>firewall choir skater |
+| 6-3: I Can Tell You're Hungry | 5 | 10 | flanks>backup popup firewall / north>choir ghost charger / south>popup skater |
+| 6-3: I Can Tell You're Hungry | Final Wave | 12 | east>ash ash backup ghost / west>ghost firewall / north>ash ghost backup / south>choir firewall backup |
 | 6-4: Rate This PC | 1 | 6 | choir firewall backup / popup ghost choir |
 | 6-4: Rate This PC | 2 | 7 | choir backup ash / firewall choir skater |
 | 6-4: Rate This PC | 3 | 15 | firewall backup choir / choir choir ghost / popup firewall guard / choir popup firewall |
@@ -307,7 +307,7 @@ Numbered waves begin at 0.75 s and stagger their bots by 0.22 s. Before area mul
 | Buss Burst | Express Lane | 2-4: Ambatubus | A long, narrow beam at 115% of standard Burst damage. |
 | Buss Burst | Six-Point Signal | 3-4: Thesis Night | A six-pointed star centered on you. Covers most of the arena when cast near the middle. |
 | Buss Burst | Red Circle Strike | 5-4: Level 99 | Projects a high-damage blast ahead. |
-| Buss Burst | Bootleg Overdub | 3-X: At The Club | A wide ring followed 1.5 s later by a smaller blast that deals 70% of the initial damage. |
+| Buss Burst | Bootleg Overdub | 3-X: At The Club | A wide ring followed 1.5 s later by a smaller blast that deals 80% of the initial damage. |
 | Buss Burst | Switchback | 2-3: Move Over! | Fires forward and backward beams at 105% of standard Burst damage. |
 | Buss Burst | Censor Bar | 4-X: Cream Factory | Wide short beam. Erase three shots to stagger nearby bots and gain 1.0 s of protection. |
 | Boots | Stock Trainers | Starter | Balanced movement and dash. |
@@ -438,7 +438,7 @@ The engine ticks at 90 Hz in a 960 × 544 arena. Actors stay within the bounds i
 
 Pop damage includes the area power multiplier and the current build. A projectile can hit each enemy at most once, and piercing adds distinct hits. Splash damages nearby bots on impact. Echo and reflected projectiles use their own power and skip the equipped popper's special effects. Bosses and Ambatron’s pods receive half the duration and strength of slows. Stuns reduce their speed and attack tempo by 70% for half the original duration. Coldest Moment stuns regular enemies for five seconds. The standard streak lasts 2.5 seconds between pops and Standing Ovation raises that to 4.0 seconds.
 
-Buss Burst consumes a full meter, hits bots and bosses, and clears hostile shots in its shape. Cone covers the front, Halo covers a circle around the player, Express Lane runs a narrow beam toward the aim, and Red Circle Strike projects a circle ahead. Six-Point Signal covers a player-centered hexagram regardless of aim, with the broadest coverage from the middle of the arena. Bootleg Overdub adds a 90 px blast after 1.5 s at 70% of the first blast's damage to bots and bosses before target defenses. Burst damage is shown as base hit damage in Upgrades and scales by area, with a separate boss coefficient. Armor, healing, and revival effects are applied at attempt start through the selected build. Bass Boost checks the current health bar for each target, including each boss phase, and applies at 50% or higher.
+Buss Burst consumes a full meter, hits bots and bosses, and clears hostile shots in its shape. Cone covers the front, Halo covers a circle around the player, Express Lane runs a narrow beam toward the aim, and Red Circle Strike projects a circle ahead. Six-Point Signal covers a player-centered hexagram regardless of aim, with the broadest coverage from the middle of the arena. Bootleg Overdub adds a 90 px blast after 1.5 s at 80% of the first blast's damage to bots and bosses before target defenses. Burst damage is shown as base hit damage in Upgrades and scales by area, with a separate boss coefficient. Armor, healing, and revival effects are applied at attempt start through the selected build. Bass Boost checks the current health bar for each target, including each boss phase, and applies at 50% or higher.
 
 Main waves advance once the spawn queue and enemies are empty. Bonus waves advance on an early clear or when their timer expires. Pending deployments must finish, and live threats carry over. Boss rounds occur on the fourth level of each area. Scripted hazards telegraph before dealing damage. Vibe drops restore 19 before healing modifiers. Clean regular waves award score and charge. Skill points and gear come from first clears.
 

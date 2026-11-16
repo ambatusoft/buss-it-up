@@ -2,6 +2,13 @@
 
 ## Unreleased
 
+### 2026-11-16 · Final balance and release checks
+
+- Increased Satan’s PC's second-phase health by 20% and Bootleg Overdub's delayed blast damage to 80% of the first blast. Renamed 6-3 to I Can Tell You're Hungry.
+- Added a 60 ms ease-out to the dash meter. Pausing or leaving now releases held touch controls so a fresh press works after resuming.
+- Both Chrome seeds cleared all 30 levels and 172 rounds without retries, offline and over local HTTP. Both earned the finale speed medal. Audio, legacy saves, narrow HUD, and generated file checks passed.
+
+
 ### 2026-11-16 · Stage retitles and combat polish
 
 - Retitled eight stages. Existing records and unlocks use the same level IDs.

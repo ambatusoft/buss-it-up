@@ -30,8 +30,15 @@ document.addEventListener('click',event=>{
 const resizeArena=()=>{if(g.story){syncArenaResolution();render();}};
 new ResizeObserver(resizeArena).observe(canvas);
 window.addEventListener('resize',resizeArena);
-const stick=$('stick');
+const stick=$('stick'), touchFire=$('touch-fire');
 let stickId=null,fireId=null;
+function clearTouchPointers(){
+  const previousStick=stickId, previousFire=fireId;
+  stickId=fireId=null;
+  if(previousStick!==null&&stick.hasPointerCapture(previousStick))stick.releasePointerCapture(previousStick);
+  if(previousFire!==null&&touchFire.hasPointerCapture(previousFire))touchFire.releasePointerCapture(previousFire);
+  stick.firstElementChild.style.transform='';
+}
 function stickMove(e){
   if(e.pointerId!==stickId||g.mode!=='play')return;
   const r=stick.getBoundingClientRect(),x=e.clientX-r.left-r.width/2,y=e.clientY-r.top-r.height/2, radius=r.width*.39,m=Math.max(radius,Math.hypot(x,y));
@@ -41,9 +48,9 @@ stick.addEventListener('pointerdown',e=>{if(stickId!==null||g.mode!=='play')retu
 stick.addEventListener('pointermove',stickMove);
 for(const name of ['pointerup','pointercancel','lostpointercapture']){
   stick.addEventListener(name,e=>{if(e.pointerId!==stickId)return;stickId=null;input.dx=input.dy=0;stick.firstElementChild.style.transform='';});
-  $('touch-fire').addEventListener(name,e=>{if(e.pointerId===fireId){input.touchFire=false;fireId=null;}});
+  touchFire.addEventListener(name,e=>{if(e.pointerId===fireId){input.touchFire=false;fireId=null;}});
 }
-$('touch-fire').addEventListener('pointerdown',e=>{
+touchFire.addEventListener('pointerdown',e=>{
   if(fireId!==null||g.mode!=='play')return;
   fireId=e.pointerId;e.currentTarget.setPointerCapture(e.pointerId);input.touchFire=true;sound.wake();
 });
