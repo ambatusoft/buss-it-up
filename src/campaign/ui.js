@@ -89,7 +89,7 @@ function renderCampaignMap(profile){
   const totalAreas=campaignVisibleAreas(profile);
   const mapRoute=area.map.slice(0,4).join(' ');
   const sideRoute=[area.map[1],area.map[4]].join(' ');
-  const rewards=Object.values(campaignGear).filter(item=>item.unlock===selected.id);
+  const rewards=campaignRewards(selected.id,profile);
   const record=profile.records[selected.id];
   const nodes=levels.map((level,index)=>{
     const [x,y]=area.map[index],done=profile.cleared.includes(level.id);
@@ -99,7 +99,8 @@ function renderCampaignMap(profile){
   const transition=campaignPageDirection===1?'slide-next':campaignPageDirection===-1?'slide-prev':'';
   campaignPageDirection=0;
   $('campaign-content').innerHTML=`<section class="campaign-main map-browser" style="--area-accent:${area.accent}">
-    <header class="campaign-heading map-heading"><div><small>Area ${pad(campaignAreaIndex+1)}</small><h2 id="campaign-heading" tabindex="-1">${area.name}</h2></div><span class="area-glyph" aria-hidden="true">${area.symbol}</span></header>
+    <header class="campaign-heading map-heading"><div><small>Area ${pad(campaignAreaIndex+1)}</small><h2 id="campaign-heading" tabindex="-1">${area.name}</h2></div>
+    ${area.id==='server'&&endlessUnlocked(profile)?'<button class="secondary endless-launch" data-endless>Endless Edging</button>':`<span class="area-glyph" aria-hidden="true">${area.symbol}</span>`}</header>
     <div class="map-carousel">
       <button class="map-arrow" data-page="-1" aria-label="Previous area" ${campaignAreaIndex===0?'disabled':''}>‹</button>
       <div class="campaign-map map-${area.id} ${transition}">
@@ -178,9 +179,15 @@ function pageCampaignMap(delta){
 function launchFromMap(id){
   const level=campaignLevelById.get(id);
   const profile=refreshCampaignProfile();
-  if(!level||!campaignUnlocked(level,profile))return;
-  if(level.index===0&&!profile.tutorial){
+  if(!profile||!level||!campaignUnlocked(level,profile))return;
+  const bonus=level.side&&!profile.bonusTutorial;
+  if(bonus||level.index===0&&!profile.tutorial){
     pendingTutorial=id;
+    const touch=usesTouchControls();
+    $('controls-title').textContent=bonus?'Bonus waves':'Before your first shift';
+    $('keyboard-controls').hidden=bonus||touch;
+    $('touch-controls').hidden=bonus||!touch;
+    $('bonus-instructions').hidden=!bonus;
     $('controls-dialog').showModal();
   }else startCampaignLevel(id);
 }
@@ -192,7 +199,8 @@ $('controls-dialog').querySelector('form').addEventListener('submit',event=>{
   pendingTutorial=null;
   $('controls-dialog').close();
   const profile=refreshCampaignProfile();
-  saveCampaignProfile({...profile,tutorial:true});
+  const key=campaignLevelById.get(id).side?'bonusTutorial':'tutorial';
+  saveCampaignProfile({...profile,[key]:true});
   startCampaignLevel(id);
 });
 $('controls-dialog').addEventListener('close',()=>{pendingTutorial=null;});
@@ -236,6 +244,7 @@ campaignResetDialog.querySelector('form').addEventListener('submit',event=>{
 $('campaign-content').addEventListener('click',event=>{
   const button=event.target.closest('button');
   if(!button||button.disabled)return;
+  if(button.hasAttribute('data-endless')){startEndless();return;}
   const {level,page,startLevel,rematch,file,setting,newStory,switchStory}=button.dataset;
   if(setting){toggleCampaignSetting(setting);return;}
   if(newStory){askStoryReset();return;}

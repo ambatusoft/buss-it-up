@@ -1,7 +1,7 @@
-function activeWaveCount(){return campaignRoundCount(g.story.level);}
-function activeBossName(){return g.story.level.area.boss;}
-function isBossWave(){return g.story.level.finale&&g.wave===activeWaveCount();}
-function isFinalWave(){return !g.story.level.finale&&g.wave===activeWaveCount();}
+function activeWaveCount(){return g.story.endless?endlessBossInterval:campaignRoundCount(g.story.level);}
+function activeBossName(){return campaignAreas[g.level].boss;}
+function isBossWave(){return g.story.endless?g.wave%endlessBossInterval===0:g.story.level.finale&&g.wave===activeWaveCount();}
+function isFinalWave(){return !g.story.endless&&!g.story.level.finale&&g.wave===activeWaveCount();}
 const campaignBossScale=[.85,.99,.97,.94,.65,.86];
 const bossEscorts=[
   ['stamper','stapler'],['headlight','faregate'],['tuningfork','choir'],
@@ -30,7 +30,9 @@ function bonusWaveDuration(level,wave){
 function updateCampaignDeployment(){
   if(!g.queue.length||g.queue[0].at>g.elapsed)return;
   const surge=isFinalWave();
-  if(!surge&&(g.elapsed-g.lastDeployment<deploymentSpacing||(!g.story.level.side&&g.enemies.length>=deploymentCap(g.level))))return;
+  // Keep one slot free for the next boss while ordinary Endless waves overlap.
+  const cap=g.story.endless?endlessActiveCap-Number(!isBossWave()):g.story.level.side?Infinity:deploymentCap(g.level);
+  if(!surge&&(g.elapsed-g.lastDeployment<deploymentSpacing||g.enemies.length>=cap))return;
   const ready=g.queue.splice(0,surge?g.queue.length:1);
   g.lastDeployment=g.elapsed;
   if(surge||g.squad!==ready[0].squad+1)sound.event('squad');
@@ -56,10 +58,14 @@ function startCampaignLevel(id,rematch=false){
   if(!level || !profile || !campaignUnlocked(level,profile))return;
   if(rematch && (!level.finale || !profile.cleared.includes(level.id)))return;
   if(!rematch)saveCampaignProfile({...profile,selected:id});
+  beginAttempt(level,profile,rematch);
+}
+
+function beginAttempt(level,profile,rematch,endless=false){
   sound.stopAttemptAudio();
   sound.wake();
   g={mode:'play',level:level.areaIndex,wave:1,score:0,p:motion(campaignPlayer(profile)),
-    stats:freshStats(),story:{level,profileId:profile.id,rematch},...empty()};
+    stats:freshStats(),story:{level,profileId:profile.id,rematch,endless,enemyBag:[]},...empty()};
   openLevel(level.areaIndex,rematch?campaignRoundCount(level):1);
   $('pause').focus({preventScroll:true});
 }
@@ -67,6 +73,13 @@ function startCampaignLevel(id,rematch=false){
 function campaignResults(survived){
   const {level,profileId,rematch}=g.story;
   setMode(survived?'story-clear':'story-fail');
+  if(g.story.endless){
+    sound.event('fail');
+    const box=panel(level.name,'Signal lost',`Wave ${g.wave} · ${g.score.toLocaleString()} points`,
+      [['Retry',startEndless],['Map',()=>showCampaign('map','encore')]]);
+    decorateResults(box,false);
+    return;
+  }
   if(rematch){
     if(!survived)sound.event('fail');
     const box=panel('BOSS REMATCH',survived?'Boss cleared':'Signal lost',
@@ -99,7 +112,7 @@ function campaignResults(survived){
     <div><dt>Score</dt><dd>${g.score.toLocaleString()}</dd></div>`;
   box.insertBefore(stats,actions);
   if(result)box.insertBefore(campaignMedals(result.medals,false,level),actions);
-  if(result?.first)box.insertBefore(firstClearRewards(level),actions);
+  if(result?.first)box.insertBefore(firstClearRewards(level,result.rewards),actions);
   if(!result){
     const notice=document.createElement('p');
     notice.textContent='This story profile changed in another tab.';
@@ -110,9 +123,8 @@ function campaignResults(survived){
   }
 }
 
-function firstClearRewards(level){
+function firstClearRewards(level,items){
   const points=clearSkillPoints(level);
-  const items=Object.values(campaignGear).filter(gear=>gear.unlock===level.id);
   const rewards=document.createElement('section');
   rewards.className='result-rewards';
   rewards.innerHTML=`<h3>First clear rewards</h3><ul>
@@ -158,25 +170,26 @@ const campaignArenaEvents={
 };
 
 function updateCampaignArena(){
-  const {level}=g.story;
+  const {level,endless}=g.story;
   if(isBossWave() || g.elapsed<g.storyHazardAt || !g.enemies.length)return;
   if(level.index===0)return;
-  if(level.side&&level.areaIndex===5&&g.enemies.length>=7){
+  if((level.side||endless)&&g.level===5&&g.enemies.length>=7){
     g.storyHazardAt=g.elapsed+.8;
     return;
   }
+  const {modifier}=campaignAreas[g.level];
   const start=g.hazards.length;
-  campaignArenaEvents[level.area.modifier](g.p,g.storyHazards++);
-  for(const hazard of g.hazards.slice(start))hazard.theme=level.area.modifier;
+  campaignArenaEvents[modifier](g.p,g.storyHazards++);
+  for(const hazard of g.hazards.slice(start))hazard.theme=modifier;
   const hazardNames={pressure:'FORM CHECK',traffic:'BUS LANE',backbeat:'BACKBEAT',retake:'RETAKE',targeting:'RED CIRCLE',firewall:'FIREWALL'};
-  announce(hazardNames[level.area.modifier],.74,level.area.modifier);
+  announce(hazardNames[modifier],.74,modifier);
   const cadence=level.side?5.25:7.1;
-  g.storyHazardAt=g.elapsed+cadence*areaTuning[level.areaIndex].hazard;
+  g.storyHazardAt=g.elapsed+cadence*areaTuning[g.level].hazard;
   sound.event('warn');
 }
 
 function campaignBossPattern(e, aim, phase, k){
-  const {area}=g.story.level;
+  const area=campaignAreas[g.level];
   if(k%4!==3)return false;
   const p=g.p;
   if(area.id==='district'){

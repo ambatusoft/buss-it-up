@@ -286,54 +286,54 @@ Numbered waves begin at 0.75 s and stagger their bots by 0.22 s. Before area mul
 | --- | --- | --- | --- |
 | Popper | Standard Popper | Starter | Balanced single shot. |
 | Popper | Ambasing Scatter | 1-2: Ambadonut Break | Three equal-strength shots in a forward fan. |
-| Popper | Double Take | 1-4: Stand on Bussiness | Fires two parallel shots. |
+| Popper | Double Take | 2-4: Ambatubus | Fires two parallel shots. |
 | Popper | Transfer Repeater | 2-1: Thank Your Driver | Fastest sustained fire at short range. |
 | Popper | Bass Drop | 3-1: Paza | Slow heavy single shot with a short reach. |
 | Popper | Red Circle Needle | 3-2: Dreamyfantasia | Fast, long-range single shot. |
-| Popper | Eight-Way Cut | 4-3: Classy Cut | Fires one shot in each of the eight compass directions. |
+| Popper | Eight-Way Cut | 4-3: Classy Cut | Fires toward your aim and in seven evenly spaced directions around you. |
 | Popper | Sungut Lele Overdrive | 5-2: Terminator Red Circle | Every fourth volley fires a six-pop fan. |
 | Popper | Nut Cracker | 1-X: Wash That | Five wide pellets with a short range. |
-| Popper | Reverse Playback | 3-3: Poké Flute Rip | Fires at 80% pop power forward and 180% backward. |
+| Popper | Reverse Playback | 2-3: Move Over! | Fires at 80% pop power forward and 180% backward. |
 | Nut Effect | Plain Kernels | Starter | Standard projectiles. |
-| Nut Effect | It Cold | 1-1: Ambatu Interview | Cuts speed and attack tempo by 36% for 1.25 s. Bosses lose 18% for 0.625 s. |
+| Nut Effect | It Cold | 1-1: Ambatu Interview | Cuts speed and attack tempo by 36% for 1.2 s. Bosses lose 18% for 0.3 s. |
 | Nut Effect | Ambalien Goo | 1-X: Wash That | Poisons for 2 s at 100% pop power per second before defenses. Hits refresh poison. |
 | Nut Effect | YEK Circuit | 2-X: Self Pleasure | Every third volley stuns for 0.8 s. Bosses receive a shorter heavy slow. |
 | Nut Effect | Ambatuexplode | 3-1: Paza | Hits deal 45% splash damage around the target. |
 | Nut Effect | Base Form Tip | 3-2: Dreamyfantasia | Each pellet pierces one extra enemy at full damage. |
-| Nut Effect | Tracer | 4-2: Candid Talk Pt. 3 | Shots curve toward nearby enemies and deal 25% less damage. |
+| Nut Effect | Tracer | 4-1: Sleepy Edit | Shots curve toward nearby enemies and deal 25% less damage. |
 | Nut Effect | Rebound Cut | 4-4: Going Insane | Shots ricochet once and deal 45% more damage after the bounce. |
 | Buss Burst | Confetti Cone | Starter | A wide forward sweep. |
-| Buss Burst | Paza Halo | 1-2: Ambadonut Break | A tight ring centered on you at 140% of standard Burst damage. |
-| Buss Burst | Express Lane | 2-4: Ambatubus | A long, narrow beam at 115% of standard Burst damage. |
+| Buss Burst | Paza Halo | 1-3: YEK! | A tight ring centered on you at 150% of standard Burst damage. |
+| Buss Burst | Express Lane | 2-4: Ambatubus | A long, narrow beam at 120% of standard Burst damage. |
 | Buss Burst | Six-Point Signal | 3-4: Thesis Night | A six-pointed star centered on you. Covers most of the arena when cast near the middle. |
-| Buss Burst | Red Circle Strike | 5-4: Level 99 | Projects a high-damage blast ahead. |
+| Buss Burst | Red Circle Strike | 5-4: Level 99 | Projects a blast ahead at 135% of standard Burst damage. |
 | Buss Burst | Bootleg Overdub | 3-X: At The Club | A wide ring followed 1.5 s later by a smaller blast that deals 80% of the initial damage. |
-| Buss Burst | Switchback | 2-3: Move Over! | Fires forward and backward beams at 105% of standard Burst damage. |
-| Buss Burst | Censor Bar | 4-X: Cream Factory | Wide short beam. Erase three shots to stagger nearby bots and gain 1.0 s of protection. |
+| Buss Burst | Switchback | 2-3: Move Over! | Fires forward and backward beams at 110% of standard Burst damage. |
+| Buss Burst | Censor Bar | 6-4: Rate This PC | Wide short beam. Staggers nearby bots and grants 1.0 s of protection on every cast. |
 | Boots | Stock Trainers | Starter | Balanced movement and dash. |
 | Boots | Transfer Ticket | 2-2: Tentacle Crossing | Dash cooldown is 20% shorter. |
 | Boots | Classy Stabilizer | 4-2: Candid Talk Pt. 3 | Store up to two dashes. Each charge takes 35% longer to refill, one at a time. |
-| Boots | Stretch This | 4-1: Sleepy Edit | Dash lasts 55% longer. |
-| Boots | Firewall Soles | 6-1: I'm Going to Hell | Dashing leaves a pulse that damages enemies and clears nearby shots. |
+| Boots | Stretch This | 4-3: Classy Cut | Dash 75% farther. |
+| Boots | Firewall Soles | 6-2: Gains Sentience | Dashing leaves a pulse that damages enemies and clears nearby shots. |
 | Boots | Night Return | 2-X: Self Pleasure | Each Close Call refunds 0.5 seconds of dash cooldown. |
 | Boots | Jomok Drift Soles | 3-3: Poké Flute Rip | Walk 45% faster for 1.5 seconds after a dash. |
 | Boots | Paza Runners | 3-X: At The Club | Popping a bot resets dash cooldown. |
 | Vibe Guard | Softshell | Starter | Standard Vibe and recovery. |
 | Vibe Guard | Bussiness Lifting Belt | 1-4: Stand on Bussiness | Increases max Vibe. |
 | Vibe Guard | Bouncer Plate | 2-4: Ambatubus | Take 14% less damage and move 8% slower. |
-| Vibe Guard | Ambadonut Lining | 3-1: Paza | Vibe pickups and wave refills heal 40% more. |
+| Vibe Guard | Ambadonut Lining | 3-4: Thesis Night | Vibe pickups and wave refills heal 40% more. |
 | Vibe Guard | Core Padding | 5-1: Sungut Lele | +2.5 s of hit protection. |
-| Vibe Guard | Red Tag Guard | 5-X: Nut Tree | Start every wave with 6.7 seconds of protection. |
+| Vibe Guard | Red Tag Guard | 6-1: I'm Going to Hell | Start every wave with 6.7 seconds of protection. |
 | Vibe Guard | Breakaway Jacket | 4-2: Candid Talk Pt. 3 | Blocks the first projectile hit in each wave. |
-| Vibe Guard | Spam Filter | 6-1: I'm Going to Hell | Taking a hit erases shots within 200 px and adds 1.0 s of hit protection. Recharges in 5 s. |
-| Pendant | nuthing | Starter | A plain dispatch token. |
-| Pendant | Nitro PC Charger | 3-4: Thesis Night | Start with extra Burst charge. Gain 35% at the start of each later wave. |
-| Pendant | Pop Me | 3-2: Dreamyfantasia | Popped bots fire an echo worth 3× pop power. Each echo hits one enemy. |
-| Pendant | 30-Buck Cameo | 4-4: Going Insane | Survive one lethal hit per attempt at 30% Vibe with 2.0 s of extra hit protection. |
-| Pendant | Take It Take It Take It | 5-2: Terminator Red Circle | Close Calls return a piercing shot with 3× pop power. |
+| Vibe Guard | Spam Filter | 6-3: I Can Tell You're Hungry | Taking a hit erases shots within 200 px and adds 1.0 s of hit protection. |
+| Pendant | Nuthing | Starter | A plain dispatch token. |
+| Pendant | Nitro PC Charger | 3-4: Thesis Night | Gain 40% Burst charge at the start of every wave. |
+| Pendant | Pop Me | 4-1: Sleepy Edit | Popped bots fire an echo worth 3× pop power. Each echo hits one enemy. |
+| Pendant | 30-Buck Cameo | 4-4: Going Insane | Survive one lethal hit per attempt at 35% Vibe with 2.0 s of extra hit protection. |
+| Pendant | Take It Take It Take It | 5-3: Mas Amba Protocol | Close Calls return a piercing shot with 3× pop power. |
 | Pendant | I Need That Nut | 6-X: The Nail Theory | Restore 10 Vibe for every fourth bot popped and 2 Vibe for every tenth shot that hits a boss. |
-| Pendant | Coldest Moment | 4-X: Cream Factory | Buss Burst freezes all enemies for 5 seconds. Bosses are heavily slowed for 2.5 seconds. |
-| Pendant | Batu Khan's Revenge | 5-X: Nut Tree | Taking damage clears hostile shots, deals 2× pop power to all enemies, and grants 5% Burst charge. |
+| Pendant | Coldest Moment | 4-X: Cream Factory | Buss Burst freezes enemies it hits for 4 seconds. Bosses are heavily slowed for 1 second. |
+| Pendant | Batu Khan's Revenge | 5-X: Nut Tree | Taking damage clears hostile shots, hits and stuns all enemies for 0.8 s, and grants 15% Burst charge. Hits deal 3× pop power. |
 
 ## Skill tree
 
@@ -344,7 +344,7 @@ Numbered waves begin at 0.75 s and stagger their bots by 0.22 s. Before area mul
 | Pop | First Impressions | 2 | Classy Edit | Opening hits on full-health bots deal 40% extra damage. |
 | Pop | Crowd Control | 3 | Classy Edit | Each pop in your current streak adds 4% shot power, up to 20%. |
 | Pop | Candid Cut | 1 | Bussiness Blend | +24% projectile speed. |
-| Pop | No Mercy | 3 | First Impressions | Shots deal 50% more damage to regular bots below 30% Vibe. |
+| Pop | No Mercy | 3 | First Impressions | Shots deal 50% more damage to regular bots when their health is below 30%. |
 | Pop | Quick Draw | 2 | First Impressions | The first volley within 1.0 s of dashing deals 100% extra damage. |
 | Dash | Ambatufish Sliders | 1 | Root | +10% move speed. |
 | Dash | Tentacle Transfer | 1 | Ambatufish Sliders | 10% less dash cooldown. |
@@ -354,8 +354,8 @@ Numbered waves begin at 0.75 s and stagger their bots by 0.22 s. Before area mul
 | Dash | Last Flare | 3 | Change for the Bus | Stay invulnerable for 0.25 seconds after a dash. |
 | Burst | Thesis Reverb | 1 | Root | +12% Burst damage. |
 | Burst | Encore Reach | 1 | Thesis Reverb | +20% Burst reach. |
-| Burst | Bass Boost | 2 | Encore Reach | Deal 20% more damage to bots and bosses at 50% Vibe or higher. |
-| Burst | Final Encore | 3 | Bass Boost | Get 35% charge back when a Burst erases five or more hostile shots. |
+| Burst | Bass Boost | 2 | Encore Reach | Deal 20% more damage to bots and bosses when their health is at least 50%. |
+| Burst | Final Encore | 3 | Bass Boost | Get 25% charge back when a Burst erases seven or more hostile shots. |
 | Burst | Second Wind | 2 | Encore Reach | Using Burst restores 8 Vibe. |
 | Burst | Soundcheck | 1 | Thesis Reverb | +20% starting Burst charge. |
 | Vibe | Ambadonut Break | 1 | Root | +20 max Vibe. |
@@ -363,14 +363,14 @@ Numbered waves begin at 0.75 s and stagger their bots by 0.22 s. Before area mul
 | Vibe | Clean Cut | 2 | Classy Guard | +0.5 seconds of hit protection. |
 | Vibe | Second Serving | 2 | Classy Guard | Vibe pickups heal 25% more. |
 | Vibe | Reset the Set | 1 | Ambadonut Break | Restore 20 Vibe when a regular wave ends. |
-| Vibe | No Signal | 1 | Reset the Set | Arena hazards deal 35% less damage. |
+| Vibe | No Signal | 1 | Reset the Set | Arena hazards deal 40% less damage. |
 | Signal | Ambasing Choir | 1 | Root | +2 Burst charge per bot pop. |
 | Signal | Mas Amba Edit | 2 | Ambasing Choir | Gain 15% Burst charge at the start of each wave. |
 | Signal | Red Circle Lock | 2 | Mas Amba Edit | +0.5% Burst charge per boss hit. |
 | Signal | Bass Echo | 2 | Mas Amba Edit | Taking damage deals 1× pop power to all enemies. |
 | Signal | Clean Plate | 3 | Red Circle Lock | Finishing a wave without a hit fully charges Burst. |
 | Signal | Standing Ovation | 1 | Ambasing Choir | Streaks stay active for an extra 1.5 seconds between kills. |
-| Vibe | Nut Break | 3 | Second Serving | Restore 4 Vibe for every fourth bot popped. |
+| Vibe | Nut Break | 3 | Second Serving | Restore 5 Vibe for every fourth bot popped. |
 
 ## Burst shapes
 
@@ -436,11 +436,17 @@ Each combat event plays its authored cue with overlap compensation. Settings can
 
 The engine ticks at 90 Hz in a 960 × 544 arena. Actors stay within the bounds inset by their radius. The mouse is projected through the rendered canvas bounds. Touch fire aims at the nearest materialized enemy. Dash grants invulnerability and consumes intercepted bullets. Only one contact per dash grants Close Call charge, score, or upgrades. Later intercepted bullets are still cleared.
 
-Pop damage includes the area power multiplier and the current build. A projectile can hit each enemy at most once, and piercing adds distinct hits. Splash damages nearby bots on impact. Echo and reflected projectiles use their own power and skip the equipped popper's special effects. Bosses and Ambatron’s pods receive half the duration and strength of slows. Stuns reduce their speed and attack tempo by 70% for half the original duration. Coldest Moment stuns regular enemies for five seconds. The standard streak lasts 2.5 seconds between pops and Standing Ovation raises that to 4.0 seconds.
+Pop damage includes the area power multiplier and the current build. A projectile can hit each enemy at most once, and piercing adds distinct hits. Splash damages nearby bots on impact. Echo and reflected projectiles use their own power and skip the equipped popper's special effects. Bosses and Ambatron’s pods receive a quarter of the duration and half the strength of slows. Stuns reduce their speed and attack tempo by 70% for a quarter of the original duration. Coldest Moment stuns only targets hit by Burst for four seconds. Boss hits grant 0.5% Burst charge before skills. The standard streak lasts 2.5 seconds between pops and Standing Ovation raises that to 4.0 seconds.
 
-Buss Burst consumes a full meter, hits bots and bosses, and clears hostile shots in its shape. Cone covers the front, Halo covers a circle around the player, Express Lane runs a narrow beam toward the aim, and Red Circle Strike projects a circle ahead. Six-Point Signal covers a player-centered hexagram regardless of aim, with the broadest coverage from the middle of the arena. Bootleg Overdub adds a 90 px blast after 1.5 s at 80% of the first blast's damage to bots and bosses before target defenses. Burst damage is shown as base hit damage in Upgrades and scales by area, with a separate boss coefficient. Armor, healing, and revival effects are applied at attempt start through the selected build. Bass Boost checks the current health bar for each target, including each boss phase, and applies at 50% or higher.
+Buss Burst consumes a full meter, hits bots and bosses, and clears hostile shots in its shape. Cone covers the front, Halo covers a circle around the player, Express Lane runs a narrow beam toward the aim, and Red Circle Strike projects a circle ahead. Six-Point Signal covers a player-centered hexagram regardless of aim, with the broadest coverage from the middle of the arena. It deals 76.5% of standard Burst damage. Bootleg Overdub adds a 90 px blast after 1.5 s at 80% of the first blast's damage to bots and bosses before target defenses. Both hits deal 10% more than the prior tuning. Burst damage is shown as base hit damage in Upgrades and scales by area, with a separate boss coefficient. Armor, healing, and revival effects are applied at attempt start through the selected build. Bass Boost checks the current health bar for each target, including each boss phase, and applies at 50% or higher.
 
 Main waves advance once the spawn queue and enemies are empty. Bonus waves advance on an early clear or when their timer expires. Pending deployments must finish, and live threats carry over. Boss rounds occur on the fourth level of each area. Scripted hazards telegraph before dealing damage. Vibe drops restore 19 before healing modifiers. Clean regular waves award score and charge. Skill points and gear come from first clears.
+
+## Endless Edging
+
+Clear 6-4 to unlock Endless from the Burnt Server map. Wave 1 starts with six bots and standard Area 6 combat stats. Ordinary waves advance on an early clear or after 13 seconds once all deployments finish. They gain one bot every four waves up to 18, and bot and boss health increases by 3% of base per wave up to 2.8× at wave 61. All regular enemy types rotate through a shuffled pool.
+
+Every sixth wave adds the current arena's boss and two to six escorts. The round waits for all enemies, including carryover and queued escorts, to be defeated. The next round moves to a randomly selected different arena and uses its hazards and soundtrack. Ambatron and Satan's PC stay in their first forms. Up to 22 enemies can be active at once, including the boss. The difficulty caps leave the run open-ended. Results display the wave reached and score.
 
 The recorded timer stops on the last lethal hit in the final round. The victory animation stays visible for roughly 1.3 seconds after the timer freezes. Old stored times retain their original measurement.
 
@@ -451,7 +457,7 @@ The recorded timer stops on the last lethal hit in the final round. The victory 
 - Transfer Ticket saves about 0.30 s per base dash. Classy Stabilizer stores two dashes for back-to-back escapes at 2.00 s per charge before skills. Stretch This extends protection during the dash without changing its cooldown. Night Return saves up to 0.5 s per dash by landing a Close Call. Paza Runners skip the entire remaining cooldown on a kill and can chain dashes in crowds. Drift Soles increase walk speed by 45% for 1.5 s after each dash.
 - Red Tag Guard covers the first 6.7 s of each wave and can make Clean Plate easy to trigger. Reset the Set heals 20 Vibe after each regular wave, including timed transitions with surviving enemies.
 - Pop Me can create a new echo when an echo kills a bot. Bass Drop delivers about 115 raw base damage per echo impact before area and skill scaling. Each echo hits one target.
-- Batu Khan's Revenge clears all hostile shots, hits each active enemy for 2× pop power before scaling and defenses, and adds five points to the Burst meter on every damaging hit. Bass Echo adds its 1× pop power to the same retaliation.
+- Batu Khan's Revenge clears all hostile shots, hits each active enemy for 3× pop power before scaling and defenses, stuns for 0.8 s, and adds 15 points to the Burst meter on every damaging hit. Bass Echo adds its 1× pop power to the same retaliation.
 
 On the November 15 matched replay check, Bass Drop with Amboutabass Echo cleared 4-X and 5-X in 59.50 s and 73.82 s. Swapping only the pendant to 30-Buck Cameo took 80.92 s and 98.38 s. Removing Clean Plate had little effect on clear time in that seed. Eight-Way Cut cleared both bonus stages but failed all six attempts at 5-4, even with compass-aware movement. Reverse Playback cleared 5-4 in 91.90 s with the pilot aiming its stronger shot at the target. These are single-seed comparisons.
 

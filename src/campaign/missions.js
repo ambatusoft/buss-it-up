@@ -38,7 +38,7 @@ const campaignLevels=campaignAreas.flatMap((area,areaIndex)=>{
 }).map((level,index)=>({...level,index}));
 
 const campaignLevelById=new Map(campaignLevels.map(level=>[level.id,level]));
-const levelLabel=level=>`${level.number}: ${level.name}`;
+const levelLabel=level=>level.number?`${level.number}: ${level.name}`:level.name;
 const campaignRoundCount=level=>level.waves.length+Number(level.finale);
 const clearSkillPoints=level=>level.finale||level.side?2:1;
 

@@ -91,11 +91,13 @@ const freshStats=()=>({
 });
 let g={mode:'title',level:0,wave:1,score:0,p:motion(initial()),...empty()};
 let backdrop=null,musicTimer=0;
+const combatAreaIndex=()=>g.story?.endless?endlessLevel.areaIndex:g.level;
 function clearInput(){
   input.keys.clear();input.down=false;input.touchFire=false;
   input.dx=input.dy=0;input.dash=input.buss=false;g.p.dashBuffer=0;
   clearTouchPointers();
 }
+const usesTouchControls=()=>matchMedia('(pointer:coarse)').matches||matchMedia('(pointer:none)').matches;
 function setMode(mode){
   const menu=mode==='title'||mode==='campaign';
   if(menu&&g.mode!=='title'&&g.mode!=='campaign')sound.stopAttemptAudio();
@@ -106,7 +108,7 @@ function setMode(mode){
   const modal=mode!=='play'&&mode!=='title'&&mode!=='campaign';
   $('overlay').classList.toggle('is-open',modal);
   $('overlay').inert=!modal;
-  $('touch').hidden=mode!=='play'||!matchMedia('(pointer:coarse)').matches;
+  $('touch').hidden=mode!=='play'||!usesTouchControls();
   if(mode!=='play'){$('toast').hidden=true;clearInput();}
   if(mode!=='play'&&mode!=='campaign')sound.stopTrack();
 }
@@ -144,7 +146,8 @@ function spawnPoint(){
   return{x:g.p.x>480?88:872,y:110};
 }
 function enemy(kind,x,y,materialize=.42,fileId=kind){
-  const stats=enemyStats(kind,g.level);
+  const stats=enemyStats(kind,combatAreaIndex());
+  if(g.story.endless)stats.hp=Math.round(stats.hp*endlessHealth(g.wave));
   if(g.story.level.side){stats.hp=Math.round(stats.hp*1.20);stats.speed*=1.08;}
   const bot={kind,x,y,r:stats.radius,hp:stats.hp,max:stats.hp,speed:stats.speed,cd:rand(.65,1.75),
     spawn:materialize,aim:0,turn:Math.random()<.5?1:-1,walk:rand(0,TAU),hit:0,variant:Math.floor(rand(0,3))};
@@ -153,7 +156,9 @@ function enemy(kind,x,y,materialize=.42,fileId=kind){
   return bot;
 }
 function openWave(n){
-  const continuous=g.story.level.side&&n>1;
+  const {endless,level}=g.story;
+  const timed=level.side||endless;
+  const continuous=timed&&n>1;
   g.wave=n;g.gap=null;g.queue=[];g.squad=0;
   if(!continuous){
     g.pops=[];g.enemyPops=[];g.hazards=[];g.items=[];g.blasts=[];g.nutPulses=[];
@@ -163,21 +168,28 @@ function openWave(n){
   g.waveHit=false;g.lastDeployment=-Infinity;
   g.p.inv=Math.max(g.p.inv,g.p.waveGuard);
   if(n>1&&!g.story.rematch)g.p.charge=Math.min(100,g.p.charge+g.p.waveStartCharge);
-  g.storyHazards=0;g.storyHazardAt=(g.story.level.side?3.9:5.7)*areaTuning[g.level].hazard;
+  g.storyHazards=0;g.storyHazardAt=(timed?3.9:5.7)*areaTuning[g.level].hazard;
   if(isBossWave()){
-    const hp=Math.round(bossHP(g.level)*campaignBossScale[g.level]);
-    g.enemies=[{kind:'boss',x:480,y:154,r:bossRadii[g.level],hp,max:hp,spawn:1.22,cd:.53,pattern:0,walk:0,hit:0,aim:Math.PI/2,charge:0}];
+    const area=combatAreaIndex();
+    const hp=Math.round(bossHP(area)*campaignBossScale[area]*(endless?endlessHealth(n):1));
+    if(!endless)g.enemies=[];
+    g.enemies.unshift({kind:'boss',x:480,y:154,r:bossRadii[g.level],hp,max:hp,spawn:1.22,cd:.53,pattern:0,walk:0,hit:0,aim:Math.PI/2,charge:0});
     discover('boss'+g.level);
     for(const [slot,kind] of bossEscorts[g.level].entries()){
-      const point=campaignSpawn({edge:slot?'east':'west',squad:1,slot});
-      deployCampaignBot(kind,point.x,point.y,1.65);
+      const deployment={kind,edge:slot?'east':'west',squad:1,slot};
+      if(endless)g.queue.push({...deployment,at:slot*.22});
+      else{
+        const point=campaignSpawn(deployment);
+        deployCampaignBot(kind,point.x,point.y,1.65);
+      }
     }
+    if(endless)g.queue.push(...endlessDeployments(n,true));
     healPlayer(g.p.max*combatRules.bossHeal,true);
-    announce('BOSS',1.5,'boss');sound.event('bossIntro');
+    announce(endless?'BOSS · WAVE '+n:'BOSS',1.5,'boss');sound.event('bossIntro');
   }else{
-    g.queue=campaignWave(g.story.level,n);
+    g.queue=endless?endlessDeployments(n,false):campaignWave(level,n);
     if(n>1){
-      healPlayer(g.p.max*combatRules.waveHeal*areaTuning[g.level].heal*(continuous?.65:1),true);
+      healPlayer(g.p.max*combatRules.waveHeal*areaTuning[combatAreaIndex()].heal*(continuous?.65:1),true);
     }
     announce(isFinalWave()?'FINAL WAVE':'WAVE '+n,1.05,isFinalWave()?'final':'wave');
   }
@@ -186,7 +198,8 @@ function openWave(n){
 function pause(){
   if(g.mode!=='play')return;setMode('pause');
   const level=g.story.level;
-  panel(levelLabel(level),'Paused','',[['Resume',unpause],['Leave attempt',()=>showCampaign('map',level.id)]]);
+  const mapLevel=g.story.endless?'encore':level.id;
+  panel(levelLabel(level),'Paused','',[['Resume',unpause],['Leave attempt',()=>showCampaign('map',mapLevel)]]);
 }
 function unpause(){if(g.mode==='pause'){sound.wake();setMode('play');}}
 function setHudText(id,value){
@@ -205,20 +218,25 @@ function hudMeter(id,fill,value){
 function hud(){
   const p=g.p,b=g.enemies.find(e=>e.kind==='boss');
   hudMeter('vibe-meter','hp-fill',p.hp/p.max);
-  const storyLevel=g.story.level;
+  const {level:storyLevel,endless,rematch}=g.story;
   setHudText('level-name',levelLabel(storyLevel));
-  setHudText('wave-name',isBossWave()?'BOSS':isFinalWave()?'FINAL WAVE':`WAVE ${g.wave} / ${activeWaveCount()}`);
+  const waveText=endless?`${isBossWave()?'BOSS · ':''}WAVE ${g.wave}`:
+    isBossWave()?'BOSS':isFinalWave()?'FINAL WAVE':`WAVE ${g.wave} / ${activeWaveCount()}`;
+  setHudText('wave-name',waveText);
   const medalTarget=$('speed-medal-target');
   const elapsed=Math.round(g.stats.time*1000);
-  medalTarget.hidden=g.story.rematch;
-  medalTarget.classList.toggle('over-target',elapsed>storyLevel.speedTarget*1000);
+  medalTarget.hidden=endless||rematch;
   setHudText('speed-clock',campaignTime(elapsed));
-  setHudText('speed-medal-target','Medal: '+campaignTime(storyLevel.speedTarget*1000));
+  if(!endless){
+    medalTarget.classList.toggle('over-target',elapsed>storyLevel.speedTarget*1000);
+    setHudText('speed-medal-target','Medal: '+campaignTime(storyLevel.speedTarget*1000));
+  }
   const roundIndex=storyLevel.id+'-'+g.wave;
   if($('wave-track').dataset.round!==roundIndex){
     const track=$('wave-track');
     track.dataset.round=roundIndex;
-    track.innerHTML=Array.from({length:activeWaveCount()},(_,i)=>'<i class="'+(i<g.wave-1?'done':i===g.wave-1?'now':'')+'"></i>').join('');
+    const position=endless?(g.wave-1)%endlessBossInterval:g.wave-1;
+    track.innerHTML=Array.from({length:activeWaveCount()},(_,i)=>'<i class="'+(i<position?'done':i===position?'now':'')+'"></i>').join('');
   }
   setHudText('score',pad(g.score,6));
   $('buss-status').hidden=p.charge<100;
@@ -263,16 +281,22 @@ function kill(e,source='pop'){
   floater(e.x,e.y+5,'+'+value+(mult>1?' ×'+mult:''),color);
   if(e.kind!=='boss'&&Math.random()<combatRules.dropChance)g.items.push({x:e.x,y:e.y,life:9});
   sound.event('down');
-  if(e.kind==='boss'){g.enemies.forEach(other=>{if(other!==e&&!other.dead){other.dead=true;particle(other.x,other.y,color,13);}});g.enemyPops=[];g.hazards=[];g.shake=Math.max(g.shake,11);sound.event('bossDown');}
+  if(e.kind==='boss'){
+    if(!g.story.endless){
+      for(const other of g.enemies)if(other!==e&&!other.dead){other.dead=true;particle(other.x,other.y,color,13);}
+      g.enemyPops=[];g.hazards=[];
+    }
+    g.shake=Math.max(g.shake,11);sound.event('bossDown');
+  }
   else{
     if(g.p.popDashReset)g.p.dashCd=0;
     if(g.p.echoKill){
       const next=g.enemies.filter(bot=>!bot.dead&&bot.spawn<=0&&dist(e,bot)<400)
         .sort((a,b)=>dist(e,a)-dist(e,b))[0];
-      if(next)playerPop(e,angle(e,next),g.p.dmg*stageAmp[g.level]*g.p.echoKill,0,'#7dfff4');
+      if(next)playerPop(e,angle(e,next),g.p.dmg*stageAmp[combatAreaIndex()]*g.p.echoKill,0,'#7dfff4');
     }
   }
-  if((isBossWave()||isFinalWave())&&!g.queue.length&&g.enemies.every(enemy=>enemy.dead)){
+  if(!g.story.endless&&(isBossWave()||isFinalWave())&&!g.queue.length&&g.enemies.every(enemy=>enemy.dead)){
     g.finishTime=g.stats.time;
     g.enemyPops=[];
     g.hazards=[];
@@ -286,9 +310,9 @@ function damage(e,amount,source){
   if(g.p.highVibeDamage&&e.kind!=='primePod'&&e.hp>=e.max*.5)amount*=1+g.p.highVibeDamage;
   e.hp-=amount;e.hit=.09;
   if(e.satanPhase)updateServerGlass(e);
-  if(e.kind==='boss'&&g.level===4&&!g.primeForm&&e.hp<=0){
+  if(!g.story.endless&&e.kind==='boss'&&g.level===4&&!g.primeForm&&e.hp<=0){
     transformPrime(e);
-  }else if(e.kind==='boss'&&g.level===5&&!e.satanPhase&&e.hp<=0){
+  }else if(!g.story.endless&&e.kind==='boss'&&g.level===5&&!e.satanPhase&&e.hp<=0){
     transformSatan(e);
   }else if(e.hp<=0)kill(e,source);
   if(e.kind==='primePod'&&e.dead&&e.owner.pods.every(pod=>pod.dead)){
@@ -309,21 +333,20 @@ function hurt(n,source='enemy'){
   }
   const side=g.story.level.side?(g.level===5?1.07:1.14):1;
   const hazard=source==='hazard'?p.hazardGuard??1:1;
-  const pressure=isBossWave()?(g.level===5?1.07:1):areaTuning[g.level].damage;
+  const pressure=isBossWave()?(g.level===5?1.07:1):areaTuning[combatAreaIndex()].damage;
   const taken=Math.max(1,Math.round(n*combatRules.damage*Math.max(.76,p.incoming)*side*hazard*pressure));
   g.waveHit=true;
   g.stats.damage+=Math.min(Math.ceil(p.hp),taken);
   p.hp=Math.max(0,p.hp-taken);p.inv=p.grace;g.shake=7;g.flash=.19;g.combo=0;g.comboT=0;
   let retaliation=p.hitEcho??0;
   if(p.revengeDamage){
-    p.charge=Math.min(100,p.charge+5);
+    p.charge=Math.min(100,p.charge+15);
     retaliation+=p.revengeDamage;
     for(const shot of g.enemyPops)shot.life=0;
     g.nutPulses.push({x:p.x,y:p.y,life:.38,max:.38,r:420});
   }
-  if(p.scrub&&g.clock>=(p.scrubAt??0)){
+  if(p.scrub){
     for(const shot of g.enemyPops)if(dist(p,shot)<200)shot.life=0;
-    p.scrubAt=g.clock+5;
     p.inv+=1;
     g.nutPulses.push({x:p.x,y:p.y,life:.3,max:.3,r:200});
   }
@@ -337,8 +360,10 @@ function hurt(n,source='enemy'){
   }
   const defeated=p.hp<=0;
   if(retaliation&&(!defeated||p.revengeDamage)){
-    const power=retaliation*p.dmg*stageAmp[g.level];
-    for(const enemy of [...g.enemies])damage(enemy,power,'nut');
+    const power=retaliation*p.dmg*stageAmp[combatAreaIndex()];
+    for(const enemy of [...g.enemies]){
+      if(damage(enemy,power,'nut')&&!enemy.dead&&p.revengeDamage)stunEnemy(enemy,.8);
+    }
   }
   if(defeated){p.hp=0;hud();campaignResults(false);}
 }
@@ -350,8 +375,8 @@ function updateBlasts(dt){
         effect.wait=0;
         for(const e of g.enemies){
           if(dist(e,effect)>=effect.r+e.r)continue;
-          const scale=effect.source==='burst'&&e.kind==='boss'?bossBurstScale:1;
-          damage(e,effect.power*scale,effect.source);
+          if(effect.source==='burst')hitBurst(e,effect.power);
+          else damage(e,effect.power);
         }
         g.enemyPops=g.enemyPops.filter(b=>dist(b,effect)>effect.r);
         particle(effect.x,effect.y,effect.color,19,190,1);
@@ -362,7 +387,7 @@ function updateBlasts(dt){
   g.blasts=g.blasts.filter(effect=>effect.life>0);
 }
 function shot(x,y,a,s=240,dmg=12,type='orb',turn=0){
-  const speed=isBossWave()?(g.level===5?1.045:1):areaTuning[g.level].shot;
+  const speed=isBossWave()?(g.level===5?1.045:1):areaTuning[combatAreaIndex()].shot;
   g.enemyPops.push({x,y,a,s:s*combatRules.projectileSpeed*speed,dmg,r:type==='note'?7:6,life:6,type,turn});
 }
 function fan(e,a,count,spread,s,type='orb',dmg=13){
@@ -861,7 +886,7 @@ function closeCall(bullet){
   if(p.nearHeal)healPlayer(p.nearHeal);
   floater(p.x,p.y-18,'CLOSE CALL','#a5ffea');sound.tone(840,.12,.07,'triangle',1250);
   if(p.reflect){
-    playerPop(p,p.aim,p.dmg*stageAmp[g.level]*p.reflect,p.pierce+1,'#81fff5',16);
+    playerPop(p,p.aim,p.dmg*stageAmp[combatAreaIndex()]*p.reflect,p.pierce+1,'#81fff5',16);
   }
 }
 function finishRegularWave(){
@@ -893,7 +918,7 @@ function update(dt){
   const len=Math.hypot(mx,my);
   if(input.touchFire){
     const e=g.enemies.filter(e=>!e.dead&&e.spawn<=0).sort((a,b)=>dist(a,p)-dist(b,p))[0];if(e)p.aim=angle(p,e);
-  }else if(!matchMedia('(pointer:coarse)').matches||input.down)p.aim=Math.atan2(input.y-p.y,input.x-p.x);
+  }else if(!usesTouchControls()||input.down)p.aim=Math.atan2(input.y-p.y,input.x-p.x);
   else if(len>.2)p.aim=Math.atan2(my,mx);
   p.inv=Math.max(0,p.inv-dt);p.dashCd=Math.max(0,p.dashCd-dt);p.fireCd=Math.max(0,p.fireCd-dt);
   if(p.quickDrawWindow>0)p.quickDrawWindow-=dt;
@@ -907,11 +932,16 @@ function update(dt){
     if(p.quickDraw)p.quickDrawWindow=1;
     if(p.dashSprint)p.sprintUntil=g.clock+p.dashDuration+p.dashSprintTime;
     if(p.dashPulse){
-      g.blasts.push({x:p.x,y:p.y,r:110,wait:.24,life:.39,power:initialPopPower*stageAmp[g.level]*p.dashPulse,color:'#9be8ff'});
+      g.blasts.push({x:p.x,y:p.y,r:110,wait:.24,life:.39,power:initialPopPower*stageAmp[combatAreaIndex()]*p.dashPulse,color:'#9be8ff'});
     }
   }
   input.dash=false;
-  if(p.dashing>0){p.dashing-=dt;move(p,p.vx*dt,p.vy*dt);particle(p.x,p.y,'#b787ff',2,72,1);}
+  if(p.dashing>0){
+    const travel=Math.min(dt,p.dashing);
+    p.dashing-=travel;
+    move(p,p.vx*travel,p.vy*travel);
+    particle(p.x,p.y,'#b787ff',2,72,1);
+  }
   else if(len>0){
     const speed=p.speed*(p.sprintUntil>g.clock?1+p.dashSprint:1);
     move(p,mx/Math.max(1,len)*speed*dt,my/Math.max(1,len)*speed*dt);p.walk+=dt*12;
@@ -947,7 +977,8 @@ function update(dt){
   for(const f of g.floaters){f.life-=dt;f.y-=dt*44;}
   g.floaters=g.floaters.filter(f=>f.life>0);
   g.enemies=g.enemies.filter(e=>!e.dead);
-  if(g.story.level.side&&!isFinalWave()){
+  if(g.story.endless)advanceEndless();
+  else if(g.story.level.side&&!isFinalWave()){
     if(!g.queue.length&&(!g.enemies.length||g.elapsed>=bonusWaveDuration(g.story.level,g.wave))){
       finishRegularWave();
       openWave(g.wave+1);

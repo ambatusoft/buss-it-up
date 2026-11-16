@@ -1,5 +1,13 @@
 # TODO
 
+## 2026-11-17 · Endless Edging and balance
+
+- [x] Redistribute gear, migrate previously unlocked rewards, and tune the requested combat effects.
+- [x] Add input-specific controls, a first bonus-wave notice, and Endless Edging after 6-4.
+- [x] Verify both campaign seeds offline and over local HTTP, two Endless runs through wave 12, difficulty caps, save migration, audio, and the bundled build.
+- [ ] Playtest Endless beyond the difficulty cap with human players and check the new tutorials on a physical touch device.
+
+
 ## 2026-11-16 · Final balance and release checks
 
 - [x] Increase the second-phase HP and Overdub damage, ease the dash meter, and rename 6-3.

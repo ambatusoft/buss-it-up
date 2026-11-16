@@ -2,6 +2,15 @@
 
 ## Unreleased
 
+### 2026-11-17 · Endless Edging and balance
+
+- Added a separate Endless Edging entry after 6-4. Timed waves carry enemies over, and every sixth wave holds for the current arena's boss and surviving bots before rotating arenas. Enemy counts and health rise to a cap. Ambatron and Satan's PC stay in their opening forms.
+- Redistributed equipment across all 30 stages, with a three-item limit for boss stages and a two-item limit elsewhere. Version 7 retains rewards earned at earlier unlock gates.
+- Adjusted Burst multipliers, control resistance, boss-hit charge, retaliation, hit protection, dash distance, and healing. Eight-Way Cut rotates with aim, and Six-Point Signal renders at its actual reach.
+- Split the controls tutorial by input type and added a one-time notice before a player's first bonus attempt.
+- Both Chrome seeds cleared all 30 stages with zero retries, offline and over local HTTP. Two Endless runs cleared 12 waves and two boss gates each. Save migration, audio, and generated file checks passed.
+
+
 ### 2026-11-16 · Final balance and release checks
 
 - Increased Satan’s PC's second-phase health by 20% and Bootleg Overdub's delayed blast damage to 80% of the first blast. Renamed 6-3 to I Can Tell You're Hungry.

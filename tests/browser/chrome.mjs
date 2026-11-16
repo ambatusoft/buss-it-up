@@ -16,6 +16,7 @@ let file=join(tmp,'index.html');
 const storyMap=`sound.enabled=false;$('story-entry').click();$('story-slot-list').querySelector('[data-story-slot="1"]').click();`;
 const advancedStory=`${storyMap}saveCampaignProfile({...campaignProfile,cleared:campaignLevels.filter(level=>!level.side&&level.areaIndex<4).map(level=>level.id)});`;
 const hellbootScene=`${advancedStory}saveCampaignProfile({...campaignProfile,cleared:campaignLevels.filter(level=>level.id!=='encore').map(level=>level.id)});startCampaignLevel('encore');openWave(activeWaveCount());const satan=g.enemies[0];satan.spawn=0;damage(satan,1e7);`;
+const endlessScene=`${storyMap}saveCampaignProfile({...campaignProfile,cleared:campaignLevels.filter(level=>!level.side).map(level=>level.id)});`;
 const captures={
   menu:'',mobile:'',
   gameplay:`${storyMap}startCampaignLevel('interview');for(let i=0;i<330;i++){input.x=410;input.y=155;input.down=true;update(1/90);}render();`,
@@ -23,6 +24,8 @@ const captures={
   catalog:`${advancedStory}saveCampaignProfile({...campaignProfile,files:campaignFiles.filter(file=>file.index<4).map(file=>file.id)});showCampaign('files');`,
   'story-map':`${advancedStory}showCampaign('map','red-circle');`,
   'mobile-story':storyMap,
+  'mobile-endless':`${endlessScene}showCampaign('map','encore');`,
+  'endless-boss':`${endlessScene}startEndless();openWave(6);for(let i=0;i<155;i++)update(1/90);render();`,
   'story-skills':`${advancedStory}showCampaign('gear');$('campaign-content').querySelector('[data-armory="skills"]').click();`,
   'mobile-skills':`${advancedStory}showCampaign('gear');$('campaign-content').querySelector('[data-armory="skills"]').click();`,
   'story-nuts':`${advancedStory}showCampaign('gear');$('campaign-content').querySelector('[data-slot="nut"]').click();`,
@@ -175,9 +178,9 @@ const captures={
 };
 captures['mobile-files']=captures.catalog;
 captures['mobile-win']=captures['story-win'];
-const testMode=mode==='test'||mode==='story';
+const testMode=mode==='test'||mode==='story'||mode==='endless';
 if(!testMode&&!Object.hasOwn(captures,mode))throw new Error('Unknown browser check: '+mode);
-const payload=testMode?(await Promise.all(['./pilot.js','./story.js']
+const payload=testMode?(await Promise.all(['./pilot.js',mode==='endless'?'./endless.js':'./story.js']
   .map(path=>readFile(new URL(path,import.meta.url),'utf8')))).join('\n'):captures[mode]??'';
 const game=html.replace('</body>',()=>'<script>'+payload+'</script></body>');
 await writeFile(file,game);

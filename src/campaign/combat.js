@@ -43,8 +43,8 @@ function fire(){
   const volley=++g.volley;
   const empowered=p.pattern==='overdrive'&&volley%4===0;
   const pattern=empowered?shotPatterns.fan:shotPatterns[p.pattern]??shotPatterns.single;
-  const aim=p.pattern==='compass'?0:p.aim+rand(-.022,.022);
-  const power=p.dmg*stageAmp[g.level]*(1+(p.quickDrawWindow>0?p.quickDraw:0)+p.streakPower*Math.min(5,g.comboT>0?g.combo:0));
+  const aim=p.pattern==='compass'?p.aim:p.aim+rand(-.022,.022);
+  const power=p.dmg*stageAmp[combatAreaIndex()]*(1+(p.quickDrawWindow>0?p.quickDraw:0)+p.streakPower*Math.min(5,g.comboT>0?g.combo:0));
   p.quickDrawWindow=0;
   const effect=p.nut&&(!p.nut.interval||volley%p.nut.interval===0)?p.nut:null;
   const color=effect?.color??(empowered?'#8fc1ff':'#eaffb6');
@@ -54,13 +54,13 @@ function fire(){
 
 function isElite(e){return e.kind==='boss'||e.kind==='primePod';}
 function slowEnemy(e,duration,power){
-  const resistance=isElite(e)?.5:1;
-  e.slow=Math.max(e.slow??0,duration*resistance);
-  e.slowPower=power*resistance;
+  const elite=isElite(e);
+  e.slow=Math.max(e.slow??0,duration*(elite?.25:1));
+  e.slowPower=power*(elite?.5:1);
 }
 
 function stunEnemy(e,duration){
-  e.stun=Math.max(e.stun??0,duration*(isElite(e)?.5:1));
+  e.stun=Math.max(e.stun??0,duration*(isElite(e)?.25:1));
   e.stunLock=e.stun+.67;
 }
 
@@ -73,7 +73,7 @@ function applyNutEffect(e,shot){
       stunEnemy(e,effect.stun);
     }
     if(effect.poison){
-      const dps=g.p.dmg*stageAmp[g.level]*effect.poisonDps;
+      const dps=g.p.dmg*stageAmp[combatAreaIndex()]*effect.poisonDps;
       e.poison={duration:effect.poison,potency:dps*poisonTick,step:e.poison?.step??poisonTick};
     }
   }
@@ -132,7 +132,7 @@ function updatePlayerPops(dt){
       if(damage(e,b.d*(1+skillBonus))){
         if(!b.scored){b.scored=true;g.stats.hits++;}
         if(e.kind==='boss'){
-          g.p.charge=Math.min(100,g.p.charge+1.15+g.p.bossCharge);
+          g.p.charge=Math.min(100,g.p.charge+.5+g.p.bossCharge);
           if(g.p.bossVibe){
             g.p.bossHits=(g.p.bossHits??0)+1;
             if(g.p.bossHits%10===0)healPlayer(g.p.bossVibe);
@@ -170,6 +170,14 @@ function inBurst(origin,target){
   return forward>0&&Math.hypot(x,y)<=origin.range+radius&&side<=forward*Math.tan(origin.angle)+radius;
 }
 
+function hitBurst(e,power){
+  const hit=damage(e,(e.kind==='boss'?bossBurstScale:1)*power,'burst');
+  if(hit&&!e.dead&&g.p.coldBurst){
+    stunEnemy(e,g.p.coldBurst);
+    g.coldFlash=.75;
+  }
+}
+
 function buzz(){
   const p=g.p;
   if(p.charge<100)return;
@@ -180,25 +188,20 @@ function buzz(){
   const projectileCount=g.enemyPops.length;
   g.enemyPops=g.enemyPops.filter(b=>!inBurst(origin,b));
   const erased=projectileCount-g.enemyPops.length;
-  if(p.burstRefund&&erased>=5)p.charge+=p.burstRefund;
-  const push=p.burstPush&&erased>=3;
+  if(p.burstRefund&&erased>=7)p.charge+=p.burstRefund;
+  const push=p.burstPush;
   if(push)p.inv=Math.max(p.inv,p.burstPush);
   const offset=spec.offset??0;
   particle(p.x+Math.cos(p.aim)*offset,p.y+Math.sin(p.aim)*offset,spec.color,46,360,1,p.aim,spec.angle?spec.angle*2:TAU);
   sound.event('burst');
-  const power=stageAmp[g.level]*p.burstDamage;
+  const power=stageAmp[combatAreaIndex()]*p.burstDamage;
   for(const e of g.enemies){
-    if(inBurst(origin,e))damage(e,(e.kind==='boss'?bossBurstScale:1)*power,'burst');
-    if(p.coldBurst&&!e.dead)stunEnemy(e,p.coldBurst);
+    if(inBurst(origin,e))hitBurst(e,power);
     if(push&&!e.dead&&!isElite(e)&&dist(e,p)<275){
       const a=angle(p,e);
       move(e,Math.cos(a)*96,Math.sin(a)*96);
       stunEnemy(e,.55);
     }
-  }
-  if(p.coldBurst){
-    g.coldFlash=.75;
-    particle(p.x,p.y,'#b7eeff',33,255,1);
   }
   if(p.aftershock){
     g.blasts.push({x:p.x,y:p.y,r:90,wait:1.5,life:.43,power:p.aftershock*power,color:'#b4abff',source:'burst'});

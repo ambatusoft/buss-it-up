@@ -1,6 +1,6 @@
 # Buss It Up! · Story design
 
-Revised 2026-11-16. The campaign is a fictional clean slate for Dreamy. He is clearing out the old clips and their copies before opening a new chapter. The gym, terminal, broadcast booth, edit suite, assembly floor, and backup server mark different stops in the life of those clips. Keep the motivation in props, filenames, and short observations. The check-in camera, unsolicited subtitles, and closing color swatches carry the thread. [Lore ledger](LORE-RESEARCH.md) [Gameplay reference](../GAME-DESIGN.md)
+Revised 2026-11-17. The campaign is a fictional clean slate for Dreamy. He is clearing out the old clips and their copies before opening a new chapter. The gym, terminal, broadcast booth, edit suite, assembly floor, and backup server mark different stops in the life of those clips. Keep the motivation in props, filenames, and short observations. The check-in camera, unsolicited subtitles, and closing color swatches carry the thread. [Lore ledger](LORE-RESEARCH.md) [Gameplay reference](../GAME-DESIGN.md)
 
 ## Maps and campaign route
 
@@ -13,8 +13,8 @@ The level selection map shows the area name in its header and level names on the
 | Bussiness Gym | 4 | 6 | 1-X: Wash That | Nut Cracker and Ambalien Goo |
 | Bus Bus Terminal | 5 | 7 | 2-X: Self Pleasure | Night Return and YEK Circuit |
 | Ambasing FM | 5 | 7 | 3-X: At The Club | Bootleg Overdub and Paza Runners |
-| Omaygot Edit Suite | 6 | 8 | 4-X: Cream Factory | Censor Bar and Coldest Moment |
-| Ngawi Assembly | 6 | 8 | 5-X: Nut Tree | Red Tag Guard and Batu Khan's Revenge |
+| Omaygot Edit Suite | 6 | 8 | 4-X: Cream Factory | Coldest Moment |
+| Ngawi Assembly | 6 | 8 | 5-X: Nut Tree | Batu Khan's Revenge |
 | The Burnt Server | 6 | 8 | 6-X: The Nail Theory | I Need That Nut |
 
 ## Combat
@@ -23,7 +23,9 @@ The 30 levels have 172 rounds, including 24 Final Waves and six boss rounds. A *
 
 The single ruleset uses the former Nutmare baseline. The District gets a modest increase. The Terminal gets stronger bots and quicker reinforcements. Ambasing FM keeps its ordinary damage and recovery baseline. Omaygot hits harder, Ngawi has tougher bots, and the Burnt Server adds stronger fire and alternating targeted firewall lanes. Side levels deploy squads and hazards faster and add 20% bot HP and 8% bot speed. They raise incoming damage by 14%, or 7% on the Burnt Server’s already tougher baseline. The 6-X firewall waits when seven or more bots are active so a full deployment leaves room to dodge.
 
-The next bonus wave starts as soon as the current roster is defeated. If the deployment queue is empty and the timer expires first, surviving enemies, shots, and hazards carry into the next wave. The same rule starts the bonus Final Wave. To finish, clear its roster and all enemies carried over from earlier waves.
+The first bonus launch explains how nonstop waves work. The next bonus wave starts as soon as the current roster is defeated. If the deployment queue is empty and the timer expires first, surviving enemies, shots, and hazards carry into the next wave. The same rule starts the bonus Final Wave. To finish, clear its roster and all enemies carried over from earlier waves.
+
+Endless Edging unlocks after 6-4 and sits in the last area's map header. It starts in the Burnt Server and changes to a random different arena after each sixth-wave boss gate. Clearing a gate requires defeating every enemy, and Ambatron and Satan's PC stay in their first form. Endless uses the current build and ends with the wave reached and score.
 
 The enemy work drew on *The Binding of Isaac: Rebirth* and *Repentance*, especially the use of distinct movement rules and readable attack windows to distinguish enemies at a glance. The specialists use original vector art and campaign-specific attack combinations. [Repentance development updates](https://store.steampowered.com/news/posts/?appids=250900&enddate=1611951807&feed=steam_community_announcements)
 
@@ -33,18 +35,18 @@ Satan’s PC becomes **Satan’s PC - Harder and Dirtier** when its first bar em
 
 ## Builds
 
-An ordinary first clear grants one skill point. Boss and bonus first clears grant two. Specific levels also unlock gear, shown with its equipment icon and slot color in the first-clear rewards. Equipment cards show `???` until the item is unlocked. The six equipped items and purchased skills apply at the start of an attempt.
+An ordinary first clear grants one skill point. Boss and bonus first clears grant two. Every level awards at least one item, shown with its equipment icon and slot color. Boss stages can award three items, and other stages award up to two. Equipment cards show `???` until the item is unlocked. The six equipped items and purchased skills apply at the start of an attempt.
 
 | Slot | Items | New effect examples |
 | --- | --- | --- |
-| Popper | 10 | Patterns, fire rate, and range. Reverse Playback favors its backward shot. Eight-Way Cut fires in eight fixed directions. Nut Cracker spreads five close-range pellets. |
+| Popper | 10 | Patterns, fire rate, and range. Reverse Playback favors its backward shot. Eight-Way Cut rotates all eight shots with your aim. Nut Cracker spreads five close-range pellets. |
 | Nut Effect | 8 | Mix projectile slow, periodic stun, poison, splash, piercing, homing, or ricochet into a Popper build. |
-| Buss Burst | 8 | Six-Point Signal covers a large hexagram around the player. Censor Bar rewards erasing three hostile shots with knockback and 1.0 s of protection. |
+| Buss Burst | 8 | Six-Point Signal covers a large hexagram around the player. Censor Bar knocks back nearby bots and grants 1.0 s of protection on every cast. |
 | Boots | 8 | Classy Stabilizer stores two dashes with slower sequential reloads. Stretch This extends dash duration. Paza Runners reset dash cooldown on bot pops. |
 | Vibe Guard | 8 | Breakaway Jacket blocks the first projectile in each wave. Spam Filter clears nearby shots when hit. |
-| Pendant | 8 | Coldest Moment freezes the arena on Burst. Batu Khan's Revenge clears hostile shots, retaliates at 2× pop power, and gives 5% Burst charge on every damaging hit. 30-Buck Cameo supplies the sole revive. |
+| Pendant | 8 | Coldest Moment freezes targets hit by Burst. Batu Khan's Revenge clears hostile shots, retaliates at 3× pop power with a stun, and gives 15% Burst charge on every damaging hit. 30-Buck Cameo revives at 35% Vibe. |
 
-The left column groups nine build stats, including nominal shot range and base Burst damage. Pop power has a fixed-height row with right-aligned values. Multishot weapons show damage and count for each damage group. Overdrive shows its ordinary and fan volleys. Equipment is sorted by unlock level, with each bonus after the main route. The 32 nodes cost one to three points, with 42 points available from a full campaign and 57 needed for the entire tree. Double-click a node or use its purchase button. Refund skills restores all spent points immediately and keeps the loadout. Dash healing and Burst healing are smaller, and passive damage reduction has a cap. Bosses take half the strength and duration of slows. A stun becomes a 70% slow for half its duration. Coldest Moment freezes regular enemies for five seconds and heavily slows bosses for 2.5 seconds.
+The left column groups nine build stats, including nominal shot range and base Burst damage. Pop power has a fixed-height row with right-aligned values. Multishot weapons show damage and count for each damage group. Overdrive shows its ordinary and fan volleys. Equipment is sorted by unlock level, with each bonus after the main route. The 32 nodes cost one to three points, with 42 points available from a full campaign and 57 needed for the entire tree. Double-click a node or use its purchase button. Refund skills restores all spent points immediately and keeps the loadout. Dash healing and Burst healing are smaller, and passive damage reduction has a cap. Boss slows retain half the strength and last a quarter as long. A stun becomes a 70% slow for a quarter of its duration. Coldest Moment freezes regular targets for four seconds and heavily slows bosses for one second.
 
 ## Menus, medals, and saves
 
@@ -54,4 +56,4 @@ The trophy is **Clear**, the shield is **No Hit**, and the stopwatch is **Speed 
 
 Choose one of three slots. Each shows the furthest main-route level cleared. Optional stages and replays leave that summary in place. Change slots or start over from Settings. Existing saves carry forward with the new point budget. If older purchases cost more than the new budget, the skill points are refunded. Previous-rules records remain visible until the level is cleared under the current rules.
 
-Existing saves appear in Slot 1. Compatible progress carries forward. Version 6 retires old Remix medals and preserves Clear and No Hit. The other two slots start empty.
+Existing saves appear in Slot 1. Compatible progress carries forward. Version 6 retires old Remix medals and preserves Clear and No Hit. Version 7 preserves equipment unlocked before the reward changes. The other two slots start empty.

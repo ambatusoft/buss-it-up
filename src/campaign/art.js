@@ -1,5 +1,4 @@
-function drawCampaignFloor(c,level){
-  const {area}=level;
+function drawCampaignFloor(c,area){
   const accent=area.accent;
   const tint=accent+'32';
   c.save();
@@ -48,7 +47,7 @@ function drawCampaignFloor(c,level){
   c.restore();
 }
 
-function drawCampaignBoss(e,c=cx,area=g.story.level.area,primeForm=g.primeForm){
+function drawCampaignBoss(e,c=cx,area=campaignAreas[g.level],primeForm=g.primeForm){
   const ink='#171121', paper='#f9e3c2';
   const color=e.hit>0?'#fff4dc':area.accent;
   if(primeForm){

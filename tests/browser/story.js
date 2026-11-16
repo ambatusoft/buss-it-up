@@ -70,7 +70,7 @@ function playStory(seed){
       const viewport=$('viewport');
       viewport.style.width='390px';
       const card=$('overlay').querySelector('.result-card');
-      check(card.scrollHeight<=card.clientHeight,'All three gear rewards and the Next button fit on a narrow clear screen');
+      check(card.scrollHeight<=card.clientHeight,'All gear rewards and the Next button fit on a narrow clear screen');
       viewport.style.width='';
     }
     const loadout={interview:['snowNut'],donut:['spread'],anger:['shock'],transfer:['quickstep'],driver:['rapid'],'bus-edit':['plate','beam'],dreamyfantasia:['needle','pierceNut'],thesis:['echo'],candid:['stabilizer'],'final-cut':['cameo'],'lost-take':['coldest','toxinNut'],sungut:['frame'],'red-tag':['cameo'],encore:['overdub','toxinNut']};
@@ -174,6 +174,50 @@ function verifyHudLayout(){
   g.p.charge=48;g.combo=0;g.comboT=0;hud();
 }
 
+function verifyEndless(){
+  showCampaign('map','encore');
+  const launch=button('[data-endless]'), clearCount=readCampaignProfile().cleared.length;
+  check(launch?.textContent==='Endless Edging'&&$('campaign-content').querySelectorAll('.map-node').length===5,'Endless unlocks outside the map graph');
+  launch.click();
+  check(g.story.endless&&g.level===5&&g.wave===1&&g.queue.length===6&&$('speed-medal-target').hidden,'Endless starts at Area 6 with six bots and no medal');
+  check(endlessBotPool.length===Object.keys(enemyTypes).length+Object.keys(campaignBotTypes).length&&
+    endlessHealth(1)===1&&endlessHealth(61)===endlessHealth(10000)&&endlessBotCount(10000)===18,'Full enemy pool and bounded wave scaling');
+  check(!campaignLevelById.has(endlessLevel.id),'Endless is absent from Story progression');
+  const survivor=enemy('guard',220,125,0);
+  check(survivor.max===enemyStats('guard',5).hp,'The first wave has normal Area 6 health');
+  g.queue=[];g.elapsed=endlessDeadline;update(1/90);
+  check(g.wave===2&&g.enemies.includes(survivor),'Endless timed waves carry survivors forward');
+  openWave(6);
+  const boss=g.enemies.find(enemy=>enemy.kind==='boss');
+  g.p.inv=100;
+  render();
+  check(g.enemies.includes(survivor)&&g.queue.length>=2&&boss.max>bossHP(5)*campaignBossScale[5]&&$('wave-name').textContent==='BOSS · WAVE 6',
+    'Boss gate adds a tougher boss and escorts without discarding carryover');
+  g.queue=[];g.elapsed=endlessDeadline+20;update(1/90);
+  check(g.wave===6&&!g.finishTime,'The boss gate ignores the timer');
+  boss.spawn=0;damage(boss,1e7);
+  update(1/90);
+  check(g.wave===6&&boss.dead&&!boss.satanPhase&&g.enemies.includes(survivor),'Satan’s PC stays in its first form and survivors hold the gate');
+  damage(survivor,1e7);update(1/90);
+  check(g.wave===7&&g.level!==5&&combatAreaIndex()===5&&g.mode==='play','Clearing the gate starts wave seven in a different arena without changing base scaling');
+  g.enemies.push({...survivor,dead:false,hp:800});g.elapsed=g.storyHazardAt;
+  updateCampaignArena();
+  check(g.hazards.length>0&&g.hazards.every(hazard=>hazard.theme===campaignAreas[g.level].modifier),'The new arena uses its own hazards');
+  g.enemies=Array.from({length:endlessActiveCap-1},()=>({...survivor,dead:false,hp:800}));
+  g.elapsed=endlessDeadline;const queued=g.queue.length;
+  updateCampaignDeployment();
+  check(g.queue.length===queued,'Endless deployments leave room under the cap for the next boss');
+  g.level=4;g.enemies=[];openWave(12);
+  const ambatron=g.enemies[0];ambatron.spawn=0;damage(ambatron,1e7);
+  check(ambatron.dead&&!g.primeForm,'Ambatron stays in its first form in Endless');
+  g.p.inv=0;g.p.dashing=0;g.p.revive=0;hurt(1e6);
+  check(g.mode==='story-fail'&&$('overlay').textContent.includes('Wave 12')&&readCampaignProfile().cleared.length===clearCount,'Endless loss reports the wave without changing campaign clears');
+  $('overlay').querySelector('button').click();
+  check(g.wave===1&&g.level===5&&g.story.endless,'Retry restarts Endless at wave one');
+  pause();$('overlay').querySelector('.actions button:last-child').click();
+  check(g.mode==='campaign'&&campaignAreaIndex===5,'Leaving Endless returns to the server map');
+}
+
 function verifyBuildEffects(){
   const profile=freshCampaignProfile();
   saveCampaignProfile(profile);
@@ -225,8 +269,8 @@ function verifyBuildEffects(){
   equipCampaignGear('spread');startCampaignLevel('interview');fire();
   check(g.pops.length===3&&g.pops.every(pop=>pop.d===g.p.dmg)&&Math.abs(g.p.dmg*3/(initial().dmg*1.12)-1.96)<1e-8,'Scatter splits its old volley damage equally');
   equipCampaignGear('bounce');startCampaignLevel('interview');g.p.aim=.1;fire();
-  check(g.pops.length===8&&g.pops.every((pop,index)=>pop.d===g.p.dmg&&pop.a===index*Math.PI/4)&&
-    Math.abs(g.p.dmg-initial().dmg*.35*1.12)<1e-8,'Eight-Way Cut fires in the fixed compass directions at 35% power');
+  check(g.pops.length===8&&g.pops.every((pop,index)=>pop.d===g.p.dmg&&pop.a===g.p.aim+index*Math.PI/4)&&
+    Math.abs(g.p.dmg-initial().dmg*.35*1.12)<1e-8,'Eight-Way Cut fires in the rotating compass directions at 35% power');
   const bass=initial(),needle=initial(),compass=initial(),boots=initial(),plate=initial();
   campaignGear.lob.apply(bass);campaignGear.needle.apply(needle);campaignGear.bounce.apply(compass);
   campaignGear.driftSoles.apply(boots);campaignGear.plate.apply(plate);
@@ -237,7 +281,7 @@ function verifyBuildEffects(){
   input.dash=true;update(1/90);
   check(Math.abs(g.p.sprintUntil-g.clock-g.p.dashDuration-1.5)<1e-8,'Drift Soles boost movement for 1.5 seconds after the dash');
   equipCampaignGear('longstep');startCampaignLevel('interview');
-  check(g.p.dashDuration===initial().dashDuration*1.55&&g.p.dashMax===initial().dashMax,'Stretch This extends the dash at the normal cooldown');
+  check(g.p.dashDuration===initial().dashDuration*1.75&&g.p.dashMax===initial().dashMax,'Stretch This extends dash distance by 75% at the normal cooldown');
   equipCampaignGear('stabilizer');startCampaignLevel('interview');
   const dashMeter=$('dash-meter');
   check(g.p.dashMax===initial().dashMax*1.35&&readyDashes(g.p)===2&&dashMeter.classList.contains('two-charges')&&
@@ -280,16 +324,16 @@ function verifyBuildEffects(){
   check(g.pops.length===5&&g.pops.every(pop=>pop.effect?.splash>0),'Nut Effect adds splash independently');
   check(g.p.revive===0&&!campaignSkills.some(skill=>skill.id==='rescue'),'Skill tree has no revive');
   equipCampaignGear('cameo');startCampaignLevel('interview');
-  check(g.p.revive===.30,'Cameo pendant grants revive');
+  check(g.p.revive===.35,'Cameo pendant grants revive');
   g.p.inv=0;hurt(999);
-  check(g.mode==='play'&&g.p.hp===Math.ceil(g.p.max*.30)&&g.p.inv===3&&g.reviveEffect>1&&g.cameoUsed,'Cameo revives once with two extra seconds of protection');
+  check(g.mode==='play'&&g.p.hp===Math.ceil(g.p.max*.35)&&g.p.inv===3&&g.reviveEffect>1&&g.cameoUsed,'Cameo revives once with two extra seconds of protection');
   g.p.inv=0;hurt(999);
   check(g.mode==='story-fail','A second lethal hit ends the attempt');
   equipCampaignGear('capacitor');startCampaignLevel('interview');
-  check(g.p.charge===80,'Paza Capacitor starts with 80 charge');
+  check(g.p.charge===80,'Nitro PC Charger starts with 80 charge');
   g.p.charge=19;
   openWave(2);
-  check(g.p.charge===54,'Paza Capacitor adds 35 charge at each later wave');
+  check(g.p.charge===59,'Nitro PC Charger adds 40 charge at each later wave');
   equipCampaignGear('token');
   equipCampaignGear('firstFrame');startCampaignLevel('interview');
   check(g.p.inv===6.7,'Red Tag Guard grants 6.7 seconds at wave start');
@@ -301,22 +345,23 @@ function verifyBuildEffects(){
   startCampaignLevel('interview');
   playerPop({x:941,y:260},0,30,0,'#fff',0,0,true,g.p.nut);updatePlayerPops(1/90);
   check(g.pops[0].bounces===0&&Math.cos(g.pops[0].a)<-.9&&Math.abs(g.pops[0].life-(g.p.shotLife+.8-1/90))<1e-8,'Rebound duration bonus is applied exactly once');
-  check(equipCampaignGear('snowNut'),'Equip Cold Open Nut Effect');
+  check(equipCampaignGear('snowNut'),'Equip It Cold Nut Effect');
   startCampaignLevel('interview');
   const target=enemy('guard',g.p.x+42,g.p.y,0);
   playerPop(g.p,0,12,0,'#fff',26,0,true,g.p.nut);
   for(let i=0;i<5;i++)updatePlayerPops(1/90);
   check(target.slow>0,'Freeze shot slows a regular bot');
   const elite={kind:'boss'};
-  applyNutEffect(elite,{effect:{slow:1.25}});
+  applyNutEffect(elite,{effect:{slow:1.2}});
   check(elite.slow>0&&elite.slow<target.slow&&elite.slowPower<target.slowPower,'Boss takes reduced projectile slow');
   applyNutEffect(elite,{effect:{stun:.55}});
-  check(elite.slow===.625&&elite.slowPower===.18&&elite.stun===.275&&Math.abs(conditionStep(elite,.1)-.03)<.0001,'Boss slow and stun have exact resistance');
+  check(elite.slow===.3&&elite.slowPower===.18&&elite.stun===.1375&&Math.abs(conditionStep(elite,.1)-.03)<.0001,'Boss slow and stun have exact resistance');
   equipCampaignGear('coldest');startCampaignLevel('anger',true);
-  const slowed=g.enemies[0];slowed.spawn=0;g.p.charge=100;g.p.aim=Math.PI/2;buzz();
-  check(slowed.stun===2.5&&g.coldFlash>0,'Coldest Moment heavily slows bosses outside Burst');
-  const frozen=enemy('runner',850,380,0);g.p.charge=100;buzz();
-  check(frozen.stun===5&&conditionStep(frozen,.1)===0,'Coldest Moment freezes a regular enemy outside Burst');
+  const slowed=g.enemies[0];slowed.spawn=0;g.p.charge=100;g.p.aim=-Math.PI/2;
+  const frozen=enemy('guard',g.p.x+25,g.p.y-100,0),missed=enemy('guard',850,380,0);
+  frozen.hp=1000;buzz();
+  check(slowed.stun===1&&g.coldFlash>0,'Coldest Moment heavily slows a boss hit by Burst for one second');
+  check(frozen.stun===4&&conditionStep(frozen,.1)===0&&!missed.stun,'Only bots hit by Burst freeze for four seconds');
   equipCampaignGear('toxinNut');startCampaignLevel('interview');
   const poisoned=enemy('guard',780,350,0);
   poisoned.hp=poisoned.max=500;
@@ -334,7 +379,7 @@ function verifyBuildEffects(){
   charmBoss.spawn=0;g.p.hp=25;
   const hitCharmBoss=()=>{playerPop(charmBoss,0,1,0,'#fff',0);updatePlayerPops(1/90);};
   for(let i=0;i<9;i++)hitCharmBoss();
-  check(g.p.hp===25,'I Need That Nut waits through the ninth boss hit');
+  check(g.p.hp===25&&g.p.charge===44.5,'I Need That Nut waits through the ninth boss hit, each worth 0.5 charge');
   hitCharmBoss();
   check(g.p.hp===27,'I Need That Nut heals two Vibe on the tenth boss hit');
   for(const id of ['signal','cleansignal','bosscharge','cast','cleanheal','vibe','waveguard']){
@@ -347,12 +392,12 @@ function verifyBuildEffects(){
   const incoming=()=>[{x:20,y:60,life:6},{x:925,y:495,life:6}];
   g.enemyPops=incoming();
   hurt(5);
-  check(g.p.charge===5&&g.enemyPops.every(shot=>shot.life===0)&&[firstBot,secondBot].every(bot=>Math.abs(bot.max-bot.hp-3*g.p.dmg)<1e-8),
+  check(g.p.charge===15&&g.enemyPops.every(shot=>shot.life===0)&&[firstBot,secondBot].every(bot=>bot.stun===.8&&Math.abs(bot.max-bot.hp-4*g.p.dmg)<1e-8),
     'Batu Khan clears the entire field, charges Burst, and stacks with Bass Echo');
   g.enemyPops=incoming();hurt(5);
-  check(g.p.charge===5&&g.enemyPops.every(shot=>shot.life===6),'An invulnerable hit cannot trigger retaliation');
+  check(g.p.charge===15&&g.enemyPops.every(shot=>shot.life===6),'An invulnerable hit cannot trigger retaliation');
   g.p.inv=0;hurt(5,'hazard');
-  check(g.p.charge===10&&g.enemyPops.every(shot=>shot.life===0)&&Math.abs(firstBot.max-firstBot.hp-6*g.p.dmg)<1e-8,
+  check(g.p.charge===30&&g.enemyPops.every(shot=>shot.life===0)&&Math.abs(firstBot.max-firstBot.hp-8*g.p.dmg)<1e-8,
     'Batu Khan also retaliates against hazards and can trigger twice in a wave');
   g.p.dashCd=1;
   damage(firstBot,1000);
@@ -360,6 +405,12 @@ function verifyBuildEffects(){
   g.enemies=[];g.p.hp=20;g.p.charge=0;g.waveHit=false;
   finishRegularWave();
   check(g.p.hp===40&&g.p.charge===100,'Reset the Set heals 20 Vibe and Clean Plate fills Burst');
+  equipCampaignGear('scrubVest');equipCampaignGear('token');startCampaignLevel('interview');
+  for(let i=0;i<2;i++){
+    g.p.inv=0;g.enemyPops=[{x:g.p.x+70,y:g.p.y,life:6},{x:20,y:60,life:6}];hurt(2);
+    check(g.p.inv===2&&g.enemyPops[0].life===0&&g.enemyPops[1].life===6,'Spam Filter triggers for nearby shots on successive hits');
+  }
+  equipCampaignGear('vest');
   equipCampaignGear('token');startCampaignLevel('interview');
   g.p.charge=0;
   const intercepted=Array.from({length:3},()=>({x:g.p.x,y:g.p.y,life:1}));
@@ -385,14 +436,21 @@ function verifyBuildEffects(){
   damage(enemy('guard',780,350,0),1000);
   check(g.comboT===4,'Standing Ovation extends the streak to four seconds');
   equipCampaignGear('cutoff');startCampaignLevel('interview');g.p.aim=0;g.p.charge=100;g.p.inv=0;
-  g.enemyPops=[40,60,80].map(distance=>({x:g.p.x+distance,y:g.p.y,r:5}));
+  const staggered=enemy('guard',g.p.x-110,g.p.y,0);
   buzz();
-  check(g.p.inv===1&&g.enemyPops.length===0,'Censor Bar earns one second of protection after erasing three shots');
+  check(g.p.inv===1&&staggered.stun===.55,'Censor Bar staggers and protects with zero shots erased');
+  campaignSkills.find(skill=>skill.id==='aftershock').apply(g.p);
+  for(const count of [6,7]){
+    g.p.charge=100;
+    g.enemyPops=Array.from({length:count},()=>({x:g.p.x+60,y:g.p.y,r:5}));
+    buzz();
+    check(g.p.charge===(count===7?25:0),'Final Encore refunds 25 charge at seven shots');
+  }
   for(const [id,multiplier,near,far] of [
-    ['nova',1.4,{x:-95,y:0},{x:220,y:0}],
-    ['beam',1.15,{x:455,y:15},{x:220,y:100}],
-    ['remote',1.3,{x:230,y:0},{x:0,y:0}],
-    ['switchback',1.05,{x:-305,y:0},{x:10,y:140}]
+    ['nova',1.5,{x:-95,y:0},{x:220,y:0}],
+    ['beam',1.2,{x:455,y:15},{x:220,y:100}],
+    ['remote',1.35,{x:230,y:0},{x:0,y:0}],
+    ['switchback',1.10,{x:-305,y:0},{x:10,y:140}]
   ]){
     equipCampaignGear(id);startCampaignLevel('interview');g.p.aim=0;g.p.charge=100;buzz();
     check(g.p.burstDamage===initial().burstDamage*multiplier,'Burst damage multiplier '+id);
@@ -402,7 +460,7 @@ function verifyBuildEffects(){
   equipCampaignGear('echo');startCampaignLevel('interview');g.p.x=480;g.p.y=280;g.p.aim=Math.PI/4;g.p.charge=100;
   g.enemyPops=[{x:30,y:280},{x:920,y:485},{x:480,y:75}];
   buzz();
-  check(g.p.burstDamage===initial().burstDamage*.90&&g.enemyPops.length===1&&g.enemyPops[0].x===30,
+  check(g.p.burstDamage===initial().burstDamage*.765&&g.enemyPops.length===1&&g.enemyPops[0].x===30,
     'Six-Point Signal reaches far corners, includes a notch, and stays fixed while aiming elsewhere');
   equipCampaignGear('overdub');startCampaignLevel('anger',true);g.p.charge=100;
   const burstBoss=g.enemies[0];
@@ -411,6 +469,7 @@ function verifyBuildEffects(){
   innerTarget.hp=innerTarget.max=outerTarget.hp=outerTarget.max=600;
   buzz();
   const firstHit=[innerTarget,outerTarget,burstBoss].map(target=>target.hp);
+  check(Math.abs(600-firstHit[0]-initial().burstDamage*.88*1.10)<1e-8,'Bootleg Overdub hits 10% harder');
   for(let i=0;i<134;i++)updateBlasts(1/90);
   check([innerTarget,outerTarget,burstBoss].every((target,index)=>target.hp===firstHit[index]),'Bootleg Overdub waits the full 1.5 s');
   updateBlasts(1/90);
@@ -482,6 +541,10 @@ try{
     check(specialists.size===2&&route[4].number===(index+1)+'-X','Two specialist enemies and an X branch in '+area.name);
   }
   check(Object.values(campaignGear).every(gear=>gear.icon&&gearSlots[gear.slot]&&(!gear.unlock||campaignLevelById.has(gear.unlock))),'Equipment metadata');
+  check(campaignLevels.every(level=>{
+    const rewards=Object.values(campaignGear).filter(gear=>gear.unlock===level.id);
+    return rewards.length>=1&&rewards.length<=(level.finale?3:2)&&new Set(rewards.map(gear=>gear.slot)).size===rewards.length;
+  }),'Every level gives gear across distinct slots and only bosses can award three');
   check(new Set(Object.values(campaignGear).map(gear=>gear.icon)).size===Object.keys(campaignGear).length,'Unique gear icons');
   check(Object.keys(campaignGear).length===50&&['orbit','frost','crumbNut','deepFreeze','deadAir','freebird'].every(id=>!campaignGear[id]),'Removed gear is absent from the roster');
   check(document.title==='Buss it Up! - Dreamybull Shooter'&&$('story-entry').textContent==='Start','Release title and first-run Start label');
@@ -507,9 +570,17 @@ try{
   check(campaignAreaIndex===4&&button('[data-page="1"]').disabled&&!$('campaign-content').textContent.includes('Burnt Server'),'No sixth page before Core clear');
   for(let i=0;i<4;i++)button('[data-page="-1"]').click();
   check(campaignAreaIndex===0&&button('[data-page="-1"]').disabled,'Carousel pages both directions');
+  const realMatchMedia=window.matchMedia;
+  window.matchMedia=query=>query.startsWith('(pointer:')?{matches:query==='(pointer:coarse)'}:realMatchMedia.call(window,query);
+  button('[data-start-level="interview"]').click();
+  check($('controls-dialog').open&&$('keyboard-controls').hidden&&!$('touch-controls').hidden,'Touch tutorial only shows touch controls');
+  $('controls-dialog').close();
+  window.matchMedia=query=>query.startsWith('(pointer:')?{matches:query==='(pointer:fine)'}:realMatchMedia.call(window,query);
   button('[data-start-level="interview"]').click();
   check($('controls-dialog').open&&g.mode==='campaign','Controls appear before first attempt');
+  check(!$('keyboard-controls').hidden&&$('touch-controls').hidden,'Desktop tutorial only shows keyboard controls');
   $('controls-start').click();
+  window.matchMedia=realMatchMedia;
   check(g.mode==='play'&&readCampaignProfile().tutorial,'Tutorial acknowledgment persists');
   check($('wave-name').textContent==='WAVE 1 / 4'&&$('toast').dataset.kind==='wave','Opening HUD includes final round in total');
   check($('level-name').textContent==='1-1: Ambatu Interview','HUD shows the mission name above the wave count');
@@ -548,6 +619,19 @@ try{
     equipped:{popper:'bounce'},skills:{movespeed:true,cooldown:true,dashrefund:true,dashpulse:true,reverb:true,reach:true,aftershock:true}});
   check(oldBuild.equipped.popper==='bounce'&&oldBuild.skills.dashpulse&&!oldBuild.skills.aftershock&&campaignPoints(oldBuild)===33,
     'Existing builds keep legal purchases and refund disconnected nodes');
+  const retained=normalizeCampaignProfile({version:6,id:original.id,cleared:['interview','donut','hell','lost-take'],equipped:{burst:'nova',armor:'scrubVest'}});
+  check(retained.version===7&&retained.equipped.burst==='nova'&&retained.equipped.armor==='scrubVest'&&
+    campaignOwned(retained).has('sparkstep')&&campaignOwned(retained).has('cutoff')&&retained.bonusTutorial,
+    'Version 6 retains all previously unlocked gear and experienced bonus players skip the tutorial');
+  const reloaded=normalizeCampaignProfile(retained);
+  check(reloaded.equipped.burst==='nova'&&campaignRewards('nut-locker',reloaded).length===0,'Retained equipment survives reload and is not awarded twice');
+  saveCampaignProfile({...freshCampaignProfile(),cleared:['interview','donut']});
+  showCampaign('map','ambatunut');button('[data-start-level="ambatunut"]').click();
+  check($('controls-dialog').open&&!$('bonus-instructions').hidden&&$('keyboard-controls').hidden&&$('touch-controls').hidden,
+    'The first bonus level explains nonstop waves before starting');
+  $('controls-start').click();
+  showCampaign('map','ambatunut');button('[data-start-level="ambatunut"]').click();
+  check(g.mode==='play'&&!$('controls-dialog').open&&readCampaignProfile().bonusTutorial,'Bonus notice is saved and only shown once');
   const retired={version:6,id:original.id,equipped:{popper:'orbit',nut:'deepFreeze',burst:'echo',armor:'deadAir',pendant:'freebird'}};
   const replacements=normalizeCampaignProfile({...retired,cleared:campaignLevels.map(level=>level.id)});
   check(replacements.equipped.popper==='needle'&&replacements.equipped.nut==='snowNut'&&replacements.equipped.burst==='echo'&&
@@ -556,6 +640,7 @@ try{
   check(early.equipped.popper==='standard'&&early.equipped.nut==='snowNut'&&early.equipped.armor==='vest'&&early.equipped.pendant==='token',
     'Retired gear falls back to starters when replacements are locked');
   const reports=[playStory(1061),playStory(5133)];
+  verifyEndless();
   title();$('story-entry').click();
   check($('story-slot-list').children[0].textContent.includes('6-4: Rate This PC'),'Replay and later bonus clear leave the save at the furthest main level');
   $('story-slots').close();

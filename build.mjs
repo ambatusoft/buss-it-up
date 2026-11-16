@@ -6,7 +6,7 @@ const read = async path => normalize(await readFile(new URL(path, import.meta.ur
 const [shell, css, campaignCss, poster, face, ...scripts] = await Promise.all(
   ['./src/shell.html', './src/style.css', './src/campaign/style.css', './assets/art/poster.svg', './assets/art/face.svg',
     './src/campaign/data.js', './src/campaign/missions.js', './src/campaign/gear.js', './src/campaign/profile.js', './src/campaign/foes.js', './src/game.js', './src/audio.js', './src/campaign/play.js',
-    './src/campaign/combat.js', './src/render.js', './src/campaign/art.js', './src/campaign/armory.js', './src/campaign/menus.js', './src/campaign/ui.js', './src/boot.js'].map(read)
+    './src/campaign/endless.js', './src/campaign/combat.js', './src/render.js', './src/campaign/art.js', './src/campaign/armory.js', './src/campaign/menus.js', './src/campaign/ui.js', './src/boot.js'].map(read)
 );
 new Script(scripts.join('\n'),{filename:'Buss It Up! game sources'});
 const audio = {};

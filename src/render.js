@@ -124,7 +124,7 @@ function backdropFor(i){
   b.restore();
   for(let x=23;x<940;x+=20){rect(b,x,58,8,2,s.color+'66');rect(b,x,514,8,2,s.color+'55');}
   rect(b,0,0,W,52,'#16101e');line(b,[0,52,960,52],s.color+'77');
-  drawCampaignFloor(b,g.story.level);
+  drawCampaignFloor(b,campaignAreas[i]);
   return c;
 }
 function drawPlayer(p){
@@ -329,12 +329,12 @@ function drawBurst(){
   const range=g.echoAt.range*(.62+.38*(1-fade));
   c.save();c.translate(x,y);
   if(shape==='star'){
-    c.globalAlpha=fade*.58;c.lineWidth=3;
-    poly(c,starBurstPoints.flatMap(point=>[point.x*g.echoAt.range,point.y*g.echoAt.range]),color+'34',color);
-    if(!reduced){
-      const ripple=g.echoAt.range*(.14+.35*(1-fade));
-      c.globalAlpha=fade*.9;c.lineWidth=4;
-      poly(c,starBurstPoints.flatMap(point=>[point.x*ripple,point.y*ripple]),null,color);
+    const points=starBurstPoints.map(point=>[point.x*g.echoAt.range,point.y*g.echoAt.range]);
+    c.globalAlpha=fade*.92;c.lineWidth=5;
+    poly(c,points.flat(),color+'58',color);
+    c.globalAlpha=fade*.38;c.lineWidth=2;
+    for(const tip of [0,2]){
+      poly(c,[...points[tip],...points[tip+4],...points[tip+8]],null,color);
     }
     c.restore();return;
   }
@@ -389,7 +389,7 @@ function render(){
   const screenOff=g.serverGlass?.stage===4;
   if(screenOff)rect(c,15,55,930,465,'#000');
   if(!reduced&&g.shake>0)c.translate(rand(-g.shake,g.shake),rand(-g.shake,g.shake));
-  if(!screenOff)drawAreaMotion(c,g.story.level.areaIndex,reduced?0:g.clock);
+  if(!screenOff)drawAreaMotion(c,g.level,reduced?0:g.clock);
   if(g.level===2&&!reduced){
     for(const [i,x] of [184,776].entries()){
       const drift=Math.sin(g.clock*.64+i*Math.PI)*117;
@@ -498,7 +498,7 @@ function render(){
   drawServerExplosion(c,g.serverGlass);
   for(const f of g.fx){c.save();c.globalAlpha=clamp(f.life/f.max*1.6,0,1);c.translate(f.x,f.y);c.rotate(f.a);if(f.shape)rect(c,-f.s,-f.s*.42,f.s*2,f.s*.85,f.color);else disk(c,0,0,f.s*.52,f.color);c.restore();}
   if(g.echo>0)drawBurst();
-  if(g.mode==='play'&&!matchMedia('(pointer:coarse)').matches&&input.y>65&&input.y<505){
+  if(g.mode==='play'&&!usesTouchControls()&&input.y>65&&input.y<505){
     const x=input.x,y=input.y;c.lineWidth=1.5;disk(c,x,y,8,null,'#eeffbab0');
     line(c,[x-12,y,x-4,y],'#eeffba');line(c,[x+4,y,x+12,y],'#eeffba');
     line(c,[x,y-12,x,y-4],'#eeffba');line(c,[x,y+4,x,y+12],'#eeffba');

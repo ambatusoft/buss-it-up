@@ -4,6 +4,8 @@ Open **index.html** in a browser, choose **Start** or **Continue**, and pick one
 
 Page left and right through the area maps. Each area has four main levels and a harder **X** branch after level two. The final round is a **Final Wave** or an area boss. First clears earn one skill point, or two for a boss or bonus level. Bonus waves advance on an early clear or when their timer elapses. Each level has a Speed Clear medal with a target shown beside your map record and under the combat timer.
 
+Clear **6-4** to unlock **Endless Edging** on the Burnt Server map. Timed waves overlap. Every sixth wave holds until you defeat the boss and clear all remaining bots, then the run moves to a different arena.
+
 **Upgrades** has six equipment slots and a draggable skill tree. Match a Popper pattern with a Nut Effect and use the build stats to check shot range. Double-click a skill node to buy it. **Files** shows encountered enemies by area. Replay cleared levels for medals, times, and scores, or rematch a cleared area's boss.
 
 ## Develop and deploy

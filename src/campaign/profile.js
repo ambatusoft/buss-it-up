@@ -1,6 +1,6 @@
 const campaignSaveKey = 'buss-story-profile';
-const campaignVersion = 6;
-const campaignVersions=[1,2,3,4,5,campaignVersion];
+const campaignVersion = 7;
+const campaignVersions=[1,2,3,4,5,6,campaignVersion];
 const campaignSlots=[1,2,3];
 const campaignSlotKey=slot=>slot===1?campaignSaveKey:campaignSaveKey+'-'+slot;
 let campaignSlot=1;
@@ -9,7 +9,7 @@ let campaignSaveNotice = '';
 function freshCampaignProfile(id=globalThis.crypto?.randomUUID?.()??`${Date.now()}-${Math.random()}`) {
   return {
     version:campaignVersion,id,
-    cleared:[], medals:{}, records:{}, files:[], tutorial:false, skills:{}, equipped:{...campaignStarter}, selected:campaignLevels[0].id
+    cleared:[], medals:{}, records:{}, files:[], tutorial:false, bonusTutorial:false, keptGear:[], skills:{}, equipped:{...campaignStarter}, selected:campaignLevels[0].id
   };
 }
 
@@ -18,8 +18,12 @@ function campaignUnlocked(level, profile) {
 }
 
 function campaignOwned(profile) {
-  return new Set(Object.entries(campaignGear).filter(([,gear])=>!gear.unlock||profile.cleared.includes(gear.unlock)).map(([id])=>id));
+  return new Set(Object.entries(campaignGear).filter(([id,gear])=>!gear.unlock||profile.cleared.includes(gear.unlock)||profile.keptGear.includes(id)).map(([id])=>id));
 }
+
+const campaignRewards=(id,profile)=>Object.entries(campaignGear).filter(([key,gear])=>
+  gear.unlock===id&&!profile.keptGear.includes(key)
+).map(([,gear])=>gear);
 
 const skillCost=skill=>skill.cost??1;
 const earnedCampaignPoints=profile=>profile.cleared.reduce((total,id)=>total+clearSkillPoints(campaignLevelById.get(id)),0);
@@ -27,6 +31,7 @@ const spentCampaignPoints=profile=>campaignSkills.reduce((total,skill)=>total+(p
 const campaignPoints=profile=>earnedCampaignPoints(profile)-spentCampaignPoints(profile);
 const retiredGear={orbit:'needle',frost:'twin',crumbNut:'splashNut',deepFreeze:'snowNut',deadAir:'frame',freebird:'capacitor'};
 const migratedNutGear={cluster:'splashNut',lob:'splashNut',needle:'pierceNut',orbit:'homingNut',bounce:'ricochetNut',frost:'snowNut'};
+const previousGearGates={twin:'anger',playback:'dead-air',longstep:'sleepy',nova:'donut',recovery:'paza',echoCast:'dreamyfantasia',homingNut:'candid',rip:'red-circle',firstFrame:'red-tag',scrubVest:'hell',sparkstep:'hell',cutoff:'lost-take'};
 
 function normalizeCampaignProfile(value) {
   if(!campaignVersions.includes(value?.version)||typeof value.id!=='string')return freshCampaignProfile();
@@ -48,6 +53,11 @@ function normalizeCampaignProfile(value) {
     }
   }
   profile.tutorial=value.tutorial===true||profile.cleared.length>0;
+  profile.bonusTutorial=value.bonusTutorial===true||campaignLevels.some(level=>level.side&&completed.has(level.id));
+  const retained=new Set(Array.isArray(value.keptGear)?value.keptGear:[]);
+  profile.keptGear=Object.entries(previousGearGates).filter(([id,gate])=>
+    (retained.has(id)||value.version<7&&completed.has(gate))&&!completed.has(campaignGear[id].unlock)
+  ).map(([id])=>id);
   if(Array.isArray(value.files))profile.files=[...new Set(value.files.filter(id=>typeof id==='string'))].slice(0,100);
   for(const skill of campaignSkills){
     if(skill.requires && !profile.skills[skill.requires])continue;
@@ -151,7 +161,7 @@ function recordCampaignClear(level, profileId, stats, score) {
     selected:first?(next?.id??level.id):profile.selected, medals:{...profile.medals,[level.id]:[...medals]},
     records:{...profile.records,[level.id]:record}
   });
-  return {first,next,medals:[...medals]};
+  return {first,next,medals:[...medals],rewards:first?campaignRewards(level.id,profile):[]};
 }
 
 function refundCampaignSkills(){

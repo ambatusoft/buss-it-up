@@ -73,7 +73,9 @@
   </dialog>
   <dialog id="controls-dialog" class="lore controls-dialog" aria-labelledby="controls-title">
     <h2 id="controls-title">Before your first shift</h2>
-    <dl><div><dt>Move</dt><dd>WASD / arrows · stick on touch</dd></div><div><dt>Pop</dt><dd>Mouse / F · hold POP to auto-aim on touch</dd></div><div><dt>Dash</dt><dd>Shift · DASH on touch</dd></div><div><dt>Buss Burst</dt><dd>Space at full charge · BUSS on touch</dd></div><div><dt>Pause</dt><dd>Esc / P · pause button</dd></div></dl>
+    <dl id="keyboard-controls"><div><dt>Move</dt><dd>WASD / arrow keys</dd></div><div><dt>Pop</dt><dd>Aim with the mouse. Click or press F to fire.</dd></div><div><dt>Dash</dt><dd>Shift</dd></div><div><dt>Buss Burst</dt><dd>Space at full charge</dd></div><div><dt>Pause</dt><dd>Esc / P</dd></div></dl>
+    <dl id="touch-controls" hidden><div><dt>Move</dt><dd>Drag the stick</dd></div><div><dt>Pop</dt><dd>Hold POP to auto-aim and fire</dd></div><div><dt>Dash</dt><dd>Tap DASH</dd></div><div><dt>Buss Burst</dt><dd>Tap BUSS at full charge</dd></div><div><dt>Pause</dt><dd>Tap the pause button</dd></div></dl>
+    <p id="bonus-instructions" hidden>Waves come nonstop. Clear a wave early to start the next one right away. If the timer runs out first, surviving enemies carry over. Clear every enemy to finish.</p>
     <form method="dialog" class="reset-actions"><button class="secondary" value="cancel">Back</button><button id="controls-start" class="primary" value="play" autofocus>Start level</button></form>
   </dialog>
   <script>/* GAME */</script>

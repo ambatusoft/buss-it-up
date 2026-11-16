@@ -1,6 +1,6 @@
 # Architecture
 
-Updated 2026-11-16. The build emits a single offline HTML game. See the [maintainer handoff](HANDOFF.md) for the current project state.
+Updated 2026-11-17. The build emits a single offline HTML game. See the [maintainer handoff](HANDOFF.md) for the current project state.
 
 ## Source map
 
@@ -11,6 +11,7 @@ Updated 2026-11-16. The build emits a single offline HTML game. See the [maintai
 | [src/render.js](../src/render.js), [src/campaign/art.js](../src/campaign/art.js) | Arena backgrounds, effects, actors, and enemy file portraits |
 | [src/campaign/data.js](../src/campaign/data.js), [src/campaign/missions.js](../src/campaign/missions.js) | Authored area maps and waves, stable level IDs, derived route and squad parsing |
 | [src/campaign/play.js](../src/campaign/play.js) | Deployment, arena hazards, timed bonus waves, boss modifiers, and result screens |
+| [src/campaign/endless.js](../src/campaign/endless.js) | Endless entry, enemy bag, bounded wave scaling, boss gates, and arena rotation |
 | [src/campaign/foes.js](../src/campaign/foes.js) | Area specialists, vector silhouettes, telegraph timing, movement and attacks |
 | [src/campaign/gear.js](../src/campaign/gear.js), [src/campaign/combat.js](../src/campaign/combat.js) | Loadout definitions, single-purchase tree, shot patterns and effects, Burst geometry |
 | [src/campaign/profile.js](../src/campaign/profile.js) | Save normalization, unlocks, purchases, records, medal and discovery ledgers |
@@ -34,6 +35,8 @@ The arena simulation and input share a 960 × 544 coordinate space. The renderer
 
 Add skill benefits as stat modifiers or distinct triggers such as a dash timing window, opening hit, streak, or wave start.
 
+Endless is an attempt type outside the Story level graph. It shares the deployment queue, regular-wave healing, boss attacks, and combat rendering. The active arena determines art, hazards, boss identity, and track selection. Endless uses Area 6's base combat stats in every arena. Every sixth round waits for an empty queue and no survivors before changing arenas, and skips Story's second-form transformations and finish timer.
+
 Dash cooldown tracks how much time remains until the entire stock is full. Spending a charge adds its reload time to the total. A charge becomes ready each time the balance drops through one full reload interval. This keeps the first reload running if the player spends a second charge and lets the split HUD reflect both available charges and reload progress.
 
 The final boss's second phase stores its glass state on the attempt. Damage advances that state at 75%, 50%, 25%, and death. Half health starts a portrait cycle behind the cracks. On death the renderer switches to a black background, then draws shards, the shockwave, and particles over it. The second-phase track continues through that animation.
@@ -44,7 +47,7 @@ Files computes a catalog ordered by the first area that can spawn each enemy. En
 
 The three slots use `buss-story-profile`, `buss-story-profile-2`, and `buss-story-profile-3`. Each stores a profile ID, cleared levels, medals, records, tutorial acknowledgment, discovered enemies, six equipped gear IDs, purchased nodes, and the last selected level. The slot summary derives the furthest main-route clear from the cleared IDs. It ignores replays and optional X levels. Available points use one per ordinary first clear and two per boss or bonus first clear, minus purchased node costs. Points are derived from clears, so saves with an existing bonus clear gain its extra point automatically. Replays and rematches award no extra points.
 
-Versions 1–5 migrate on read. Older saves keep clears and available gear. Equipped legacy Popper effects map to compatible Nut Effects. Unaffordable old skill trees are refunded. Version 5 equipment and skill IDs with replacements are remapped. Across supported versions, equipped retired items switch to their replacement if owned, or to starter gear in that slot. Renamed items retain their IDs. Previous-rules score and time remain visible until a new clear. Old Remix medals retire. On load, purchased nodes that lack a current prerequisite or exceed the current point budget return their points. The Speed Clear medal requires a qualifying time under the current rules. Save normalization grants it when a nonlegacy record already meets the target. The next mutation writes version 6.
+Versions 1–6 migrate on read. Older saves keep clears and available gear. Equipped legacy Popper effects map to compatible Nut Effects. Unaffordable old skill trees are refunded. Version 5 equipment and skill IDs with replacements are remapped. Across supported versions, equipped retired items switch to their replacement if owned, or to starter gear in that slot. Renamed items retain their IDs. Previous-rules score and time remain visible until a new clear. Old Remix medals retire. On load, purchased nodes that lack a current prerequisite or exceed the current point budget return their points. The Speed Clear medal requires a qualifying time under the current rules. Save normalization grants it when a nonlegacy record already meets the target. Version 7 retains gear earned at an older unlock gate and stores a first-bonus acknowledgment. Endless adds no campaign medals, points, levels, or times.
 
 Mutations reread the latest profile when possible. Attempts carry the profile ID, so a reset in another tab invalidates stale results. Concurrent browser tabs can still race between read and write because browser-local storage offers no cross-tab transaction. When writes fail, Story retains the session snapshot and shows a notice.
 
