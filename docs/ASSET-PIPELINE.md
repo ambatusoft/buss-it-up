@@ -1,6 +1,6 @@
 # Art and audio pipeline
 
-Updated 2026-11-14. The editable files in this repository are the source of the shipped assets. The build inlines the artwork, JavaScript, CSS, and every recording into one offline HTML file. The player makes no runtime requests to the original sources.
+Updated 2026-11-23. The editable files in this repository are the source of the shipped assets. The build inlines the artwork, JavaScript, CSS, and every recording into one offline HTML file. The player makes no runtime requests to the original sources.
 
 ## Draw graphics that fit the game
 
@@ -38,7 +38,7 @@ ffmpeg -i "assets/audio/new-track.ogg" -af ebur128 -f null -
 
 ## Source and edit voices
 
-All 14 MP3s below matched the repository copies by SHA-256 on November 12, 2026. The soundboard is a verified byte source for these copies. Attribution of the original recordings and rights to redistribute them remain separate questions. Prefer an authorized original or a recorded line you have permission to use for new material. Keep the exact source link and edit notes. [Dreamybull soundboard](https://www.myinstants.com/en/search/?name=dreamybull)
+The 14 original MP3s below matched the then-current repository copies by SHA-256 on November 12, 2026. Eleven remain bundled; the three retired sources are retained separately below as historical credits. The soundboard is a verified byte source for these copies. Attribution of the original recordings and rights to redistribute them remain separate questions. Prefer an authorized original or a recorded line you have permission to use for new material. Keep the exact source link and edit notes. [Dreamybull soundboard](https://www.myinstants.com/en/search/?name=dreamybull)
 
 To reproduce a comparison, download the linked file under a temporary name and compare it to the repository copy with `Get-FileHash -Algorithm SHA256 assets/audio/tap.mp3, downloaded-tap.mp3` on PowerShell or `sha256sum assets/audio/tap.mp3 downloaded-tap.mp3` on Linux. If a mirror changes, keep the known repository copy and record the discrepancy.
 
@@ -56,10 +56,15 @@ To reproduce a comparison, download the linked file under a temporary name and c
 | `yek.mp3` | Two enemy-down edits | [Dreamybull YEK](https://www.myinstants.com/media/sounds/dreamybull-yek.mp3) |
 | `like.mp3` | Hurt stinger | [Damn it's like that](https://www.myinstants.com/media/sounds/damn-its-like-that_ycZqoI5.mp3) |
 | `rtp.mp3` | Dash stinger | [Dreamybull RTP](https://www.myinstants.com/media/sounds/dreamybull-rtp.mp3) |
-| `take.mp3` | Former Archive preview | [Take it, take it](https://www.myinstants.com/media/sounds/dreamybull-take-it-take-it.mp3) |
 | `tap.mp3` | Full 10.77 s failure cue | [You Tappin Out](https://www.myinstants.com/media/sounds/you-tappin-out.mp3) |
+
+Retired recordings are not shipped:
+
+| Former file | Former use | Historical source |
+| --- | --- | --- |
+| `take.mp3` | Archive preview | [Take it, take it](https://www.myinstants.com/media/sounds/dreamybull-take-it-take-it.mp3) |
 | `ambatubus.mp3` | Archive reel | [Ambatubus](https://www.myinstants.com/media/sounds/ambatubus.mp3) |
-| `acting.mp3` | Former relay stinger | [Dreamybull acting stupid](https://www.myinstants.com/media/sounds/dreamybull-acting-stupid.mp3) |
+| `acting.mp3` | Relay stinger | [Dreamybull acting stupid](https://www.myinstants.com/media/sounds/dreamybull-acting-stupid.mp3) |
 
 Verify the role and presence of each file in [audio.js](../src/audio.js) when reassigning it. The two preview-only recordings and former relay stinger are documented here as source links. The synth in `audio.js` supplies clicks, impacts, warnings, and the server transformation cue without extra files.
 

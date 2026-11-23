@@ -4,7 +4,7 @@ Open **index.html** in a browser, choose **Start** or **Continue**, and pick one
 
 Page left and right through the area maps. Each area has four main levels and a harder **X** branch after level two. The final round is a **Final Wave** or an area boss. First clears earn one skill point, or two for a boss or bonus level. Bonus waves advance on an early clear or when their timer elapses. Each level has a Speed Clear medal with a target shown beside your map record and under the combat timer.
 
-Clear **6-4** to unlock **I'm in Love with Satan**, a pendant that trades all healing for a devil companion with homing shots.
+Clear **6-4** to unlock **I'm in Love with Satan**, a pendant that halves healing and adds a devil companion with homing shots.
 
 **Upgrades** has six equipment slots and a draggable skill tree. Match a Popper pattern with a Nut Effect and use the build stats to check shot range. Double-click a skill node to buy it. **Files** shows encountered enemies by area. Replay cleared levels for medals, times, and scores, or rematch a cleared area's boss.
 

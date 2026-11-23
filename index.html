@@ -67,7 +67,11 @@ h1 span{color:var(--lime)}
 .hud-timer{font-variant-numeric:tabular-nums}
 .hud-timer span{color:#e7b3df;letter-spacing:0}
 .hud-timer .over-target{color:#b2a5b6}
+#boss-hud{position:absolute;top:10.5%;left:30%;width:40%;text-align:center;color:#ffdcd6}
 @container(max-width:480px){
+  .hud-wave{left:42%;width:21%;transform:none;white-space:normal}
+  .hud-wave span{overflow-wrap:anywhere}
+  #boss-hud{top:calc(2.5% + 34px)}
   .hud-records{right:11%;gap:4px}
   .hud-score strong,.hud-timer strong{font-size:1em}
   .hud-timer span{font-size:.7em}
@@ -77,7 +81,6 @@ h1 span{color:var(--lime)}
   .hud-wave span{font-size:.67em;letter-spacing:-.02em}
 }
 .pause{position:absolute;right:2.7%;top:2.5%;pointer-events:auto;padding:3px 8px;font-size:1em}
-#boss-hud{position:absolute;top:10.5%;left:30%;width:40%;text-align:center;color:#ffdcd6}
 #boss-hud i{background:#ff789b}
 .toast{position:absolute;top:20%;left:50%;transform:translateX(-50%);z-index:2;white-space:nowrap;pointer-events:none;padding:.35em .8em;color:#fffbdf;background:#20132add;border:1px solid #f7e7fe5e;box-shadow:3px 4px #0e0b1ab0;font:clamp(13px,3cqw,27px) var(--head);letter-spacing:.06em}
 .overlay{display:flex;justify-content:center;align-items:center;overflow:auto;z-index:5;background:#110c1bcd;padding:9px}
@@ -1061,7 +1064,7 @@ const campaignGear={
   nutCharm:{slot:'pendant',name:'I Need That Nut',unlock:'nutmare-cache',text:'Restore 10 Vibe for every fourth bot popped and 2 Vibe for every tenth shot that hits a boss.',icon:'M5 8l7-5 7 5v8l-7 5-7-5zM9 12h6m-3-3v6',apply:p=>{p.killHeal+=10;p.bossVibe=2;}},
   coldest:{slot:'pendant',name:'Coldest Moment',unlock:'lost-take',text:'Buss Burst freezes enemies it hits for 4 seconds. Bosses are heavily slowed for 1 second.',icon:'M4 4l8 7 8-7M12 11l5 5-5 5-5-5zM12 13v6m-3-5 6 4m-6 0 6-4',apply:p=>{p.coldBurst=4;}},
   hush:{slot:'pendant',name:"Batu Khan's Revenge",unlock:'red-tag',text:'Taking damage clears hostile shots, hits and stuns all enemies for 0.8 s, and grants 15% Burst charge. Hits deal 3× pop power.',icon:'M5 3l7 8 7-8M7 13h10v7H7zM9 17h6',apply:p=>{p.revengeDamage=3;}},
-  devil:{slot:'pendant',name:"I'm in Love with Satan",unlock:'encore',text:'Prevents all healing. A little devil follows your left shoulder and fires homing shots at 250% of the default Popper’s DPS, unaffected by gear or skills.',icon:'M4 3l4 6h8l4-6v9c0 5-4 9-8 9s-8-4-8-9zM7 12l3 2m7-2-3 2M9 18h6',apply:p=>{p.devil=true;p.noHealing=true;}}
+  devil:{slot:'pendant',name:"I'm in Love with Satan",unlock:'encore',text:'Receive 50% less healing from all sources. A little devil follows your left shoulder and fires homing shots at 150% of the default Popper’s DPS, unaffected by gear or skills.',icon:'M4 3l4 6h8l4-6v9c0 5-4 9-8 9s-8-4-8-9zM7 12l3 2m7-2-3 2M9 18h6',apply:p=>{p.devil=true;p.healingScale*=.5;}}
 };
 
 const skillBranches={pop:{name:'Pop',color:'#d9fc70'},dash:{name:'Dash',color:'#8ddfff'},burst:{name:'Burst',color:'#ff91cc'},vibe:{name:'Vibe',color:'#78efb8'},signal:{name:'Signal',color:'#ffc67a'}};
@@ -1451,7 +1454,7 @@ const storage={
 };
 const initialPopPower=17;
 const initial=()=>({x:480,y:390,r:15,hp:100,max:100,dmg:initialPopPower,rate:.164,speed:265,dashMax:1.48,popSpeed:730,pierce:0,charge:40,
-  dashSpeed:dashRules.speed,dashDuration:dashRules.duration,dashCapacity:1,dashPulse:0,dashRefund:0,incoming:1,refillHealing:1,pickupHealing:1,grace:1,revive:0,
+  dashSpeed:dashRules.speed,dashDuration:dashRules.duration,dashCapacity:1,dashPulse:0,dashRefund:0,incoming:1,refillHealing:1,pickupHealing:1,healingScale:1,grace:1,revive:0,
   waveGuard:0,hazardGuard:1,killHeal:0,
   pattern:'single',shotLife:1.28,nut:null,burstShape:'cone',burstDamage:86,burstReach:1,aftershock:0,
   burstHeal:0,closeCharge:0,killCharge:0,bossCharge:0,echoKill:0,reflect:false,
@@ -1678,7 +1681,7 @@ function damage(e,amount,source){
     transformSatan(e);
   }else if(e.hp<=0)kill(e,source);
   if(e.kind==='primePod'&&e.dead&&e.owner.pods.every(pod=>pod.dead)){
-    if(!g.p.noHealing)g.p.hp=Math.min(g.p.max,g.p.hp+g.p.max*.34);
+    g.p.hp=Math.min(g.p.max,g.p.hp+g.p.max*.34*g.p.healingScale);
     g.p.inv=Math.max(g.p.inv,.8);
     g.enemyPops=[];
     announce('CORE EXPOSED',1.2);sound.event('warn');
@@ -1714,8 +1717,8 @@ function hurt(n,source='enemy'){
   }
   particle(p.x,p.y,'#ff86ae',13,147);
   sound.event('hurt');
-  if(p.hp<=0&&p.revive&&!p.noHealing&&!g.cameoUsed){
-    g.cameoUsed=true;p.hp=Math.ceil(p.max*p.revive);p.inv+=2;
+  if(p.hp<=0&&p.revive&&!g.cameoUsed){
+    g.cameoUsed=true;p.hp=Math.ceil(p.max*p.revive)*p.healingScale;p.inv+=2;
     g.reviveEffect=1.65;
     particle(p.x,p.y,'#fff4b7',44,228,1);
     announce('TAKE TWO',1.4);sound.event('revive');
@@ -1800,8 +1803,9 @@ function transformSatan(e){
   e.slow=e.stun=e.stunLock=0;e.poison=null;
   g.enemyPops=[];g.hazards=[];g.safeZone=null;g.shake=13;g.flash=.22;
   for(const bot of g.enemies)if(bot!==e)bot.dead=true;
-  healPlayer(g.p.max*.27);
-  if(!g.p.noHealing)g.p.hp=Math.max(g.p.hp,Math.ceil(g.p.max*.56));
+  const recovered=Math.min(g.p.max,g.p.hp+Math.round(g.p.max*.27));
+  const recoveryTarget=Math.max(recovered,Math.ceil(g.p.max*.56));
+  g.p.hp+=(recoveryTarget-g.p.hp)*g.p.healingScale;
   discover('hellboot');
   g.p.inv=Math.max(g.p.inv,1.9);
   particle(e.x,e.y,'#ff7161',62,280,1);
@@ -2918,7 +2922,7 @@ const burstTime=.46;
 const poisonTick=.2;
 const bossBurstScale=174/86;
 const devilShotInterval=30/90;
-const devilShotDamage=initialPopPower*2.5*devilShotInterval/initial().rate;
+const devilShotDamage=initialPopPower*1.5*devilShotInterval/initial().rate;
 const starBurstPoints=Array.from({length:12},(_,i)=>{
   const angle=i*Math.PI/6-Math.PI/2, radius=i%2?1/Math.sqrt(3):1;
   return {x:Math.cos(angle)*radius,y:Math.sin(angle)*radius};
@@ -2936,9 +2940,9 @@ const burstShapes={
 
 function healPlayer(amount,refill=false){
   const p=g.p;
-  if(p.noHealing)return 0;
   const before=p.hp;
-  p.hp=Math.min(p.max,p.hp+Math.round(amount*(refill?p.refillHealing:1)));
+  const healing=Math.round(amount*(refill?p.refillHealing:1))*p.healingScale;
+  p.hp=Math.min(p.max,p.hp+healing);
   return p.hp-before;
 }
 

@@ -59,7 +59,7 @@ const campaignGear={
   nutCharm:{slot:'pendant',name:'I Need That Nut',unlock:'nutmare-cache',text:'Restore 10 Vibe for every fourth bot popped and 2 Vibe for every tenth shot that hits a boss.',icon:'M5 8l7-5 7 5v8l-7 5-7-5zM9 12h6m-3-3v6',apply:p=>{p.killHeal+=10;p.bossVibe=2;}},
   coldest:{slot:'pendant',name:'Coldest Moment',unlock:'lost-take',text:'Buss Burst freezes enemies it hits for 4 seconds. Bosses are heavily slowed for 1 second.',icon:'M4 4l8 7 8-7M12 11l5 5-5 5-5-5zM12 13v6m-3-5 6 4m-6 0 6-4',apply:p=>{p.coldBurst=4;}},
   hush:{slot:'pendant',name:"Batu Khan's Revenge",unlock:'red-tag',text:'Taking damage clears hostile shots, hits and stuns all enemies for 0.8 s, and grants 15% Burst charge. Hits deal 3× pop power.',icon:'M5 3l7 8 7-8M7 13h10v7H7zM9 17h6',apply:p=>{p.revengeDamage=3;}},
-  devil:{slot:'pendant',name:"I'm in Love with Satan",unlock:'encore',text:'Prevents all healing. A little devil follows your left shoulder and fires homing shots at 250% of the default Popper’s DPS, unaffected by gear or skills.',icon:'M4 3l4 6h8l4-6v9c0 5-4 9-8 9s-8-4-8-9zM7 12l3 2m7-2-3 2M9 18h6',apply:p=>{p.devil=true;p.noHealing=true;}}
+  devil:{slot:'pendant',name:"I'm in Love with Satan",unlock:'encore',text:'Receive 50% less healing from all sources. A little devil follows your left shoulder and fires homing shots at 150% of the default Popper’s DPS, unaffected by gear or skills.',icon:'M4 3l4 6h8l4-6v9c0 5-4 9-8 9s-8-4-8-9zM7 12l3 2m7-2-3 2M9 18h6',apply:p=>{p.devil=true;p.healingScale*=.5;}}
 };
 
 const skillBranches={pop:{name:'Pop',color:'#d9fc70'},dash:{name:'Dash',color:'#8ddfff'},burst:{name:'Burst',color:'#ff91cc'},vibe:{name:'Vibe',color:'#78efb8'},signal:{name:'Signal',color:'#ffc67a'}};

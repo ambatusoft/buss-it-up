@@ -177,6 +177,7 @@ const captures={
 };
 captures['mobile-files']=captures.catalog;
 captures['mobile-win']=captures['story-win'];
+captures['mobile-story-boss']=captures['story-boss']+`document.querySelector('.hud-status').style.fontFamily='sans-serif';g.p.charge=100;g.combo=12;g.comboT=2;hud();`;
 const testMode=mode==='test'||mode==='story';
 if(!testMode&&!Object.hasOwn(captures,mode))throw new Error('Unknown browser check: '+mode);
 const payload=testMode?(await Promise.all(['./pilot.js','./story.js']

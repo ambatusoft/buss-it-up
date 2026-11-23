@@ -1,6 +1,6 @@
 # Buss It Up! · Story design
 
-Revised 2026-11-17. The campaign is a fictional clean slate for Dreamy. He is clearing out the old clips and their copies before opening a new chapter. The gym, terminal, broadcast booth, edit suite, assembly floor, and backup server mark different stops in the life of those clips. Keep the motivation in props, filenames, and short observations. The check-in camera, unsolicited subtitles, and closing color swatches carry the thread. [Lore ledger](LORE-RESEARCH.md) [Gameplay reference](../GAME-DESIGN.md)
+Revised 2026-11-23. The campaign is a fictional clean slate for Dreamy. He is clearing out the old clips and their copies before opening a new chapter. The gym, terminal, broadcast booth, edit suite, assembly floor, and backup server mark different stops in the life of those clips. Keep the motivation in props, filenames, and short observations. The check-in camera, unsolicited subtitles, and closing color swatches carry the thread. [Lore ledger](LORE-RESEARCH.md) [Gameplay reference](../GAME-DESIGN.md)
 
 ## Maps and campaign route
 
@@ -44,7 +44,7 @@ An ordinary first clear grants one skill point. Boss and bonus first clears gran
 | Buss Burst | 8 | Six-Point Signal covers a large hexagram around the player. Censor Bar knocks back nearby bots and grants 1.0 s of protection on every cast. |
 | Boots | 8 | Classy Stabilizer stores two dashes with slower sequential reloads. Stretch This extends dash duration. Paza Runners reset dash cooldown on bot pops. |
 | Vibe Guard | 8 | Breakaway Jacket blocks the first projectile in each wave. Spam Filter clears nearby shots when hit. |
-| Pendant | 9 | Coldest Moment freezes targets hit by Burst. Batu Khan's Revenge clears shots and retaliates. I'm in Love with Satan blocks healing and adds an independent homing companion. |
+| Pendant | 9 | Coldest Moment freezes targets hit by Burst. Batu Khan's Revenge clears shots and retaliates. I'm in Love with Satan halves healing and adds an independent homing companion. |
 
 The left column groups nine build stats, including nominal shot range and base Burst damage. Pop power has a fixed-height row with right-aligned values. Multishot weapons show damage and count for each damage group. Overdrive shows its ordinary and fan volleys. Equipment is sorted by unlock level, with each bonus after the main route. The 32 nodes cost one to three points, with 42 points available from a full campaign and 57 needed for the entire tree. Double-click a node or use its purchase button. Refund skills restores all spent points immediately and keeps the loadout. Dash healing and Burst healing are smaller, and passive damage reduction has a cap. Boss slows retain half the strength and last a quarter as long. A stun becomes a 70% slow for a quarter of its duration. Coldest Moment freezes regular targets for four seconds and heavily slows bosses for one second.
 

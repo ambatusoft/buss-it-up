@@ -144,9 +144,13 @@ function verifyTouchControls(){
 function verifyHudLayout(){
   const viewport=$('viewport');
   const title=$('level-name'), originalTitle=title.textContent;
+  const bossHud=$('boss-hud'), bossHidden=bossHud.hidden;
   g.p.charge=100;g.combo=12;g.comboT=2;hud();
+  bossHud.hidden=false;
   title.textContent=campaignLevels.map(levelLabel).reduce((longest,label)=>label.length>longest.length?label:longest,'');
-  for(const width of ['', '390px', '320px']){
+  const status=document.querySelector('.hud-status');
+  for(const fallback of [false,true])for(const width of ['', '390px', '320px']){
+    status.style.fontFamily=fallback?'sans-serif':'';
     viewport.style.width=width;
     const vibe=$('vibe-meter').getBoundingClientRect();
     const dash=$('dash-meter').getBoundingClientRect();
@@ -163,6 +167,8 @@ function verifyHudLayout(){
     const target=$('speed-medal-target').getBoundingClientRect();
     const score=$('score').getBoundingClientRect();
     check(title.getBoundingClientRect().right<records.left,'Level title leaves the timer and score clear at '+(width||'desktop'));
+    check(document.querySelector('.hud-wave').getBoundingClientRect().bottom<bossHud.getBoundingClientRect().top,
+      'Wave and level labels leave the boss bar clear at '+(width||'desktop'));
     check(score.right<timer.left&&timer.bottom<=target.top&&records.right<$('pause').getBoundingClientRect().left,'Time and target fit next to the score at '+(width||'desktop'));
   }
   check(getComputedStyle($('dash-fill')).animationName==='none','Full Dash stays steady');
@@ -170,6 +176,8 @@ function verifyHudLayout(){
   check(fill.animationIterationCount==='infinite'&&fill.animationName===label.animationName&&fill.animationDuration===label.animationDuration,'Full Buss bar and label pulse together');
   check(['hp-fill','dash-fill','buss-fill'].every(id=>getComputedStyle($(id)).backgroundImage==='none'),'The three meter fills are solid colors');
   title.textContent=originalTitle;
+  status.style.fontFamily='';
+  bossHud.hidden=bossHidden;
   viewport.style.width='';
   g.p.charge=48;g.combo=0;g.comboT=0;hud();
 }
@@ -203,29 +211,39 @@ function verifyDevil(){
   const before=armored.hp;
   for(let i=0;i<270;i++){updateDevil(1/90);updatePlayerPops(1/90);}
   check(Math.abs(before-armored.hp-9*expectedDamage)<1e-6&&
-    Math.abs(expectedDamage/devilShotInterval-initial().dmg/initial().rate*2.5)<1e-8,
-    'Upgraded gear and skills leave companion DPS at 250% of the default Popper');
+    Math.abs(expectedDamage/devilShotInterval-initial().dmg/initial().rate*1.5)<1e-8,
+    'Upgraded gear and skills leave companion DPS at 150% of the default Popper');
   g.p.hp=20;g.p.charge=100;
-  healPlayer(100);
+  healPlayer(101);
+  check(g.p.hp===70.5,'The pendant halves healing exactly, including odd healing amounts');
   finishRegularWave();
+  check(g.p.hp===80.5,'Wave-clear skill healing is halved');
   buzz();
+  check(g.p.hp===84.5,'Burst skill healing is halved');
   closeCall({x:g.p.x,y:g.p.y,life:6});
+  check(g.p.hp===85.5,'Close Call healing is halved');
   for(let i=0;i<4;i++)damage(enemy('runner',780,350,0),10000);
+  check(g.p.hp===88,'Every-fourth-kill healing is halved');
   g.items=[{x:g.p.x,y:g.p.y,life:6}];g.p.inv=2;update(1/90);
-  check(g.p.hp===20,'The pendant blocks direct healing, wave-clear skills, Burst skills, dash skills, kill healing, and pickups');
+  check(g.p.hp===100,'Pickup healing is halved after Second Serving');
+  g.p.hp=20;
   openWave(2);
-  check(g.p.hp===20,'Numbered-wave healing is blocked');
+  check(g.p.hp===20+Math.round(g.p.max*combatRules.waveHeal*areaTuning[g.level].heal)*.5,'Numbered-wave healing is halved');
   startCampaignLevel('encore',true);g.p.hp=20;
   const satan=g.enemies[0];satan.spawn=0;damage(satan,1e7);
-  check(satan.satanPhase&&g.p.hp===20,'Satan’s PC transition gives no healing');
+  check(satan.satanPhase&&g.p.hp===44,'Satan’s PC transition heals halfway to its usual recovery target');
   startCampaignLevel('third-impact',true);g.p.hp=20;
   const ambatron=g.enemies[0];ambatron.spawn=0;damage(ambatron,1e7);
-  check(g.primeForm&&g.p.hp===20,'Ambatron transition gives no healing');
+  check(g.primeForm&&g.p.hp===49.5,'Ambatron transition healing is halved');
   ambatron.transform=0;
   for(const pod of ambatron.pods)damage(pod,1e7);
-  check(g.p.hp===20,'Destroying both pods gives no healing');
+  check(Math.abs(g.p.hp-69.9)<1e-8,'Destroying both pods grants half its recovery');
+  g.p.hp=20;
   openWave(activeWaveCount());
-  check(g.p.hp===20,'Boss-round healing is blocked');
+  check(g.p.hp===20+Math.round(g.p.max*combatRules.bossHeal)*.5,'Boss-round healing is halved');
+  equipCampaignGear('recovery');startCampaignLevel('interview');g.p.hp=20;
+  healPlayer(10,true);
+  check(g.p.hp===27,'The pendant halves healing after equipment bonuses');
   startCampaignLevel('anger',true);
   const boss=g.enemies[0];boss.spawn=0;
   g.p.charge=0;const bossBefore=boss.hp;

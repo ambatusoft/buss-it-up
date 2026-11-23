@@ -1,6 +1,14 @@
 # Changelog
 
-## Unreleased
+## 2026-11-23 · Launch preparation
+
+- I'm in Love with Satan now reduces healing by 50% instead of preventing it. The penalty applies after healing bonuses and preserves fractional Vibe, including wave, pickup, skill, and boss-phase recovery. Attempts still start at full Vibe.
+- Retuned the independent devil from 250% to 150% of default Popper DPS for the smaller drawback. It cleared all six matched late-game comparisons across two seeds; 100% lost both finales. Pop Me and Batu Khan's Revenge each cleared five of six.
+- Fixed narrow-screen HUD overlap with wider fallback fonts, including boss-bar spacing. Added fallback-font layout checks and a narrow boss capture. This addresses the failing GitHub browser check.
+- Consolidated the release checklist and current handoff, removed the superseded implementation plan and temporary playtest files, corrected the voice inventory, and retained retired source credits and development history.
+- Both campaign seeds cleared all 30 levels and 172 rounds offline without retries. Half-healing, companion independence, legacy saves, and all 25 audio assets passed browser checks. The local Pages-path check and generated-file freshness checks are recorded in the handoff.
+
+## Development history
 
 ### 2026-11-23 · Devil damage buff
 

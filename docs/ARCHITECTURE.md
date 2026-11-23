@@ -34,7 +34,7 @@ The arena simulation and input share a 960 × 544 coordinate space. The renderer
 
 Add skill benefits as stat modifiers or distinct triggers such as a dash timing window, opening hit, streak, or wave start.
 
-The devil pendant creates a companion for the attempt. Its projectiles share friendly collision and homing code, with independent damage, cadence, speed, and lifetime. The companion flag bypasses player damage and hit-proc skills. Healing is blocked in the shared helper and at direct boss-phase recovery sites. Starting an attempt restores full starting Vibe.
+The devil pendant creates a companion for the attempt. Its projectiles share friendly collision and homing code, with independent damage, cadence, speed, and lifetime. The companion flag bypasses player damage and hit-proc skills. Its `healingScale` halves recovery after normal healing bonuses and rounding, retaining fractional Vibe. The shared helper and direct boss-phase recovery sites apply the same multiplier; the final boss's recovery floor is included in that calculation. Starting an attempt restores full starting Vibe.
 
 Dash cooldown tracks how much time remains until the entire stock is full. Spending a charge adds its reload time to the total. A charge becomes ready each time the balance drops through one full reload interval. This keeps the first reload running if the player spends a second charge and lets the split HUD reflect both available charges and reload progress.
 

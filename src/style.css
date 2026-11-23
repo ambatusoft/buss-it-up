@@ -56,7 +56,11 @@ h1 span{color:var(--lime)}
 .hud-timer{font-variant-numeric:tabular-nums}
 .hud-timer span{color:#e7b3df;letter-spacing:0}
 .hud-timer .over-target{color:#b2a5b6}
+#boss-hud{position:absolute;top:10.5%;left:30%;width:40%;text-align:center;color:#ffdcd6}
 @container(max-width:480px){
+  .hud-wave{left:42%;width:21%;transform:none;white-space:normal}
+  .hud-wave span{overflow-wrap:anywhere}
+  #boss-hud{top:calc(2.5% + 34px)}
   .hud-records{right:11%;gap:4px}
   .hud-score strong,.hud-timer strong{font-size:1em}
   .hud-timer span{font-size:.7em}
@@ -66,7 +70,6 @@ h1 span{color:var(--lime)}
   .hud-wave span{font-size:.67em;letter-spacing:-.02em}
 }
 .pause{position:absolute;right:2.7%;top:2.5%;pointer-events:auto;padding:3px 8px;font-size:1em}
-#boss-hud{position:absolute;top:10.5%;left:30%;width:40%;text-align:center;color:#ffdcd6}
 #boss-hud i{background:#ff789b}
 .toast{position:absolute;top:20%;left:50%;transform:translateX(-50%);z-index:2;white-space:nowrap;pointer-events:none;padding:.35em .8em;color:#fffbdf;background:#20132add;border:1px solid #f7e7fe5e;box-shadow:3px 4px #0e0b1ab0;font:clamp(13px,3cqw,27px) var(--head);letter-spacing:.06em}
 .overlay{display:flex;justify-content:center;align-items:center;overflow:auto;z-index:5;background:#110c1bcd;padding:9px}

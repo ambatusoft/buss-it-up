@@ -74,7 +74,7 @@ const storage={
 };
 const initialPopPower=17;
 const initial=()=>({x:480,y:390,r:15,hp:100,max:100,dmg:initialPopPower,rate:.164,speed:265,dashMax:1.48,popSpeed:730,pierce:0,charge:40,
-  dashSpeed:dashRules.speed,dashDuration:dashRules.duration,dashCapacity:1,dashPulse:0,dashRefund:0,incoming:1,refillHealing:1,pickupHealing:1,grace:1,revive:0,
+  dashSpeed:dashRules.speed,dashDuration:dashRules.duration,dashCapacity:1,dashPulse:0,dashRefund:0,incoming:1,refillHealing:1,pickupHealing:1,healingScale:1,grace:1,revive:0,
   waveGuard:0,hazardGuard:1,killHeal:0,
   pattern:'single',shotLife:1.28,nut:null,burstShape:'cone',burstDamage:86,burstReach:1,aftershock:0,
   burstHeal:0,closeCharge:0,killCharge:0,bossCharge:0,echoKill:0,reflect:false,
@@ -301,7 +301,7 @@ function damage(e,amount,source){
     transformSatan(e);
   }else if(e.hp<=0)kill(e,source);
   if(e.kind==='primePod'&&e.dead&&e.owner.pods.every(pod=>pod.dead)){
-    if(!g.p.noHealing)g.p.hp=Math.min(g.p.max,g.p.hp+g.p.max*.34);
+    g.p.hp=Math.min(g.p.max,g.p.hp+g.p.max*.34*g.p.healingScale);
     g.p.inv=Math.max(g.p.inv,.8);
     g.enemyPops=[];
     announce('CORE EXPOSED',1.2);sound.event('warn');
@@ -337,8 +337,8 @@ function hurt(n,source='enemy'){
   }
   particle(p.x,p.y,'#ff86ae',13,147);
   sound.event('hurt');
-  if(p.hp<=0&&p.revive&&!p.noHealing&&!g.cameoUsed){
-    g.cameoUsed=true;p.hp=Math.ceil(p.max*p.revive);p.inv+=2;
+  if(p.hp<=0&&p.revive&&!g.cameoUsed){
+    g.cameoUsed=true;p.hp=Math.ceil(p.max*p.revive)*p.healingScale;p.inv+=2;
     g.reviveEffect=1.65;
     particle(p.x,p.y,'#fff4b7',44,228,1);
     announce('TAKE TWO',1.4);sound.event('revive');
@@ -423,8 +423,9 @@ function transformSatan(e){
   e.slow=e.stun=e.stunLock=0;e.poison=null;
   g.enemyPops=[];g.hazards=[];g.safeZone=null;g.shake=13;g.flash=.22;
   for(const bot of g.enemies)if(bot!==e)bot.dead=true;
-  healPlayer(g.p.max*.27);
-  if(!g.p.noHealing)g.p.hp=Math.max(g.p.hp,Math.ceil(g.p.max*.56));
+  const recovered=Math.min(g.p.max,g.p.hp+Math.round(g.p.max*.27));
+  const recoveryTarget=Math.max(recovered,Math.ceil(g.p.max*.56));
+  g.p.hp+=(recoveryTarget-g.p.hp)*g.p.healingScale;
   discover('hellboot');
   g.p.inv=Math.max(g.p.inv,1.9);
   particle(e.x,e.y,'#ff7161',62,280,1);

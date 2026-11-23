@@ -1,6 +1,6 @@
 # Buss It Up! gameplay reference
 
-Updated 2026-11-14. This file contains full-route and boss spoilers. Numerical tables come from the game data and formulas. Regenerate them with `node scripts/refresh-reference.mjs`.
+Updated 2026-11-23. This file contains full-route and boss spoilers. Numerical tables come from the game data and formulas. Regenerate them with `node scripts/refresh-reference.mjs`.
 
 <!-- BEGIN GENERATED TABLES -->
 
@@ -334,7 +334,7 @@ Numbered waves begin at 0.75 s and stagger their bots by 0.22 s. Before area mul
 | Pendant | I Need That Nut | 6-X: The Nail Theory | Restore 10 Vibe for every fourth bot popped and 2 Vibe for every tenth shot that hits a boss. |
 | Pendant | Coldest Moment | 4-X: Cream Factory | Buss Burst freezes enemies it hits for 4 seconds. Bosses are heavily slowed for 1 second. |
 | Pendant | Batu Khan's Revenge | 5-X: Nut Tree | Taking damage clears hostile shots, hits and stuns all enemies for 0.8 s, and grants 15% Burst charge. Hits deal 3× pop power. |
-| Pendant | I'm in Love with Satan | 6-4: Rate This PC | Prevents all healing. A little devil follows your left shoulder and fires homing shots at 250% of the default Popper’s DPS, unaffected by gear or skills. |
+| Pendant | I'm in Love with Satan | 6-4: Rate This PC | Receive 50% less healing from all sources. A little devil follows your left shoulder and fires homing shots at 150% of the default Popper’s DPS, unaffected by gear or skills. |
 
 ## Skill tree
 
@@ -445,7 +445,9 @@ Main waves advance once the spawn queue and enemies are empty. Bonus waves advan
 
 ## Devil companion
 
-I'm in Love with Satan unlocks after 6-4 and blocks every source of in-attempt healing, including pickups, wave and boss recovery, healing skills, and boss transitions. Each new attempt starts at full Vibe. The companion follows about 40 px to the player's left and 16 px above, targets nearby active enemies, and fires three homing shots per second. Each shot deals about 86.38 damage before the area multiplier and enemy defenses, for 250% of the default Popper's sustained DPS. Its damage, cadence, shot speed, and homing are independent of equipped gear and skills. Companion shots bypass opening-hit, finishing-hit, and high-health damage skills and do not trigger player boss-hit charge.
+I'm in Love with Satan unlocks after 6-4 and halves every source of in-attempt healing, including pickups, wave and boss recovery, healing skills, and boss transitions. The reduction applies after other healing bonuses and normal rounding; fractional Vibe is retained. Each new attempt starts at full Vibe. The companion follows about 40 px to the player's left and 16 px above, targets nearby active enemies, and fires three homing shots per second. Each shot deals about 51.83 damage before the area multiplier and enemy defenses, for 150% of the default Popper's sustained DPS. Its damage, cadence, shot speed, and homing are independent of equipped gear and skills. Companion shots bypass opening-hit, finishing-hit, and high-health damage skills and do not trigger player boss-hit charge.
+
+Matched late-game comparisons covered 4-X, 5-X, and 6-4 across seeds 1061 and 5133. At 100% DPS with half healing the devil cleared four of six runs and lost both finales. At 150% it cleared all six, with finale times of 93.13 and 93.67 seconds and 16.5 and 7 Vibe left. Pop Me and Batu Khan's Revenge each cleared five of six runs. This supports a strong reward for 6-4 without retaining the previous 250% damage intended to compensate for zero healing.
 
 The recorded timer stops on the last lethal hit in the final round. The victory animation stays visible for roughly 1.3 seconds after the timer freezes. Old stored times retain their original measurement.
 
