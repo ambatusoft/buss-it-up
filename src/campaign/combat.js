@@ -9,7 +9,7 @@ const burstTime=.46;
 const poisonTick=.2;
 const bossBurstScale=174/86;
 const devilShotInterval=30/90;
-const devilShotDamage=initialPopPower*.6*devilShotInterval/initial().rate;
+const devilShotDamage=initialPopPower*2.5*devilShotInterval/initial().rate;
 const starBurstPoints=Array.from({length:12},(_,i)=>{
   const angle=i*Math.PI/6-Math.PI/2, radius=i%2?1/Math.sqrt(3):1;
   return {x:Math.cos(angle)*radius,y:Math.sin(angle)*radius};

@@ -2,6 +2,13 @@
 
 ## Unreleased
 
+### 2026-11-23 · Devil damage buff
+
+- Increased I'm in Love with Satan from 60% to 250% of default Popper DPS. Each homing shot now deals about 86.38 base damage at three shots per second, before area scaling and target defenses.
+- In matched runs on 4-X, 5-X, and 6-4 across two seeds, 100% cleared three of six attempts. At 250%, the devil cleared all six, including the finale in about 83 seconds with 13–22 Vibe left. The Pop Me and Batu Khan pendants each cleared five of the six comparison attempts.
+- Both campaign seeds cleared all 30 stages without retries, offline and over local HTTP. Independent companion damage, healing restrictions, saved unlocks, and generated-file checks passed.
+
+
 ### 2026-11-23 · Devil pendant and campaign-only release
 
 - Removed Endless Edging while preserving the combat balance changes.

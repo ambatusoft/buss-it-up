@@ -1,5 +1,11 @@
 # TODO
 
+## 2026-11-23 · Devil damage buff
+
+- [x] Compare 100%, 150%, 200%, and 250% companion damage. Set 250% to compensate for the no-healing drawback and update its description.
+- [x] Compare the no-healing pendant with Pop Me and Batu Khan's Revenge and verify both campaign seeds before pushing.
+
+
 ## 2026-11-23 · Devil pendant and campaign-only release
 
 - [x] Remove Endless while preserving the balance changes.

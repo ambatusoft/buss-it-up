@@ -203,8 +203,8 @@ function verifyDevil(){
   const before=armored.hp;
   for(let i=0;i<270;i++){updateDevil(1/90);updatePlayerPops(1/90);}
   check(Math.abs(before-armored.hp-9*expectedDamage)<1e-6&&
-    Math.abs(expectedDamage/devilShotInterval-initial().dmg/initial().rate*.6)<1e-8,
-    'Upgraded gear and skills leave companion DPS at 60% of the default Popper');
+    Math.abs(expectedDamage/devilShotInterval-initial().dmg/initial().rate*2.5)<1e-8,
+    'Upgraded gear and skills leave companion DPS at 250% of the default Popper');
   g.p.hp=20;g.p.charge=100;
   healPlayer(100);
   finishRegularWave();
