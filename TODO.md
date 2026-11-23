@@ -1,11 +1,20 @@
 # TODO
 
+## 2026-11-23 · Devil pendant and campaign-only release
+
+- [x] Remove Endless while preserving the balance changes.
+- [x] Add I'm in Love with Satan as the sole 6-4 equipment reward and move Censor Bar to 4-X.
+- [x] Give the devil independent homing shots and block all in-attempt healing, including boss transitions.
+- [x] Verify both campaign seeds offline and over local HTTP, no-healing sources, independent damage, saved unlocks, all audio assets, and the built HTML.
+- [ ] Human-playtest the no-healing tradeoff and check touch controls on a physical device.
+
+
 ## 2026-11-17 · Endless Edging and balance
 
 - [x] Redistribute gear, migrate previously unlocked rewards, and tune the requested combat effects.
 - [x] Add input-specific controls, a first bonus-wave notice, and Endless Edging after 6-4.
 - [x] Verify both campaign seeds offline and over local HTTP, two Endless runs through wave 12, difficulty caps, save migration, audio, and the bundled build.
-- [ ] Playtest Endless beyond the difficulty cap with human players and check the new tutorials on a physical touch device.
+- [x] Superseded by the November 23 campaign-only release.
 
 
 ## 2026-11-16 · Final balance and release checks

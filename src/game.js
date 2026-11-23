@@ -91,7 +91,6 @@ const freshStats=()=>({
 });
 let g={mode:'title',level:0,wave:1,score:0,p:motion(initial()),...empty()};
 let backdrop=null,musicTimer=0;
-const combatAreaIndex=()=>g.story?.endless?endlessLevel.areaIndex:g.level;
 function clearInput(){
   input.keys.clear();input.down=false;input.touchFire=false;
   input.dx=input.dy=0;input.dash=input.buss=false;g.p.dashBuffer=0;
@@ -128,6 +127,7 @@ function title(){
 }
 function openLevel(i,firstWave=1){
   g.level=i;g.p=motion(g.p);g.p.hp=g.p.max;
+  g.devil=g.p.devil?{x:g.p.x-40,y:g.p.y-16,cd:0,recoil:0}:null;
   g.combo=0;g.comboT=0;g.clock=0;g.shake=0;g.flash=0;g.echo=0;g.gap=null;g.banner=0;g.primeForm=false;
   g.cameoUsed=false;g.volley=0;g.blasts=[];
   g.reviveEffect=0;
@@ -146,8 +146,7 @@ function spawnPoint(){
   return{x:g.p.x>480?88:872,y:110};
 }
 function enemy(kind,x,y,materialize=.42,fileId=kind){
-  const stats=enemyStats(kind,combatAreaIndex());
-  if(g.story.endless)stats.hp=Math.round(stats.hp*endlessHealth(g.wave));
+  const stats=enemyStats(kind,g.level);
   if(g.story.level.side){stats.hp=Math.round(stats.hp*1.20);stats.speed*=1.08;}
   const bot={kind,x,y,r:stats.radius,hp:stats.hp,max:stats.hp,speed:stats.speed,cd:rand(.65,1.75),
     spawn:materialize,aim:0,turn:Math.random()<.5?1:-1,walk:rand(0,TAU),hit:0,variant:Math.floor(rand(0,3))};
@@ -156,9 +155,8 @@ function enemy(kind,x,y,materialize=.42,fileId=kind){
   return bot;
 }
 function openWave(n){
-  const {endless,level}=g.story;
-  const timed=level.side||endless;
-  const continuous=timed&&n>1;
+  const {level}=g.story;
+  const continuous=level.side&&n>1;
   g.wave=n;g.gap=null;g.queue=[];g.squad=0;
   if(!continuous){
     g.pops=[];g.enemyPops=[];g.hazards=[];g.items=[];g.blasts=[];g.nutPulses=[];
@@ -168,28 +166,21 @@ function openWave(n){
   g.waveHit=false;g.lastDeployment=-Infinity;
   g.p.inv=Math.max(g.p.inv,g.p.waveGuard);
   if(n>1&&!g.story.rematch)g.p.charge=Math.min(100,g.p.charge+g.p.waveStartCharge);
-  g.storyHazards=0;g.storyHazardAt=(timed?3.9:5.7)*areaTuning[g.level].hazard;
+  g.storyHazards=0;g.storyHazardAt=(level.side?3.9:5.7)*areaTuning[g.level].hazard;
   if(isBossWave()){
-    const area=combatAreaIndex();
-    const hp=Math.round(bossHP(area)*campaignBossScale[area]*(endless?endlessHealth(n):1));
-    if(!endless)g.enemies=[];
-    g.enemies.unshift({kind:'boss',x:480,y:154,r:bossRadii[g.level],hp,max:hp,spawn:1.22,cd:.53,pattern:0,walk:0,hit:0,aim:Math.PI/2,charge:0});
+    const hp=Math.round(bossHP(g.level)*campaignBossScale[g.level]);
+    g.enemies=[{kind:'boss',x:480,y:154,r:bossRadii[g.level],hp,max:hp,spawn:1.22,cd:.53,pattern:0,walk:0,hit:0,aim:Math.PI/2,charge:0}];
     discover('boss'+g.level);
     for(const [slot,kind] of bossEscorts[g.level].entries()){
-      const deployment={kind,edge:slot?'east':'west',squad:1,slot};
-      if(endless)g.queue.push({...deployment,at:slot*.22});
-      else{
-        const point=campaignSpawn(deployment);
-        deployCampaignBot(kind,point.x,point.y,1.65);
-      }
+      const point=campaignSpawn({edge:slot?'east':'west',squad:1,slot});
+      deployCampaignBot(kind,point.x,point.y,1.65);
     }
-    if(endless)g.queue.push(...endlessDeployments(n,true));
     healPlayer(g.p.max*combatRules.bossHeal,true);
-    announce(endless?'BOSS · WAVE '+n:'BOSS',1.5,'boss');sound.event('bossIntro');
+    announce('BOSS',1.5,'boss');sound.event('bossIntro');
   }else{
-    g.queue=endless?endlessDeployments(n,false):campaignWave(level,n);
+    g.queue=campaignWave(level,n);
     if(n>1){
-      healPlayer(g.p.max*combatRules.waveHeal*areaTuning[combatAreaIndex()].heal*(continuous?.65:1),true);
+      healPlayer(g.p.max*combatRules.waveHeal*areaTuning[g.level].heal*(continuous?.65:1),true);
     }
     announce(isFinalWave()?'FINAL WAVE':'WAVE '+n,1.05,isFinalWave()?'final':'wave');
   }
@@ -198,8 +189,7 @@ function openWave(n){
 function pause(){
   if(g.mode!=='play')return;setMode('pause');
   const level=g.story.level;
-  const mapLevel=g.story.endless?'encore':level.id;
-  panel(levelLabel(level),'Paused','',[['Resume',unpause],['Leave attempt',()=>showCampaign('map',mapLevel)]]);
+  panel(levelLabel(level),'Paused','',[['Resume',unpause],['Leave attempt',()=>showCampaign('map',level.id)]]);
 }
 function unpause(){if(g.mode==='pause'){sound.wake();setMode('play');}}
 function setHudText(id,value){
@@ -218,24 +208,21 @@ function hudMeter(id,fill,value){
 function hud(){
   const p=g.p,b=g.enemies.find(e=>e.kind==='boss');
   hudMeter('vibe-meter','hp-fill',p.hp/p.max);
-  const {level:storyLevel,endless,rematch}=g.story;
+  const {level:storyLevel,rematch}=g.story;
   setHudText('level-name',levelLabel(storyLevel));
-  const waveText=endless?`${isBossWave()?'BOSS · ':''}WAVE ${g.wave}`:
-    isBossWave()?'BOSS':isFinalWave()?'FINAL WAVE':`WAVE ${g.wave} / ${activeWaveCount()}`;
+  const waveText=isBossWave()?'BOSS':isFinalWave()?'FINAL WAVE':`WAVE ${g.wave} / ${activeWaveCount()}`;
   setHudText('wave-name',waveText);
   const medalTarget=$('speed-medal-target');
   const elapsed=Math.round(g.stats.time*1000);
-  medalTarget.hidden=endless||rematch;
+  medalTarget.hidden=rematch;
   setHudText('speed-clock',campaignTime(elapsed));
-  if(!endless){
-    medalTarget.classList.toggle('over-target',elapsed>storyLevel.speedTarget*1000);
-    setHudText('speed-medal-target','Medal: '+campaignTime(storyLevel.speedTarget*1000));
-  }
+  medalTarget.classList.toggle('over-target',elapsed>storyLevel.speedTarget*1000);
+  setHudText('speed-medal-target','Medal: '+campaignTime(storyLevel.speedTarget*1000));
   const roundIndex=storyLevel.id+'-'+g.wave;
   if($('wave-track').dataset.round!==roundIndex){
     const track=$('wave-track');
     track.dataset.round=roundIndex;
-    const position=endless?(g.wave-1)%endlessBossInterval:g.wave-1;
+    const position=g.wave-1;
     track.innerHTML=Array.from({length:activeWaveCount()},(_,i)=>'<i class="'+(i<position?'done':i===position?'now':'')+'"></i>').join('');
   }
   setHudText('score',pad(g.score,6));
@@ -282,10 +269,8 @@ function kill(e,source='pop'){
   if(e.kind!=='boss'&&Math.random()<combatRules.dropChance)g.items.push({x:e.x,y:e.y,life:9});
   sound.event('down');
   if(e.kind==='boss'){
-    if(!g.story.endless){
-      for(const other of g.enemies)if(other!==e&&!other.dead){other.dead=true;particle(other.x,other.y,color,13);}
-      g.enemyPops=[];g.hazards=[];
-    }
+    for(const other of g.enemies)if(other!==e&&!other.dead){other.dead=true;particle(other.x,other.y,color,13);}
+    g.enemyPops=[];g.hazards=[];
     g.shake=Math.max(g.shake,11);sound.event('bossDown');
   }
   else{
@@ -293,10 +278,10 @@ function kill(e,source='pop'){
     if(g.p.echoKill){
       const next=g.enemies.filter(bot=>!bot.dead&&bot.spawn<=0&&dist(e,bot)<400)
         .sort((a,b)=>dist(e,a)-dist(e,b))[0];
-      if(next)playerPop(e,angle(e,next),g.p.dmg*stageAmp[combatAreaIndex()]*g.p.echoKill,0,'#7dfff4');
+      if(next)playerPop(e,angle(e,next),g.p.dmg*stageAmp[g.level]*g.p.echoKill,0,'#7dfff4');
     }
   }
-  if(!g.story.endless&&(isBossWave()||isFinalWave())&&!g.queue.length&&g.enemies.every(enemy=>enemy.dead)){
+  if((isBossWave()||isFinalWave())&&!g.queue.length&&g.enemies.every(enemy=>enemy.dead)){
     g.finishTime=g.stats.time;
     g.enemyPops=[];
     g.hazards=[];
@@ -307,16 +292,16 @@ function damage(e,amount,source){
   if(e.kind==='primePod'&&e.owner.transform>0)return false;
   if(e.kind==='boss'&&g.primeForm&&e.pods.some(pod=>!pod.dead))amount*=.32;
   if(e.kind==='boss'&&g.level===5)amount*=e.hot>0?1.55:e.satanPhase?.77:.53;
-  if(g.p.highVibeDamage&&e.kind!=='primePod'&&e.hp>=e.max*.5)amount*=1+g.p.highVibeDamage;
+  if(source!=='companion'&&g.p.highVibeDamage&&e.kind!=='primePod'&&e.hp>=e.max*.5)amount*=1+g.p.highVibeDamage;
   e.hp-=amount;e.hit=.09;
   if(e.satanPhase)updateServerGlass(e);
-  if(!g.story.endless&&e.kind==='boss'&&g.level===4&&!g.primeForm&&e.hp<=0){
+  if(e.kind==='boss'&&g.level===4&&!g.primeForm&&e.hp<=0){
     transformPrime(e);
-  }else if(!g.story.endless&&e.kind==='boss'&&g.level===5&&!e.satanPhase&&e.hp<=0){
+  }else if(e.kind==='boss'&&g.level===5&&!e.satanPhase&&e.hp<=0){
     transformSatan(e);
   }else if(e.hp<=0)kill(e,source);
   if(e.kind==='primePod'&&e.dead&&e.owner.pods.every(pod=>pod.dead)){
-    g.p.hp=Math.min(g.p.max,g.p.hp+g.p.max*.34);
+    if(!g.p.noHealing)g.p.hp=Math.min(g.p.max,g.p.hp+g.p.max*.34);
     g.p.inv=Math.max(g.p.inv,.8);
     g.enemyPops=[];
     announce('CORE EXPOSED',1.2);sound.event('warn');
@@ -333,7 +318,7 @@ function hurt(n,source='enemy'){
   }
   const side=g.story.level.side?(g.level===5?1.07:1.14):1;
   const hazard=source==='hazard'?p.hazardGuard??1:1;
-  const pressure=isBossWave()?(g.level===5?1.07:1):areaTuning[combatAreaIndex()].damage;
+  const pressure=isBossWave()?(g.level===5?1.07:1):areaTuning[g.level].damage;
   const taken=Math.max(1,Math.round(n*combatRules.damage*Math.max(.76,p.incoming)*side*hazard*pressure));
   g.waveHit=true;
   g.stats.damage+=Math.min(Math.ceil(p.hp),taken);
@@ -352,7 +337,7 @@ function hurt(n,source='enemy'){
   }
   particle(p.x,p.y,'#ff86ae',13,147);
   sound.event('hurt');
-  if(p.hp<=0&&p.revive&&!g.cameoUsed){
+  if(p.hp<=0&&p.revive&&!p.noHealing&&!g.cameoUsed){
     g.cameoUsed=true;p.hp=Math.ceil(p.max*p.revive);p.inv+=2;
     g.reviveEffect=1.65;
     particle(p.x,p.y,'#fff4b7',44,228,1);
@@ -360,7 +345,7 @@ function hurt(n,source='enemy'){
   }
   const defeated=p.hp<=0;
   if(retaliation&&(!defeated||p.revengeDamage)){
-    const power=retaliation*p.dmg*stageAmp[combatAreaIndex()];
+    const power=retaliation*p.dmg*stageAmp[g.level];
     for(const enemy of [...g.enemies]){
       if(damage(enemy,power,'nut')&&!enemy.dead&&p.revengeDamage)stunEnemy(enemy,.8);
     }
@@ -387,7 +372,7 @@ function updateBlasts(dt){
   g.blasts=g.blasts.filter(effect=>effect.life>0);
 }
 function shot(x,y,a,s=240,dmg=12,type='orb',turn=0){
-  const speed=isBossWave()?(g.level===5?1.045:1):areaTuning[combatAreaIndex()].shot;
+  const speed=isBossWave()?(g.level===5?1.045:1):areaTuning[g.level].shot;
   g.enemyPops.push({x,y,a,s:s*combatRules.projectileSpeed*speed,dmg,r:type==='note'?7:6,life:6,type,turn});
 }
 function fan(e,a,count,spread,s,type='orb',dmg=13){
@@ -439,7 +424,7 @@ function transformSatan(e){
   g.enemyPops=[];g.hazards=[];g.safeZone=null;g.shake=13;g.flash=.22;
   for(const bot of g.enemies)if(bot!==e)bot.dead=true;
   healPlayer(g.p.max*.27);
-  g.p.hp=Math.max(g.p.hp,Math.ceil(g.p.max*.56));
+  if(!g.p.noHealing)g.p.hp=Math.max(g.p.hp,Math.ceil(g.p.max*.56));
   discover('hellboot');
   g.p.inv=Math.max(g.p.inv,1.9);
   particle(e.x,e.y,'#ff7161',62,280,1);
@@ -886,7 +871,7 @@ function closeCall(bullet){
   if(p.nearHeal)healPlayer(p.nearHeal);
   floater(p.x,p.y-18,'CLOSE CALL','#a5ffea');sound.tone(840,.12,.07,'triangle',1250);
   if(p.reflect){
-    playerPop(p,p.aim,p.dmg*stageAmp[combatAreaIndex()]*p.reflect,p.pierce+1,'#81fff5',16);
+    playerPop(p,p.aim,p.dmg*stageAmp[g.level]*p.reflect,p.pierce+1,'#81fff5',16);
   }
 }
 function finishRegularWave(){
@@ -932,7 +917,7 @@ function update(dt){
     if(p.quickDraw)p.quickDrawWindow=1;
     if(p.dashSprint)p.sprintUntil=g.clock+p.dashDuration+p.dashSprintTime;
     if(p.dashPulse){
-      g.blasts.push({x:p.x,y:p.y,r:110,wait:.24,life:.39,power:initialPopPower*stageAmp[combatAreaIndex()]*p.dashPulse,color:'#9be8ff'});
+      g.blasts.push({x:p.x,y:p.y,r:110,wait:.24,life:.39,power:initialPopPower*stageAmp[g.level]*p.dashPulse,color:'#9be8ff'});
     }
   }
   input.dash=false;
@@ -952,6 +937,7 @@ function update(dt){
   updateBlasts(dt);
   updateCampaignArena();
   updateCampaignDeployment();
+  updateDevil(dt);
   for(const e of g.enemies){if(!e.dead)enemyUpdate(e,dt);if(g.mode!=='play')return;}
   updatePlayerPops(dt);
   for(const h of g.hazards){
@@ -970,15 +956,17 @@ function update(dt){
   }
   g.enemyPops=g.enemyPops.filter(b=>b.life>0&&b.x>-18&&b.x<W+18&&b.y>45&&b.y<H+14);
   for(const o of g.items){o.life-=dt;const d=dist(o,p);if(d<80&&d>0){o.x+=(p.x-o.x)/d*dt*180;o.y+=(p.y-o.y)/d*dt*180;}
-    if(d<24){o.life=0;healPlayer(19*p.pickupHealing,true);floater(p.x,p.y-17,'+ VIBE','#aaffcf');sound.event('pick');}}
+    if(d<24){
+      o.life=0;
+      if(healPlayer(19*p.pickupHealing,true)>0){floater(p.x,p.y-17,'+ VIBE','#aaffcf');sound.event('pick');}
+    }}
   g.items=g.items.filter(o=>o.life>0);
   for(const f of g.fx){f.x+=f.vx*dt;f.y+=f.vy*dt;f.vy+=160*dt;f.a+=f.spin*dt;f.life-=dt;}
   g.fx=g.fx.filter(f=>f.life>0);
   for(const f of g.floaters){f.life-=dt;f.y-=dt*44;}
   g.floaters=g.floaters.filter(f=>f.life>0);
   g.enemies=g.enemies.filter(e=>!e.dead);
-  if(g.story.endless)advanceEndless();
-  else if(g.story.level.side&&!isFinalWave()){
+  if(g.story.level.side&&!isFinalWave()){
     if(!g.queue.length&&(!g.enemies.length||g.elapsed>=bonusWaveDuration(g.story.level,g.wave))){
       finishRegularWave();
       openWave(g.wave+1);

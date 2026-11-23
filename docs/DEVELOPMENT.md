@@ -9,7 +9,6 @@ node scripts/refresh-reference.mjs
 node scripts/refresh-reference.mjs --check
 node tests/browser/chrome.mjs story --http
 node tests/browser/chrome.mjs story
-node tests/browser/chrome.mjs endless
 node tests/browser/chrome.mjs audio
 ```
 
@@ -22,12 +21,12 @@ The Story test runs the single ruleset with two fixed seeds. Each run covers all
 | Change | Check |
 | --- | --- |
 | Combat or balance | Run the full Story test and review retries and minimum Vibe by area for both seeds |
-| Endless Edging | Run the Endless check through wave 12 for both seeds. Use `endless-boss` and `mobile-endless` captures to check the boss HUD and separate map entry |
+| Devil pendant | The Story test checks independent DPS, boss hits, healing sources, follow position, save migration, and the sole 6-4 reward. Use `devil-companion` and `devil-reward` captures |
 | Gear or skill data | Check the generated reference and the in-game slot, stats, tree detail, and purchase flows |
 | Maps, files, or menus | Use screenshot modes `story-map`, `mobile-story`, `story-skills`, `mobile-skills`, and `catalog` with `node tests/browser/chrome.mjs <mode>` |
 | Gameplay layout | Use `gameplay`, `final-wave`, `double-dash`, `story-boss`, `hellboot`, `hellboot-cracks`, `hellboot-portrait`, `hellboot-shatter`, `hellboot-blackout`, `star-burst`, `revive`, `story-win`, `mobile-win`, or `story-loss` captures and check keyboard, pointer, and touch input |
 | Audio | Run the audio check. It decodes all assets, resolves each stinger boundary, checks repeated combat events, measures the full failure cue and revive trigger, and checks track resume, menu continuity, and attempt-audio cancellation on leave or retry |
-| Storage | Test three isolated slots, v1–v6 Story profiles, retained equipment, and furthest main route after a replay or bonus clear |
+| Storage | Test three isolated slots, v1–v7 Story profiles, retained equipment, and furthest main route after a replay or bonus clear |
 
 Screenshot captures are ignored by Git. The audio harness runs muted. Listen in a normal browser when changing cue selection, mix, or loop seams. Keep source credits in the manifest and lore ledger. The [asset pipeline](ASSET-PIPELINE.md) describes asset sources, drawing conventions, and encoding.
 
@@ -39,10 +38,14 @@ Use a full cue for a failure, revival, or a line whose words must all land. For 
 
 ## Publishing
 
-The repository root contains `index.html` and `.nojekyll`. The intended branch deployment source is `main` at `/(root)`. Verify the setting in **Settings → Pages → Build and deployment**. [GitHub Pages publishing sources](https://docs.github.com/en/pages/getting-started-with-github-pages/configuring-a-publishing-source-for-your-github-pages-site)
+The root already contains the built `index.html` and `.nojekyll`. The game needs static hosting. For a private repository, GitHub Pages requires GitHub Pro for a personal account, or GitHub Team or Enterprise for an organization. GitHub Free supports Pages from public repositories. The published game is publicly accessible when using ordinary Pages hosting, including when its repository stays private. [GitHub Pages availability](https://docs.github.com/en/pages/getting-started-with-github-pages/creating-a-github-pages-site)
 
-1. Rebuild, run the checks above, and include the generated HTML when its sources change.
-2. After the changes reach the publishing source, open the deployed URL reported by GitHub. The expected public URL returned 404 on November 15, 2026.
-3. Verify start, controls, audio after a gesture, map travel, purchases, and progress after reloading. Check on a physical touch device.
+1. Open the repository's **Settings → Pages**.
+2. Under **Build and deployment**, choose **Deploy from a branch**.
+3. Select **main** and **/(root)**, then **Save**.
+4. Wait for **pages build and deployment** to succeed under **Actions**. Return to **Settings → Pages** and choose **Visit site**.
+5. The default project address is [ambatusoft.github.io/buss-it-up](https://ambatusoft.github.io/buss-it-up/). Check Start, audio after a gesture, map travel, and progress after reload.
+
+These steps follow GitHub's branch publishing instructions. Later pushes to `main` publish the updated game automatically. The separate **Check game** workflow verifies the bundled game and audio. [GitHub Pages publishing sources](https://docs.github.com/en/pages/getting-started-with-github-pages/configuring-a-publishing-source-for-your-github-pages-site)
 
 Keep navigation inside the static page and any future asset paths relative. Browser progress is scoped to its origin.

@@ -455,8 +455,11 @@ function render(){
   for(const h of g.hazards)drawHazard(h);
   for(const o of g.items){c.save();c.globalAlpha=o.life<2?.55+Math.sin(o.life*15)*.34:1;c.translate(o.x,o.y+Math.sin(g.clock*7)*3);c.lineWidth=2;rect(c,-9,-10,18,20,'#85efb3','#161728',4);line(c,[-5,0,5,0],'#142c26',3);line(c,[0,-5,0,5],'#142c26',3);c.restore();}
   for(const b of g.pops){line(c,[b.x-Math.cos(b.a)*17,b.y-Math.sin(b.a)*17,b.x,b.y],b.color,4);disk(c,b.x,b.y,3.5,'#fcffd5',null);}
-  const actors=[...g.enemies,p].sort((a,b)=>a.y-b.y);
+  const actors=[...g.enemies,p];
+  if(g.devil)actors.push(g.devil);
+  actors.sort((a,b)=>a.y-b.y);
   for(const e of actors){
+    if(e===g.devil){drawDevil(c,e);continue;}
     if(e===p){
       if(g.reviveEffect>0)drawRevive(c,p,g.reviveEffect);
       drawPlayer(p);continue;

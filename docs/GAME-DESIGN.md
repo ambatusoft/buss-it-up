@@ -309,7 +309,7 @@ Numbered waves begin at 0.75 s and stagger their bots by 0.22 s. Before area mul
 | Buss Burst | Red Circle Strike | 5-4: Level 99 | Projects a blast ahead at 135% of standard Burst damage. |
 | Buss Burst | Bootleg Overdub | 3-X: At The Club | A wide ring followed 1.5 s later by a smaller blast that deals 80% of the initial damage. |
 | Buss Burst | Switchback | 2-3: Move Over! | Fires forward and backward beams at 110% of standard Burst damage. |
-| Buss Burst | Censor Bar | 6-4: Rate This PC | Wide short beam. Staggers nearby bots and grants 1.0 s of protection on every cast. |
+| Buss Burst | Censor Bar | 4-X: Cream Factory | Wide short beam. Staggers nearby bots and grants 1.0 s of protection on every cast. |
 | Boots | Stock Trainers | Starter | Balanced movement and dash. |
 | Boots | Transfer Ticket | 2-2: Tentacle Crossing | Dash cooldown is 20% shorter. |
 | Boots | Classy Stabilizer | 4-2: Candid Talk Pt. 3 | Store up to two dashes. Each charge takes 35% longer to refill, one at a time. |
@@ -334,6 +334,7 @@ Numbered waves begin at 0.75 s and stagger their bots by 0.22 s. Before area mul
 | Pendant | I Need That Nut | 6-X: The Nail Theory | Restore 10 Vibe for every fourth bot popped and 2 Vibe for every tenth shot that hits a boss. |
 | Pendant | Coldest Moment | 4-X: Cream Factory | Buss Burst freezes enemies it hits for 4 seconds. Bosses are heavily slowed for 1 second. |
 | Pendant | Batu Khan's Revenge | 5-X: Nut Tree | Taking damage clears hostile shots, hits and stuns all enemies for 0.8 s, and grants 15% Burst charge. Hits deal 3× pop power. |
+| Pendant | I'm in Love with Satan | 6-4: Rate This PC | Prevents all healing. A little devil follows your left shoulder and fires homing shots at 60% of the default Popper’s DPS, unaffected by gear or skills. |
 
 ## Skill tree
 
@@ -442,11 +443,9 @@ Buss Burst consumes a full meter, hits bots and bosses, and clears hostile shots
 
 Main waves advance once the spawn queue and enemies are empty. Bonus waves advance on an early clear or when their timer expires. Pending deployments must finish, and live threats carry over. Boss rounds occur on the fourth level of each area. Scripted hazards telegraph before dealing damage. Vibe drops restore 19 before healing modifiers. Clean regular waves award score and charge. Skill points and gear come from first clears.
 
-## Endless Edging
+## Devil companion
 
-Clear 6-4 to unlock Endless from the Burnt Server map. Wave 1 starts with six bots and standard Area 6 combat stats. Ordinary waves advance on an early clear or after 13 seconds once all deployments finish. They gain one bot every four waves up to 18, and bot and boss health increases by 3% of base per wave up to 2.8× at wave 61. All regular enemy types rotate through a shuffled pool.
-
-Every sixth wave adds the current arena's boss and two to six escorts. The round waits for all enemies, including carryover and queued escorts, to be defeated. The next round moves to a randomly selected different arena and uses its hazards and soundtrack. Ambatron and Satan's PC stay in their first forms. Up to 22 enemies can be active at once, including the boss. The difficulty caps leave the run open-ended. Results display the wave reached and score.
+I'm in Love with Satan unlocks after 6-4 and blocks every source of in-attempt healing, including pickups, wave and boss recovery, healing skills, and boss transitions. Each new attempt starts at full Vibe. The companion follows about 40 px to the player's left and 16 px above, targets nearby active enemies, and fires three homing shots per second. Each shot deals about 20.73 damage before the area multiplier and enemy defenses, for 60% of the default Popper's sustained DPS. Its damage, cadence, shot speed, and homing are independent of equipped gear and skills. Companion shots bypass opening-hit, finishing-hit, and high-health damage skills and do not trigger player boss-hit charge.
 
 The recorded timer stops on the last lethal hit in the final round. The victory animation stays visible for roughly 1.3 seconds after the timer freezes. Old stored times retain their original measurement.
 

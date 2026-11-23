@@ -422,7 +422,6 @@ body[data-mode="title"] .deck{width:100%;margin:0}
 .map-heading{align-items:center}
 .map-heading h2{font-size:clamp(22px,4.25vh,41px)}
 .map-heading .area-glyph{font-size:clamp(25px,4.55vh,49px)}
-.endless-launch{flex:none;max-width:9em;white-space:normal;border-color:var(--area-accent);color:var(--area-accent);font:800 12px/1.2 var(--mono)}
 .map-node i{position:absolute;right:0;bottom:0;background:var(--area-accent);color:#1f1628;border:1px solid #1f1628;border-radius:50%;padding:1px 4px;font:800 10px var(--mono)}
 .map-dispatch-summary{min-width:0}
 .map-dispatch-heading{display:grid;gap:2px}
@@ -1037,7 +1036,7 @@ const campaignGear={
   remote:{slot:'burst',name:'Red Circle Strike',unlock:'third-impact',text:'Projects a blast ahead at 135% of standard Burst damage.',icon:'M15 5a7 7 0 1 1-.01 0M15 9v6m-3-3h6M2 12h4',apply:p=>{p.burstShape='remote';p.burstDamage*=1.35;}},
   overdub:{slot:'burst',name:'Bootleg Overdub',unlock:'bootleg-mix',text:'A wide ring followed 1.5 s later by a smaller blast that deals 80% of the initial damage.',icon:'M12 2a10 10 0 1 1-.01 0M12 7a5 5 0 1 1-.01 0M11 12h2',apply:p=>{p.burstShape='ring';p.burstReach*=1.40;p.burstDamage*=.968;p.aftershock=.80;}},
   switchback:{slot:'burst',name:'Switchback',unlock:'layover',text:'Fires forward and backward beams at 110% of standard Burst damage.',icon:'M3 12h18m-14-4-4 4 4 4m10-8 4 4-4 4M12 5v14',apply:p=>{p.burstShape='crossbeam';p.burstDamage*=1.10;}},
-  cutoff:{slot:'burst',name:'Censor Bar',unlock:'encore',text:'Wide short beam. Staggers nearby bots and grants 1.0 s of protection on every cast.',icon:'M3 7h18v10H3zM7 10h10v4H7z',apply:p=>{p.burstShape='widebeam';p.burstPush=1;}},
+  cutoff:{slot:'burst',name:'Censor Bar',unlock:'lost-take',text:'Wide short beam. Staggers nearby bots and grants 1.0 s of protection on every cast.',icon:'M3 7h18v10H3zM7 10h10v4H7z',apply:p=>{p.burstShape='widebeam';p.burstPush=1;}},
   stock:{slot:'boots',name:'Stock Trainers',text:'Balanced movement and dash.',icon:'M5 4h8v9l7 3v4H3v-6l2-1zM4 17h15'},
   quickstep:{slot:'boots',name:'Transfer Ticket',unlock:'transfer',text:'Dash cooldown is 20% shorter.',icon:'M3 6h18v4a2 2 0 0 0 0 4v4H3v-4a2 2 0 0 0 0-4zM12 8v8',apply:p=>{p.dashMax*=.80;}},
   stabilizer:{slot:'boots',name:'Classy Stabilizer',unlock:'candid',text:'Store up to two dashes. Each charge takes 35% longer to refill, one at a time.',icon:'M8 3h7v9l6 3v5H4v-6l4-2zM2 7h4m-5 4h4',apply:p=>{p.dashCapacity=2;p.dashMax*=1.35;}},
@@ -1061,7 +1060,8 @@ const campaignGear={
   rip:{slot:'pendant',name:'Take It Take It Take It',unlock:'signal-array',text:'Close Calls return a piercing shot with 3× pop power.',icon:'M19 19v-7a5 5 0 0 0-5-5H4m0 0 5-5M4 7l5 5',apply:p=>{p.reflect=3;}},
   nutCharm:{slot:'pendant',name:'I Need That Nut',unlock:'nutmare-cache',text:'Restore 10 Vibe for every fourth bot popped and 2 Vibe for every tenth shot that hits a boss.',icon:'M5 8l7-5 7 5v8l-7 5-7-5zM9 12h6m-3-3v6',apply:p=>{p.killHeal+=10;p.bossVibe=2;}},
   coldest:{slot:'pendant',name:'Coldest Moment',unlock:'lost-take',text:'Buss Burst freezes enemies it hits for 4 seconds. Bosses are heavily slowed for 1 second.',icon:'M4 4l8 7 8-7M12 11l5 5-5 5-5-5zM12 13v6m-3-5 6 4m-6 0 6-4',apply:p=>{p.coldBurst=4;}},
-  hush:{slot:'pendant',name:"Batu Khan's Revenge",unlock:'red-tag',text:'Taking damage clears hostile shots, hits and stuns all enemies for 0.8 s, and grants 15% Burst charge. Hits deal 3× pop power.',icon:'M5 3l7 8 7-8M7 13h10v7H7zM9 17h6',apply:p=>{p.revengeDamage=3;}}
+  hush:{slot:'pendant',name:"Batu Khan's Revenge",unlock:'red-tag',text:'Taking damage clears hostile shots, hits and stuns all enemies for 0.8 s, and grants 15% Burst charge. Hits deal 3× pop power.',icon:'M5 3l7 8 7-8M7 13h10v7H7zM9 17h6',apply:p=>{p.revengeDamage=3;}},
+  devil:{slot:'pendant',name:"I'm in Love with Satan",unlock:'encore',text:'Prevents all healing. A little devil follows your left shoulder and fires homing shots at 60% of the default Popper’s DPS, unaffected by gear or skills.',icon:'M4 3l4 6h8l4-6v9c0 5-4 9-8 9s-8-4-8-9zM7 12l3 2m7-2-3 2M9 18h6',apply:p=>{p.devil=true;p.noHealing=true;}}
 };
 
 const skillBranches={pop:{name:'Pop',color:'#d9fc70'},dash:{name:'Dash',color:'#8ddfff'},burst:{name:'Burst',color:'#ff91cc'},vibe:{name:'Vibe',color:'#78efb8'},signal:{name:'Signal',color:'#ffc67a'}};
@@ -1103,8 +1103,8 @@ const campaignSkills=[
 function gearIcon(path){return `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.65" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="${path}"/></svg>`;}
 
 const campaignSaveKey = 'buss-story-profile';
-const campaignVersion = 7;
-const campaignVersions=[1,2,3,4,5,6,campaignVersion];
+const campaignVersion = 8;
+const campaignVersions=[1,2,3,4,5,6,7,campaignVersion];
 const campaignSlots=[1,2,3];
 const campaignSlotKey=slot=>slot===1?campaignSaveKey:campaignSaveKey+'-'+slot;
 let campaignSlot=1;
@@ -1160,7 +1160,7 @@ function normalizeCampaignProfile(value) {
   profile.bonusTutorial=value.bonusTutorial===true||campaignLevels.some(level=>level.side&&completed.has(level.id));
   const retained=new Set(Array.isArray(value.keptGear)?value.keptGear:[]);
   profile.keptGear=Object.entries(previousGearGates).filter(([id,gate])=>
-    (retained.has(id)||value.version<7&&completed.has(gate))&&!completed.has(campaignGear[id].unlock)
+    (retained.has(id)||value.version<7&&completed.has(gate)||id==='cutoff'&&value.version===7&&completed.has('encore'))&&!completed.has(campaignGear[id].unlock)
   ).map(([id])=>id);
   if(Array.isArray(value.files))profile.files=[...new Set(value.files.filter(id=>typeof id==='string'))].slice(0,100);
   for(const skill of campaignSkills){
@@ -1468,7 +1468,6 @@ const freshStats=()=>({
 });
 let g={mode:'title',level:0,wave:1,score:0,p:motion(initial()),...empty()};
 let backdrop=null,musicTimer=0;
-const combatAreaIndex=()=>g.story?.endless?endlessLevel.areaIndex:g.level;
 function clearInput(){
   input.keys.clear();input.down=false;input.touchFire=false;
   input.dx=input.dy=0;input.dash=input.buss=false;g.p.dashBuffer=0;
@@ -1505,6 +1504,7 @@ function title(){
 }
 function openLevel(i,firstWave=1){
   g.level=i;g.p=motion(g.p);g.p.hp=g.p.max;
+  g.devil=g.p.devil?{x:g.p.x-40,y:g.p.y-16,cd:0,recoil:0}:null;
   g.combo=0;g.comboT=0;g.clock=0;g.shake=0;g.flash=0;g.echo=0;g.gap=null;g.banner=0;g.primeForm=false;
   g.cameoUsed=false;g.volley=0;g.blasts=[];
   g.reviveEffect=0;
@@ -1523,8 +1523,7 @@ function spawnPoint(){
   return{x:g.p.x>480?88:872,y:110};
 }
 function enemy(kind,x,y,materialize=.42,fileId=kind){
-  const stats=enemyStats(kind,combatAreaIndex());
-  if(g.story.endless)stats.hp=Math.round(stats.hp*endlessHealth(g.wave));
+  const stats=enemyStats(kind,g.level);
   if(g.story.level.side){stats.hp=Math.round(stats.hp*1.20);stats.speed*=1.08;}
   const bot={kind,x,y,r:stats.radius,hp:stats.hp,max:stats.hp,speed:stats.speed,cd:rand(.65,1.75),
     spawn:materialize,aim:0,turn:Math.random()<.5?1:-1,walk:rand(0,TAU),hit:0,variant:Math.floor(rand(0,3))};
@@ -1533,9 +1532,8 @@ function enemy(kind,x,y,materialize=.42,fileId=kind){
   return bot;
 }
 function openWave(n){
-  const {endless,level}=g.story;
-  const timed=level.side||endless;
-  const continuous=timed&&n>1;
+  const {level}=g.story;
+  const continuous=level.side&&n>1;
   g.wave=n;g.gap=null;g.queue=[];g.squad=0;
   if(!continuous){
     g.pops=[];g.enemyPops=[];g.hazards=[];g.items=[];g.blasts=[];g.nutPulses=[];
@@ -1545,28 +1543,21 @@ function openWave(n){
   g.waveHit=false;g.lastDeployment=-Infinity;
   g.p.inv=Math.max(g.p.inv,g.p.waveGuard);
   if(n>1&&!g.story.rematch)g.p.charge=Math.min(100,g.p.charge+g.p.waveStartCharge);
-  g.storyHazards=0;g.storyHazardAt=(timed?3.9:5.7)*areaTuning[g.level].hazard;
+  g.storyHazards=0;g.storyHazardAt=(level.side?3.9:5.7)*areaTuning[g.level].hazard;
   if(isBossWave()){
-    const area=combatAreaIndex();
-    const hp=Math.round(bossHP(area)*campaignBossScale[area]*(endless?endlessHealth(n):1));
-    if(!endless)g.enemies=[];
-    g.enemies.unshift({kind:'boss',x:480,y:154,r:bossRadii[g.level],hp,max:hp,spawn:1.22,cd:.53,pattern:0,walk:0,hit:0,aim:Math.PI/2,charge:0});
+    const hp=Math.round(bossHP(g.level)*campaignBossScale[g.level]);
+    g.enemies=[{kind:'boss',x:480,y:154,r:bossRadii[g.level],hp,max:hp,spawn:1.22,cd:.53,pattern:0,walk:0,hit:0,aim:Math.PI/2,charge:0}];
     discover('boss'+g.level);
     for(const [slot,kind] of bossEscorts[g.level].entries()){
-      const deployment={kind,edge:slot?'east':'west',squad:1,slot};
-      if(endless)g.queue.push({...deployment,at:slot*.22});
-      else{
-        const point=campaignSpawn(deployment);
-        deployCampaignBot(kind,point.x,point.y,1.65);
-      }
+      const point=campaignSpawn({edge:slot?'east':'west',squad:1,slot});
+      deployCampaignBot(kind,point.x,point.y,1.65);
     }
-    if(endless)g.queue.push(...endlessDeployments(n,true));
     healPlayer(g.p.max*combatRules.bossHeal,true);
-    announce(endless?'BOSS · WAVE '+n:'BOSS',1.5,'boss');sound.event('bossIntro');
+    announce('BOSS',1.5,'boss');sound.event('bossIntro');
   }else{
-    g.queue=endless?endlessDeployments(n,false):campaignWave(level,n);
+    g.queue=campaignWave(level,n);
     if(n>1){
-      healPlayer(g.p.max*combatRules.waveHeal*areaTuning[combatAreaIndex()].heal*(continuous?.65:1),true);
+      healPlayer(g.p.max*combatRules.waveHeal*areaTuning[g.level].heal*(continuous?.65:1),true);
     }
     announce(isFinalWave()?'FINAL WAVE':'WAVE '+n,1.05,isFinalWave()?'final':'wave');
   }
@@ -1575,8 +1566,7 @@ function openWave(n){
 function pause(){
   if(g.mode!=='play')return;setMode('pause');
   const level=g.story.level;
-  const mapLevel=g.story.endless?'encore':level.id;
-  panel(levelLabel(level),'Paused','',[['Resume',unpause],['Leave attempt',()=>showCampaign('map',mapLevel)]]);
+  panel(levelLabel(level),'Paused','',[['Resume',unpause],['Leave attempt',()=>showCampaign('map',level.id)]]);
 }
 function unpause(){if(g.mode==='pause'){sound.wake();setMode('play');}}
 function setHudText(id,value){
@@ -1595,24 +1585,21 @@ function hudMeter(id,fill,value){
 function hud(){
   const p=g.p,b=g.enemies.find(e=>e.kind==='boss');
   hudMeter('vibe-meter','hp-fill',p.hp/p.max);
-  const {level:storyLevel,endless,rematch}=g.story;
+  const {level:storyLevel,rematch}=g.story;
   setHudText('level-name',levelLabel(storyLevel));
-  const waveText=endless?`${isBossWave()?'BOSS · ':''}WAVE ${g.wave}`:
-    isBossWave()?'BOSS':isFinalWave()?'FINAL WAVE':`WAVE ${g.wave} / ${activeWaveCount()}`;
+  const waveText=isBossWave()?'BOSS':isFinalWave()?'FINAL WAVE':`WAVE ${g.wave} / ${activeWaveCount()}`;
   setHudText('wave-name',waveText);
   const medalTarget=$('speed-medal-target');
   const elapsed=Math.round(g.stats.time*1000);
-  medalTarget.hidden=endless||rematch;
+  medalTarget.hidden=rematch;
   setHudText('speed-clock',campaignTime(elapsed));
-  if(!endless){
-    medalTarget.classList.toggle('over-target',elapsed>storyLevel.speedTarget*1000);
-    setHudText('speed-medal-target','Medal: '+campaignTime(storyLevel.speedTarget*1000));
-  }
+  medalTarget.classList.toggle('over-target',elapsed>storyLevel.speedTarget*1000);
+  setHudText('speed-medal-target','Medal: '+campaignTime(storyLevel.speedTarget*1000));
   const roundIndex=storyLevel.id+'-'+g.wave;
   if($('wave-track').dataset.round!==roundIndex){
     const track=$('wave-track');
     track.dataset.round=roundIndex;
-    const position=endless?(g.wave-1)%endlessBossInterval:g.wave-1;
+    const position=g.wave-1;
     track.innerHTML=Array.from({length:activeWaveCount()},(_,i)=>'<i class="'+(i<position?'done':i===position?'now':'')+'"></i>').join('');
   }
   setHudText('score',pad(g.score,6));
@@ -1659,10 +1646,8 @@ function kill(e,source='pop'){
   if(e.kind!=='boss'&&Math.random()<combatRules.dropChance)g.items.push({x:e.x,y:e.y,life:9});
   sound.event('down');
   if(e.kind==='boss'){
-    if(!g.story.endless){
-      for(const other of g.enemies)if(other!==e&&!other.dead){other.dead=true;particle(other.x,other.y,color,13);}
-      g.enemyPops=[];g.hazards=[];
-    }
+    for(const other of g.enemies)if(other!==e&&!other.dead){other.dead=true;particle(other.x,other.y,color,13);}
+    g.enemyPops=[];g.hazards=[];
     g.shake=Math.max(g.shake,11);sound.event('bossDown');
   }
   else{
@@ -1670,10 +1655,10 @@ function kill(e,source='pop'){
     if(g.p.echoKill){
       const next=g.enemies.filter(bot=>!bot.dead&&bot.spawn<=0&&dist(e,bot)<400)
         .sort((a,b)=>dist(e,a)-dist(e,b))[0];
-      if(next)playerPop(e,angle(e,next),g.p.dmg*stageAmp[combatAreaIndex()]*g.p.echoKill,0,'#7dfff4');
+      if(next)playerPop(e,angle(e,next),g.p.dmg*stageAmp[g.level]*g.p.echoKill,0,'#7dfff4');
     }
   }
-  if(!g.story.endless&&(isBossWave()||isFinalWave())&&!g.queue.length&&g.enemies.every(enemy=>enemy.dead)){
+  if((isBossWave()||isFinalWave())&&!g.queue.length&&g.enemies.every(enemy=>enemy.dead)){
     g.finishTime=g.stats.time;
     g.enemyPops=[];
     g.hazards=[];
@@ -1684,16 +1669,16 @@ function damage(e,amount,source){
   if(e.kind==='primePod'&&e.owner.transform>0)return false;
   if(e.kind==='boss'&&g.primeForm&&e.pods.some(pod=>!pod.dead))amount*=.32;
   if(e.kind==='boss'&&g.level===5)amount*=e.hot>0?1.55:e.satanPhase?.77:.53;
-  if(g.p.highVibeDamage&&e.kind!=='primePod'&&e.hp>=e.max*.5)amount*=1+g.p.highVibeDamage;
+  if(source!=='companion'&&g.p.highVibeDamage&&e.kind!=='primePod'&&e.hp>=e.max*.5)amount*=1+g.p.highVibeDamage;
   e.hp-=amount;e.hit=.09;
   if(e.satanPhase)updateServerGlass(e);
-  if(!g.story.endless&&e.kind==='boss'&&g.level===4&&!g.primeForm&&e.hp<=0){
+  if(e.kind==='boss'&&g.level===4&&!g.primeForm&&e.hp<=0){
     transformPrime(e);
-  }else if(!g.story.endless&&e.kind==='boss'&&g.level===5&&!e.satanPhase&&e.hp<=0){
+  }else if(e.kind==='boss'&&g.level===5&&!e.satanPhase&&e.hp<=0){
     transformSatan(e);
   }else if(e.hp<=0)kill(e,source);
   if(e.kind==='primePod'&&e.dead&&e.owner.pods.every(pod=>pod.dead)){
-    g.p.hp=Math.min(g.p.max,g.p.hp+g.p.max*.34);
+    if(!g.p.noHealing)g.p.hp=Math.min(g.p.max,g.p.hp+g.p.max*.34);
     g.p.inv=Math.max(g.p.inv,.8);
     g.enemyPops=[];
     announce('CORE EXPOSED',1.2);sound.event('warn');
@@ -1710,7 +1695,7 @@ function hurt(n,source='enemy'){
   }
   const side=g.story.level.side?(g.level===5?1.07:1.14):1;
   const hazard=source==='hazard'?p.hazardGuard??1:1;
-  const pressure=isBossWave()?(g.level===5?1.07:1):areaTuning[combatAreaIndex()].damage;
+  const pressure=isBossWave()?(g.level===5?1.07:1):areaTuning[g.level].damage;
   const taken=Math.max(1,Math.round(n*combatRules.damage*Math.max(.76,p.incoming)*side*hazard*pressure));
   g.waveHit=true;
   g.stats.damage+=Math.min(Math.ceil(p.hp),taken);
@@ -1729,7 +1714,7 @@ function hurt(n,source='enemy'){
   }
   particle(p.x,p.y,'#ff86ae',13,147);
   sound.event('hurt');
-  if(p.hp<=0&&p.revive&&!g.cameoUsed){
+  if(p.hp<=0&&p.revive&&!p.noHealing&&!g.cameoUsed){
     g.cameoUsed=true;p.hp=Math.ceil(p.max*p.revive);p.inv+=2;
     g.reviveEffect=1.65;
     particle(p.x,p.y,'#fff4b7',44,228,1);
@@ -1737,7 +1722,7 @@ function hurt(n,source='enemy'){
   }
   const defeated=p.hp<=0;
   if(retaliation&&(!defeated||p.revengeDamage)){
-    const power=retaliation*p.dmg*stageAmp[combatAreaIndex()];
+    const power=retaliation*p.dmg*stageAmp[g.level];
     for(const enemy of [...g.enemies]){
       if(damage(enemy,power,'nut')&&!enemy.dead&&p.revengeDamage)stunEnemy(enemy,.8);
     }
@@ -1764,7 +1749,7 @@ function updateBlasts(dt){
   g.blasts=g.blasts.filter(effect=>effect.life>0);
 }
 function shot(x,y,a,s=240,dmg=12,type='orb',turn=0){
-  const speed=isBossWave()?(g.level===5?1.045:1):areaTuning[combatAreaIndex()].shot;
+  const speed=isBossWave()?(g.level===5?1.045:1):areaTuning[g.level].shot;
   g.enemyPops.push({x,y,a,s:s*combatRules.projectileSpeed*speed,dmg,r:type==='note'?7:6,life:6,type,turn});
 }
 function fan(e,a,count,spread,s,type='orb',dmg=13){
@@ -1816,7 +1801,7 @@ function transformSatan(e){
   g.enemyPops=[];g.hazards=[];g.safeZone=null;g.shake=13;g.flash=.22;
   for(const bot of g.enemies)if(bot!==e)bot.dead=true;
   healPlayer(g.p.max*.27);
-  g.p.hp=Math.max(g.p.hp,Math.ceil(g.p.max*.56));
+  if(!g.p.noHealing)g.p.hp=Math.max(g.p.hp,Math.ceil(g.p.max*.56));
   discover('hellboot');
   g.p.inv=Math.max(g.p.inv,1.9);
   particle(e.x,e.y,'#ff7161',62,280,1);
@@ -2263,7 +2248,7 @@ function closeCall(bullet){
   if(p.nearHeal)healPlayer(p.nearHeal);
   floater(p.x,p.y-18,'CLOSE CALL','#a5ffea');sound.tone(840,.12,.07,'triangle',1250);
   if(p.reflect){
-    playerPop(p,p.aim,p.dmg*stageAmp[combatAreaIndex()]*p.reflect,p.pierce+1,'#81fff5',16);
+    playerPop(p,p.aim,p.dmg*stageAmp[g.level]*p.reflect,p.pierce+1,'#81fff5',16);
   }
 }
 function finishRegularWave(){
@@ -2309,7 +2294,7 @@ function update(dt){
     if(p.quickDraw)p.quickDrawWindow=1;
     if(p.dashSprint)p.sprintUntil=g.clock+p.dashDuration+p.dashSprintTime;
     if(p.dashPulse){
-      g.blasts.push({x:p.x,y:p.y,r:110,wait:.24,life:.39,power:initialPopPower*stageAmp[combatAreaIndex()]*p.dashPulse,color:'#9be8ff'});
+      g.blasts.push({x:p.x,y:p.y,r:110,wait:.24,life:.39,power:initialPopPower*stageAmp[g.level]*p.dashPulse,color:'#9be8ff'});
     }
   }
   input.dash=false;
@@ -2329,6 +2314,7 @@ function update(dt){
   updateBlasts(dt);
   updateCampaignArena();
   updateCampaignDeployment();
+  updateDevil(dt);
   for(const e of g.enemies){if(!e.dead)enemyUpdate(e,dt);if(g.mode!=='play')return;}
   updatePlayerPops(dt);
   for(const h of g.hazards){
@@ -2347,15 +2333,17 @@ function update(dt){
   }
   g.enemyPops=g.enemyPops.filter(b=>b.life>0&&b.x>-18&&b.x<W+18&&b.y>45&&b.y<H+14);
   for(const o of g.items){o.life-=dt;const d=dist(o,p);if(d<80&&d>0){o.x+=(p.x-o.x)/d*dt*180;o.y+=(p.y-o.y)/d*dt*180;}
-    if(d<24){o.life=0;healPlayer(19*p.pickupHealing,true);floater(p.x,p.y-17,'+ VIBE','#aaffcf');sound.event('pick');}}
+    if(d<24){
+      o.life=0;
+      if(healPlayer(19*p.pickupHealing,true)>0){floater(p.x,p.y-17,'+ VIBE','#aaffcf');sound.event('pick');}
+    }}
   g.items=g.items.filter(o=>o.life>0);
   for(const f of g.fx){f.x+=f.vx*dt;f.y+=f.vy*dt;f.vy+=160*dt;f.a+=f.spin*dt;f.life-=dt;}
   g.fx=g.fx.filter(f=>f.life>0);
   for(const f of g.floaters){f.life-=dt;f.y-=dt*44;}
   g.floaters=g.floaters.filter(f=>f.life>0);
   g.enemies=g.enemies.filter(e=>!e.dead);
-  if(g.story.endless)advanceEndless();
-  else if(g.story.level.side&&!isFinalWave()){
+  if(g.story.level.side&&!isFinalWave()){
     if(!g.queue.length&&(!g.enemies.length||g.elapsed>=bonusWaveDuration(g.story.level,g.wave))){
       finishRegularWave();
       openWave(g.wave+1);
@@ -2669,10 +2657,10 @@ function music(dt){
   musicTimer=.15;
 }
 
-function activeWaveCount(){return g.story.endless?endlessBossInterval:campaignRoundCount(g.story.level);}
+function activeWaveCount(){return campaignRoundCount(g.story.level);}
 function activeBossName(){return campaignAreas[g.level].boss;}
-function isBossWave(){return g.story.endless?g.wave%endlessBossInterval===0:g.story.level.finale&&g.wave===activeWaveCount();}
-function isFinalWave(){return !g.story.endless&&!g.story.level.finale&&g.wave===activeWaveCount();}
+function isBossWave(){return g.story.level.finale&&g.wave===activeWaveCount();}
+function isFinalWave(){return !g.story.level.finale&&g.wave===activeWaveCount();}
 const campaignBossScale=[.85,.99,.97,.94,.65,.86];
 const bossEscorts=[
   ['stamper','stapler'],['headlight','faregate'],['tuningfork','choir'],
@@ -2701,8 +2689,7 @@ function bonusWaveDuration(level,wave){
 function updateCampaignDeployment(){
   if(!g.queue.length||g.queue[0].at>g.elapsed)return;
   const surge=isFinalWave();
-  // Keep one slot free for the next boss while ordinary Endless waves overlap.
-  const cap=g.story.endless?endlessActiveCap-Number(!isBossWave()):g.story.level.side?Infinity:deploymentCap(g.level);
+  const cap=g.story.level.side?Infinity:deploymentCap(g.level);
   if(!surge&&(g.elapsed-g.lastDeployment<deploymentSpacing||g.enemies.length>=cap))return;
   const ready=g.queue.splice(0,surge?g.queue.length:1);
   g.lastDeployment=g.elapsed;
@@ -2729,14 +2716,10 @@ function startCampaignLevel(id,rematch=false){
   if(!level || !profile || !campaignUnlocked(level,profile))return;
   if(rematch && (!level.finale || !profile.cleared.includes(level.id)))return;
   if(!rematch)saveCampaignProfile({...profile,selected:id});
-  beginAttempt(level,profile,rematch);
-}
-
-function beginAttempt(level,profile,rematch,endless=false){
   sound.stopAttemptAudio();
   sound.wake();
   g={mode:'play',level:level.areaIndex,wave:1,score:0,p:motion(campaignPlayer(profile)),
-    stats:freshStats(),story:{level,profileId:profile.id,rematch,endless,enemyBag:[]},...empty()};
+    stats:freshStats(),story:{level,profileId:profile.id,rematch},...empty()};
   openLevel(level.areaIndex,rematch?campaignRoundCount(level):1);
   $('pause').focus({preventScroll:true});
 }
@@ -2744,13 +2727,6 @@ function beginAttempt(level,profile,rematch,endless=false){
 function campaignResults(survived){
   const {level,profileId,rematch}=g.story;
   setMode(survived?'story-clear':'story-fail');
-  if(g.story.endless){
-    sound.event('fail');
-    const box=panel(level.name,'Signal lost',`Wave ${g.wave} · ${g.score.toLocaleString()} points`,
-      [['Retry',startEndless],['Map',()=>showCampaign('map','encore')]]);
-    decorateResults(box,false);
-    return;
-  }
   if(rematch){
     if(!survived)sound.event('fail');
     const box=panel('BOSS REMATCH',survived?'Boss cleared':'Signal lost',
@@ -2841,10 +2817,10 @@ const campaignArenaEvents={
 };
 
 function updateCampaignArena(){
-  const {level,endless}=g.story;
+  const {level}=g.story;
   if(isBossWave() || g.elapsed<g.storyHazardAt || !g.enemies.length)return;
   if(level.index===0)return;
-  if((level.side||endless)&&g.level===5&&g.enemies.length>=7){
+  if(level.side&&g.level===5&&g.enemies.length>=7){
     g.storyHazardAt=g.elapsed+.8;
     return;
   }
@@ -2931,53 +2907,6 @@ function updateCampaignBot(bot,dt){
   campaignBotTypes[bot.storyKind].attack(bot);
 }
 
-const endlessLevel={id:'endless',name:'Endless Edging',areaIndex:5};
-const endlessBossInterval=6;
-const endlessActiveCap=22;
-const endlessDeadline=13;
-const endlessBotPool=[...Object.keys(enemyTypes),...Object.keys(campaignBotTypes)];
-
-const endlessHealth=wave=>1+.03*Math.min(60,wave-1);
-const endlessBotCount=wave=>6+Math.min(12,Math.floor((wave-1)/4));
-const endlessUnlocked=profile=>profile?.cleared.includes('encore');
-
-function startEndless(){
-  const profile=refreshCampaignProfile();
-  if(endlessUnlocked(profile))beginAttempt(endlessLevel,profile,false,true);
-}
-
-function endlessDeployments(wave,boss){
-  const count=endlessBotCount(wave), bag=g.story.enemyBag;
-  const queue=[];
-  const edges=['west','east','north','south','flanks'];
-  const slots=boss?Math.floor((count-6)/3):count;
-  for(let index=0;index<slots;index++){
-    if(!bag.length)bag.push(...endlessBotPool);
-    const selection=Math.floor(Math.random()*bag.length);
-    const [kind]=bag.splice(selection,1);
-    const squad=Math.floor(index/4);
-    queue.push({kind,edge:edges[(wave+squad)%edges.length],at:.75+squad*2.65+(index%4)*.24,squad,slot:index%4});
-  }
-  return queue;
-}
-
-function advanceEndless(){
-  if(g.queue.length)return;
-  if(isBossWave()){
-    if(g.enemies.length)return;
-    const next=Math.floor(Math.random()*(campaignAreas.length-1));
-    g.level=next>=g.level?next+1:next;
-    g.enemyPops=[];g.hazards=[];g.safeZone=null;
-    g.pops=[];g.blasts=[];g.nutPulses=[];
-    backdrop=null;musicTimer=0;
-    openWave(g.wave+1);
-    announce('WAVE '+g.wave+' · '+campaignAreas[g.level].name.toUpperCase(),1.65,'wave');
-  }else if(!g.enemies.length||g.elapsed>=endlessDeadline){
-    finishRegularWave();
-    openWave(g.wave+1);
-  }
-}
-
 const shotPatterns={
   single:[[0,1,0]],scatter:[[0,1,0],[-.19,1,0],[.19,1,0]],twin:[[0,1,-8],[0,1,8]],
   compass:Array.from({length:8},(_,index)=>[index*Math.PI/4,1,0]),
@@ -2988,6 +2917,8 @@ const shotPatterns={
 const burstTime=.46;
 const poisonTick=.2;
 const bossBurstScale=174/86;
+const devilShotInterval=30/90;
+const devilShotDamage=initialPopPower*.6*devilShotInterval/initial().rate;
 const starBurstPoints=Array.from({length:12},(_,i)=>{
   const angle=i*Math.PI/6-Math.PI/2, radius=i%2?1/Math.sqrt(3):1;
   return {x:Math.cos(angle)*radius,y:Math.sin(angle)*radius};
@@ -3005,7 +2936,31 @@ const burstShapes={
 
 function healPlayer(amount,refill=false){
   const p=g.p;
+  if(p.noHealing)return 0;
+  const before=p.hp;
   p.hp=Math.min(p.max,p.hp+Math.round(amount*(refill?p.refillHealing:1)));
+  return p.hp-before;
+}
+
+function updateDevil(dt){
+  const devil=g.devil;
+  if(!devil)return;
+  const follow=1-Math.exp(-14*dt);
+  devil.x=lerp(devil.x,clamp(g.p.x-40,25,935),follow);
+  devil.y=lerp(devil.y,clamp(g.p.y-16,68,505),follow);
+  devil.cd=Math.max(0,devil.cd-dt);
+  devil.recoil=Math.max(0,devil.recoil-dt*7);
+  if(devil.cd>1e-8||g.finishTime!==undefined)return;
+  let target,nearest=620;
+  for(const enemy of g.enemies){
+    if(enemy.dead||enemy.spawn>0||enemy.transform>0||enemy.owner?.transform>0)continue;
+    const distance=dist(devil,enemy);
+    if(distance<nearest){nearest=distance;target=enemy;}
+  }
+  if(!target)return;
+  devil.cd=devilShotInterval;devil.recoil=1;
+  g.pops.push({x:devil.x,y:devil.y,a:angle(devil,target),s:730,d:devilShotDamage*stageAmp[g.level],
+    r:5,life:1.8,pierce:0,hits:new Set(),color:'#ff9cbd',homing:7,companion:true});
 }
 
 function playerPop(origin,a,d,pierce,color='#eaffb6',offset=26,side=0,useGear=false,effect=null){
@@ -3024,7 +2979,7 @@ function fire(){
   const empowered=p.pattern==='overdrive'&&volley%4===0;
   const pattern=empowered?shotPatterns.fan:shotPatterns[p.pattern]??shotPatterns.single;
   const aim=p.pattern==='compass'?p.aim:p.aim+rand(-.022,.022);
-  const power=p.dmg*stageAmp[combatAreaIndex()]*(1+(p.quickDrawWindow>0?p.quickDraw:0)+p.streakPower*Math.min(5,g.comboT>0?g.combo:0));
+  const power=p.dmg*stageAmp[g.level]*(1+(p.quickDrawWindow>0?p.quickDraw:0)+p.streakPower*Math.min(5,g.comboT>0?g.combo:0));
   p.quickDrawWindow=0;
   const effect=p.nut&&(!p.nut.interval||volley%p.nut.interval===0)?p.nut:null;
   const color=effect?.color??(empowered?'#8fc1ff':'#eaffb6');
@@ -3053,7 +3008,7 @@ function applyNutEffect(e,shot){
       stunEnemy(e,effect.stun);
     }
     if(effect.poison){
-      const dps=g.p.dmg*stageAmp[combatAreaIndex()]*effect.poisonDps;
+      const dps=g.p.dmg*stageAmp[g.level]*effect.poisonDps;
       e.poison={duration:effect.poison,potency:dps*poisonTick,step:e.poison?.step??poisonTick};
     }
   }
@@ -3086,9 +3041,9 @@ function conditionStep(e,dt){
 function updatePlayerPops(dt){
   for(const b of g.pops){
     if(b.homing){
-      let target,nearest=245*245;
+      let target,nearest=(b.companion?620:245)**2;
       for(const bot of g.enemies){
-        if(bot.dead||bot.spawn>0||b.hits.has(bot))continue;
+        if(bot.dead||bot.spawn>0||bot.transform>0||bot.owner?.transform>0||b.hits.has(bot))continue;
         const distance=(bot.x-b.x)**2+(bot.y-b.y)**2;
         if(distance<nearest){nearest=distance;target=bot;}
       }
@@ -3108,10 +3063,10 @@ function updatePlayerPops(dt){
       .sort((a,e)=>dist(a,prev)-dist(e,prev));
     for(const e of hits){
       if(e.dead)continue;
-      const skillBonus=!isElite(e)?(e.hp>=e.max?g.p.opener:e.hp/e.max<.30?g.p.finisher:0):0;
-      if(damage(e,b.d*(1+skillBonus))){
-        if(!b.scored){b.scored=true;g.stats.hits++;}
-        if(e.kind==='boss'){
+      const skillBonus=!b.companion&&!isElite(e)?(e.hp>=e.max?g.p.opener:e.hp/e.max<.30?g.p.finisher:0):0;
+      if(damage(e,b.d*(1+skillBonus),b.companion?'companion':'pop')){
+        if(!b.companion&&!b.scored){b.scored=true;g.stats.hits++;}
+        if(!b.companion&&e.kind==='boss'){
           g.p.charge=Math.min(100,g.p.charge+.5+g.p.bossCharge);
           if(g.p.bossVibe){
             g.p.bossHits=(g.p.bossHits??0)+1;
@@ -3174,7 +3129,7 @@ function buzz(){
   const offset=spec.offset??0;
   particle(p.x+Math.cos(p.aim)*offset,p.y+Math.sin(p.aim)*offset,spec.color,46,360,1,p.aim,spec.angle?spec.angle*2:TAU);
   sound.event('burst');
-  const power=stageAmp[combatAreaIndex()]*p.burstDamage;
+  const power=stageAmp[g.level]*p.burstDamage;
   for(const e of g.enemies){
     if(inBurst(origin,e))hitBurst(e,power);
     if(push&&!e.dead&&!isElite(e)&&dist(e,p)<275){
@@ -3646,8 +3601,11 @@ function render(){
   for(const h of g.hazards)drawHazard(h);
   for(const o of g.items){c.save();c.globalAlpha=o.life<2?.55+Math.sin(o.life*15)*.34:1;c.translate(o.x,o.y+Math.sin(g.clock*7)*3);c.lineWidth=2;rect(c,-9,-10,18,20,'#85efb3','#161728',4);line(c,[-5,0,5,0],'#142c26',3);line(c,[0,-5,0,5],'#142c26',3);c.restore();}
   for(const b of g.pops){line(c,[b.x-Math.cos(b.a)*17,b.y-Math.sin(b.a)*17,b.x,b.y],b.color,4);disk(c,b.x,b.y,3.5,'#fcffd5',null);}
-  const actors=[...g.enemies,p].sort((a,b)=>a.y-b.y);
+  const actors=[...g.enemies,p];
+  if(g.devil)actors.push(g.devil);
+  actors.sort((a,b)=>a.y-b.y);
   for(const e of actors){
+    if(e===g.devil){drawDevil(c,e);continue;}
     if(e===p){
       if(g.reviveEffect>0)drawRevive(c,p,g.reviveEffect);
       drawPlayer(p);continue;
@@ -3742,6 +3700,34 @@ function drawRevive(c,p,time){
   for(const side of [-1,1]){
     const span=17+(reduced?12:23*Math.sin(progress*Math.PI));
     poly(c,[side*11,3,side*(span+21),-32,side*span,-7,side*(span+13),-12,side*19,10],'#fff0b8','#f3ba65');
+  }
+  c.restore();
+}
+
+function drawDevil(c,devil){
+  const ink='#210f24',wing='#773451',skin='#f1778e';
+  c.save();
+  c.translate(devil.x,devil.y+(reduced?0:Math.sin(g.clock*5)*2));
+  c.lineWidth=1.7;
+  disk(c,0,17,12,'#07071370',null,4);
+  line(c,[-4,9,-11,17,-19,15,-18,9],'#ed839f',2);
+  poly(c,[-18,4,-22,10,-14,9],skin,ink);
+  const flap=reduced?0:Math.sin(g.clock*10)*3;
+  for(const side of [-1,1]){
+    poly(c,[side*5,0,side*15,-9-flap,side*19,0,side*14,1,side*10,6,side*5,4],wing,ink);
+    line(c,[side*7,2,side*15,-5-flap],'#cd6f91',1);
+  }
+  disk(c,0,7,7,'#a73764',ink,9);
+  disk(c,0,-3,10,skin,ink,9);
+  for(const side of [-1,1]){
+    poly(c,[side*4,-9,side*10,-17,side*9,-6],'#ffc3a2',ink);
+    line(c,[side*3,-4,side*7,-6],'#45203c',2);
+    disk(c,side*4,-2,1.5,'#fff2b7');
+  }
+  line(c,[-4,3,0,5,5,2],'#45203c',1.5);
+  if(devil.recoil>0){
+    c.globalAlpha=devil.recoil*.8;
+    disk(c,0,8,4+devil.recoil*5,'#ffd3ae55','#ffd3ae');
   }
   c.restore();
 }
@@ -4360,8 +4346,7 @@ function renderCampaignMap(profile){
   const transition=campaignPageDirection===1?'slide-next':campaignPageDirection===-1?'slide-prev':'';
   campaignPageDirection=0;
   $('campaign-content').innerHTML=`<section class="campaign-main map-browser" style="--area-accent:${area.accent}">
-    <header class="campaign-heading map-heading"><div><small>Area ${pad(campaignAreaIndex+1)}</small><h2 id="campaign-heading" tabindex="-1">${area.name}</h2></div>
-    ${area.id==='server'&&endlessUnlocked(profile)?'<button class="secondary endless-launch" data-endless>Endless Edging</button>':`<span class="area-glyph" aria-hidden="true">${area.symbol}</span>`}</header>
+    <header class="campaign-heading map-heading"><div><small>Area ${pad(campaignAreaIndex+1)}</small><h2 id="campaign-heading" tabindex="-1">${area.name}</h2></div><span class="area-glyph" aria-hidden="true">${area.symbol}</span></header>
     <div class="map-carousel">
       <button class="map-arrow" data-page="-1" aria-label="Previous area" ${campaignAreaIndex===0?'disabled':''}>‹</button>
       <div class="campaign-map map-${area.id} ${transition}">
@@ -4505,7 +4490,6 @@ campaignResetDialog.querySelector('form').addEventListener('submit',event=>{
 $('campaign-content').addEventListener('click',event=>{
   const button=event.target.closest('button');
   if(!button||button.disabled)return;
-  if(button.hasAttribute('data-endless')){startEndless();return;}
   const {level,page,startLevel,rematch,file,setting,newStory,switchStory}=button.dataset;
   if(setting){toggleCampaignSetting(setting);return;}
   if(newStory){askStoryReset();return;}

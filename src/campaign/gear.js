@@ -34,7 +34,7 @@ const campaignGear={
   remote:{slot:'burst',name:'Red Circle Strike',unlock:'third-impact',text:'Projects a blast ahead at 135% of standard Burst damage.',icon:'M15 5a7 7 0 1 1-.01 0M15 9v6m-3-3h6M2 12h4',apply:p=>{p.burstShape='remote';p.burstDamage*=1.35;}},
   overdub:{slot:'burst',name:'Bootleg Overdub',unlock:'bootleg-mix',text:'A wide ring followed 1.5 s later by a smaller blast that deals 80% of the initial damage.',icon:'M12 2a10 10 0 1 1-.01 0M12 7a5 5 0 1 1-.01 0M11 12h2',apply:p=>{p.burstShape='ring';p.burstReach*=1.40;p.burstDamage*=.968;p.aftershock=.80;}},
   switchback:{slot:'burst',name:'Switchback',unlock:'layover',text:'Fires forward and backward beams at 110% of standard Burst damage.',icon:'M3 12h18m-14-4-4 4 4 4m10-8 4 4-4 4M12 5v14',apply:p=>{p.burstShape='crossbeam';p.burstDamage*=1.10;}},
-  cutoff:{slot:'burst',name:'Censor Bar',unlock:'encore',text:'Wide short beam. Staggers nearby bots and grants 1.0 s of protection on every cast.',icon:'M3 7h18v10H3zM7 10h10v4H7z',apply:p=>{p.burstShape='widebeam';p.burstPush=1;}},
+  cutoff:{slot:'burst',name:'Censor Bar',unlock:'lost-take',text:'Wide short beam. Staggers nearby bots and grants 1.0 s of protection on every cast.',icon:'M3 7h18v10H3zM7 10h10v4H7z',apply:p=>{p.burstShape='widebeam';p.burstPush=1;}},
   stock:{slot:'boots',name:'Stock Trainers',text:'Balanced movement and dash.',icon:'M5 4h8v9l7 3v4H3v-6l2-1zM4 17h15'},
   quickstep:{slot:'boots',name:'Transfer Ticket',unlock:'transfer',text:'Dash cooldown is 20% shorter.',icon:'M3 6h18v4a2 2 0 0 0 0 4v4H3v-4a2 2 0 0 0 0-4zM12 8v8',apply:p=>{p.dashMax*=.80;}},
   stabilizer:{slot:'boots',name:'Classy Stabilizer',unlock:'candid',text:'Store up to two dashes. Each charge takes 35% longer to refill, one at a time.',icon:'M8 3h7v9l6 3v5H4v-6l4-2zM2 7h4m-5 4h4',apply:p=>{p.dashCapacity=2;p.dashMax*=1.35;}},
@@ -58,7 +58,8 @@ const campaignGear={
   rip:{slot:'pendant',name:'Take It Take It Take It',unlock:'signal-array',text:'Close Calls return a piercing shot with 3× pop power.',icon:'M19 19v-7a5 5 0 0 0-5-5H4m0 0 5-5M4 7l5 5',apply:p=>{p.reflect=3;}},
   nutCharm:{slot:'pendant',name:'I Need That Nut',unlock:'nutmare-cache',text:'Restore 10 Vibe for every fourth bot popped and 2 Vibe for every tenth shot that hits a boss.',icon:'M5 8l7-5 7 5v8l-7 5-7-5zM9 12h6m-3-3v6',apply:p=>{p.killHeal+=10;p.bossVibe=2;}},
   coldest:{slot:'pendant',name:'Coldest Moment',unlock:'lost-take',text:'Buss Burst freezes enemies it hits for 4 seconds. Bosses are heavily slowed for 1 second.',icon:'M4 4l8 7 8-7M12 11l5 5-5 5-5-5zM12 13v6m-3-5 6 4m-6 0 6-4',apply:p=>{p.coldBurst=4;}},
-  hush:{slot:'pendant',name:"Batu Khan's Revenge",unlock:'red-tag',text:'Taking damage clears hostile shots, hits and stuns all enemies for 0.8 s, and grants 15% Burst charge. Hits deal 3× pop power.',icon:'M5 3l7 8 7-8M7 13h10v7H7zM9 17h6',apply:p=>{p.revengeDamage=3;}}
+  hush:{slot:'pendant',name:"Batu Khan's Revenge",unlock:'red-tag',text:'Taking damage clears hostile shots, hits and stuns all enemies for 0.8 s, and grants 15% Burst charge. Hits deal 3× pop power.',icon:'M5 3l7 8 7-8M7 13h10v7H7zM9 17h6',apply:p=>{p.revengeDamage=3;}},
+  devil:{slot:'pendant',name:"I'm in Love with Satan",unlock:'encore',text:'Prevents all healing. A little devil follows your left shoulder and fires homing shots at 60% of the default Popper’s DPS, unaffected by gear or skills.',icon:'M4 3l4 6h8l4-6v9c0 5-4 9-8 9s-8-4-8-9zM7 12l3 2m7-2-3 2M9 18h6',apply:p=>{p.devil=true;p.noHealing=true;}}
 };
 
 const skillBranches={pop:{name:'Pop',color:'#d9fc70'},dash:{name:'Dash',color:'#8ddfff'},burst:{name:'Burst',color:'#ff91cc'},vibe:{name:'Vibe',color:'#78efb8'},signal:{name:'Signal',color:'#ffc67a'}};

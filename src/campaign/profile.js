@@ -1,6 +1,6 @@
 const campaignSaveKey = 'buss-story-profile';
-const campaignVersion = 7;
-const campaignVersions=[1,2,3,4,5,6,campaignVersion];
+const campaignVersion = 8;
+const campaignVersions=[1,2,3,4,5,6,7,campaignVersion];
 const campaignSlots=[1,2,3];
 const campaignSlotKey=slot=>slot===1?campaignSaveKey:campaignSaveKey+'-'+slot;
 let campaignSlot=1;
@@ -56,7 +56,7 @@ function normalizeCampaignProfile(value) {
   profile.bonusTutorial=value.bonusTutorial===true||campaignLevels.some(level=>level.side&&completed.has(level.id));
   const retained=new Set(Array.isArray(value.keptGear)?value.keptGear:[]);
   profile.keptGear=Object.entries(previousGearGates).filter(([id,gate])=>
-    (retained.has(id)||value.version<7&&completed.has(gate))&&!completed.has(campaignGear[id].unlock)
+    (retained.has(id)||value.version<7&&completed.has(gate)||id==='cutoff'&&value.version===7&&completed.has('encore'))&&!completed.has(campaignGear[id].unlock)
   ).map(([id])=>id);
   if(Array.isArray(value.files))profile.files=[...new Set(value.files.filter(id=>typeof id==='string'))].slice(0,100);
   for(const skill of campaignSkills){

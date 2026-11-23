@@ -174,48 +174,73 @@ function verifyHudLayout(){
   g.p.charge=48;g.combo=0;g.comboT=0;hud();
 }
 
-function verifyEndless(){
-  showCampaign('map','encore');
-  const launch=button('[data-endless]'), clearCount=readCampaignProfile().cleared.length;
-  check(launch?.textContent==='Endless Edging'&&$('campaign-content').querySelectorAll('.map-node').length===5,'Endless unlocks outside the map graph');
-  launch.click();
-  check(g.story.endless&&g.level===5&&g.wave===1&&g.queue.length===6&&$('speed-medal-target').hidden,'Endless starts at Area 6 with six bots and no medal');
-  check(endlessBotPool.length===Object.keys(enemyTypes).length+Object.keys(campaignBotTypes).length&&
-    endlessHealth(1)===1&&endlessHealth(61)===endlessHealth(10000)&&endlessBotCount(10000)===18,'Full enemy pool and bounded wave scaling');
-  check(!campaignLevelById.has(endlessLevel.id),'Endless is absent from Story progression');
-  const survivor=enemy('guard',220,125,0);
-  check(survivor.max===enemyStats('guard',5).hp,'The first wave has normal Area 6 health');
-  g.queue=[];g.elapsed=endlessDeadline;update(1/90);
-  check(g.wave===2&&g.enemies.includes(survivor),'Endless timed waves carry survivors forward');
-  openWave(6);
-  const boss=g.enemies.find(enemy=>enemy.kind==='boss');
-  g.p.inv=100;
-  render();
-  check(g.enemies.includes(survivor)&&g.queue.length>=2&&boss.max>bossHP(5)*campaignBossScale[5]&&$('wave-name').textContent==='BOSS · WAVE 6',
-    'Boss gate adds a tougher boss and escorts without discarding carryover');
-  g.queue=[];g.elapsed=endlessDeadline+20;update(1/90);
-  check(g.wave===6&&!g.finishTime,'The boss gate ignores the timer');
-  boss.spawn=0;damage(boss,1e7);
-  update(1/90);
-  check(g.wave===6&&boss.dead&&!boss.satanPhase&&g.enemies.includes(survivor),'Satan’s PC stays in its first form and survivors hold the gate');
-  damage(survivor,1e7);update(1/90);
-  check(g.wave===7&&g.level!==5&&combatAreaIndex()===5&&g.mode==='play','Clearing the gate starts wave seven in a different arena without changing base scaling');
-  g.enemies.push({...survivor,dead:false,hp:800});g.elapsed=g.storyHazardAt;
-  updateCampaignArena();
-  check(g.hazards.length>0&&g.hazards.every(hazard=>hazard.theme===campaignAreas[g.level].modifier),'The new arena uses its own hazards');
-  g.enemies=Array.from({length:endlessActiveCap-1},()=>({...survivor,dead:false,hp:800}));
-  g.elapsed=endlessDeadline;const queued=g.queue.length;
-  updateCampaignDeployment();
-  check(g.queue.length===queued,'Endless deployments leave room under the cap for the next boss');
-  g.level=4;g.enemies=[];openWave(12);
+
+function verifyDevil(){
+  const previous=readCampaignProfile();
+  saveCampaignProfile({...freshCampaignProfile(),cleared:campaignLevels.map(level=>level.id),tutorial:true});
+  const finaleGear=Object.values(campaignGear).filter(gear=>gear.unlock==='encore');
+  check(finaleGear.length===1&&finaleGear[0]===campaignGear.devil,'6-4 only awards the devil pendant');
+  check(equipCampaignGear('devil'),'A cleared 6-4 unlocks the devil pendant');
+  startCampaignLevel('interview');
+  check(g.p.hp===g.p.max&&g.devil.x===g.p.x-40&&g.devil.y===g.p.y-16,'The devil starts beside the left shoulder at full starting Vibe');
+  const expectedDamage=devilShotDamage;
+  const target=enemy('guard',g.p.x+120,g.p.y-16,0);
+  target.hp=target.max=1e6;
+  updateDevil(1/90);
+  const shot=g.pops[0];
+  check(shot?.companion&&shot.homing>0&&shot.d===expectedDamage&&g.stats.shots===0,
+    'The devil automatically fires a homing shot with independent damage');
+  for(let i=0;i<40;i++)updatePlayerPops(1/90);
+  check(Math.abs(target.max-target.hp-expectedDamage)<1e-8&&g.stats.hits===0,'Companion shots hit without counting as player shots');
+  for(const id of ['power','cadence','pierce','rebound','reverb','reach','loud','vibe','waveguard','guard','refill','nutbreak','movespeed','cooldown','dashrefund','burstheal']){
+    check(purchaseCampaignSkill(id),'Devil test build purchases '+id);
+  }
+  equipCampaignGear('lob');equipCampaignGear('homingNut');
+  startCampaignLevel('interview');
+  const armored=enemy('guard',g.p.x+120,g.p.y-16,0);
+  armored.hp=armored.max=1e6;
+  for(let i=0;i<90;i++){updateDevil(1/90);updatePlayerPops(1/90);}
+  const before=armored.hp;
+  for(let i=0;i<270;i++){updateDevil(1/90);updatePlayerPops(1/90);}
+  check(Math.abs(before-armored.hp-9*expectedDamage)<1e-6&&
+    Math.abs(expectedDamage/devilShotInterval-initial().dmg/initial().rate*.6)<1e-8,
+    'Upgraded gear and skills leave companion DPS at 60% of the default Popper');
+  g.p.hp=20;g.p.charge=100;
+  healPlayer(100);
+  finishRegularWave();
+  buzz();
+  closeCall({x:g.p.x,y:g.p.y,life:6});
+  for(let i=0;i<4;i++)damage(enemy('runner',780,350,0),10000);
+  g.items=[{x:g.p.x,y:g.p.y,life:6}];g.p.inv=2;update(1/90);
+  check(g.p.hp===20,'The pendant blocks direct healing, wave-clear skills, Burst skills, dash skills, kill healing, and pickups');
+  openWave(2);
+  check(g.p.hp===20,'Numbered-wave healing is blocked');
+  startCampaignLevel('encore',true);g.p.hp=20;
+  const satan=g.enemies[0];satan.spawn=0;damage(satan,1e7);
+  check(satan.satanPhase&&g.p.hp===20,'Satan’s PC transition gives no healing');
+  startCampaignLevel('third-impact',true);g.p.hp=20;
   const ambatron=g.enemies[0];ambatron.spawn=0;damage(ambatron,1e7);
-  check(ambatron.dead&&!g.primeForm,'Ambatron stays in its first form in Endless');
-  g.p.inv=0;g.p.dashing=0;g.p.revive=0;hurt(1e6);
-  check(g.mode==='story-fail'&&$('overlay').textContent.includes('Wave 12')&&readCampaignProfile().cleared.length===clearCount,'Endless loss reports the wave without changing campaign clears');
-  $('overlay').querySelector('button').click();
-  check(g.wave===1&&g.level===5&&g.story.endless,'Retry restarts Endless at wave one');
-  pause();$('overlay').querySelector('.actions button:last-child').click();
-  check(g.mode==='campaign'&&campaignAreaIndex===5,'Leaving Endless returns to the server map');
+  check(g.primeForm&&g.p.hp===20,'Ambatron transition gives no healing');
+  ambatron.transform=0;
+  for(const pod of ambatron.pods)damage(pod,1e7);
+  check(g.p.hp===20,'Destroying both pods gives no healing');
+  openWave(activeWaveCount());
+  check(g.p.hp===20,'Boss-round healing is blocked');
+  startCampaignLevel('anger',true);
+  const boss=g.enemies[0];boss.spawn=0;
+  g.p.charge=0;const bossBefore=boss.hp;
+  updateDevil(1/90);
+  for(let i=0;i<45;i++)updatePlayerPops(1/90);
+  check(Math.abs(bossBefore-boss.hp-expectedDamage)<1e-8&&g.p.charge===0,'Companion boss hits skip damage skills and charge skills');
+  g.p.x=700;g.p.y=330;
+  for(let i=0;i<45;i++)updateDevil(1/90);
+  check(Math.abs(g.devil.x-660)<1&&Math.abs(g.devil.y-314)<1,'The devil follows smoothly at the player’s left');
+  render();
+  const old=normalizeCampaignProfile({version:7,id:previous.id,cleared:['encore'],equipped:{burst:'cutoff'}});
+  check(old.equipped.burst==='cutoff'&&campaignOwned(old).has('devil'),'Version 7 keeps Censor Bar and grants the pendant to existing finale clears');
+  saveCampaignProfile(previous);
+  showCampaign('map','encore');
+  check(!$('campaign-content').textContent.includes('Endless'),'The final map has no Endless entry');
 }
 
 function verifyBuildEffects(){
@@ -546,7 +571,7 @@ try{
     return rewards.length>=1&&rewards.length<=(level.finale?3:2)&&new Set(rewards.map(gear=>gear.slot)).size===rewards.length;
   }),'Every level gives gear across distinct slots and only bosses can award three');
   check(new Set(Object.values(campaignGear).map(gear=>gear.icon)).size===Object.keys(campaignGear).length,'Unique gear icons');
-  check(Object.keys(campaignGear).length===50&&['orbit','frost','crumbNut','deepFreeze','deadAir','freebird'].every(id=>!campaignGear[id]),'Removed gear is absent from the roster');
+  check(Object.keys(campaignGear).length===51&&['orbit','frost','crumbNut','deepFreeze','deadAir','freebird'].every(id=>!campaignGear[id]),'Removed gear is absent from the roster');
   check(document.title==='Buss it Up! - Dreamybull Shooter'&&$('story-entry').textContent==='Start','Release title and first-run Start label');
   $('story-entry').click();
   check($('story-slots').open&&$('story-slot-list').children.length===3,'Three Story slots');
@@ -620,7 +645,7 @@ try{
   check(oldBuild.equipped.popper==='bounce'&&oldBuild.skills.dashpulse&&!oldBuild.skills.aftershock&&campaignPoints(oldBuild)===33,
     'Existing builds keep legal purchases and refund disconnected nodes');
   const retained=normalizeCampaignProfile({version:6,id:original.id,cleared:['interview','donut','hell','lost-take'],equipped:{burst:'nova',armor:'scrubVest'}});
-  check(retained.version===7&&retained.equipped.burst==='nova'&&retained.equipped.armor==='scrubVest'&&
+  check(retained.version===8&&retained.equipped.burst==='nova'&&retained.equipped.armor==='scrubVest'&&
     campaignOwned(retained).has('sparkstep')&&campaignOwned(retained).has('cutoff')&&retained.bonusTutorial,
     'Version 6 retains all previously unlocked gear and experienced bonus players skip the tutorial');
   const reloaded=normalizeCampaignProfile(retained);
@@ -640,7 +665,7 @@ try{
   check(early.equipped.popper==='standard'&&early.equipped.nut==='snowNut'&&early.equipped.armor==='vest'&&early.equipped.pendant==='token',
     'Retired gear falls back to starters when replacements are locked');
   const reports=[playStory(1061),playStory(5133)];
-  verifyEndless();
+  verifyDevil();
   title();$('story-entry').click();
   check($('story-slot-list').children[0].textContent.includes('6-4: Rate This PC'),'Replay and later bonus clear leave the save at the furthest main level');
   $('story-slots').close();

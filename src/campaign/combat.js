@@ -8,6 +8,8 @@ const shotPatterns={
 const burstTime=.46;
 const poisonTick=.2;
 const bossBurstScale=174/86;
+const devilShotInterval=30/90;
+const devilShotDamage=initialPopPower*.6*devilShotInterval/initial().rate;
 const starBurstPoints=Array.from({length:12},(_,i)=>{
   const angle=i*Math.PI/6-Math.PI/2, radius=i%2?1/Math.sqrt(3):1;
   return {x:Math.cos(angle)*radius,y:Math.sin(angle)*radius};
@@ -25,7 +27,31 @@ const burstShapes={
 
 function healPlayer(amount,refill=false){
   const p=g.p;
+  if(p.noHealing)return 0;
+  const before=p.hp;
   p.hp=Math.min(p.max,p.hp+Math.round(amount*(refill?p.refillHealing:1)));
+  return p.hp-before;
+}
+
+function updateDevil(dt){
+  const devil=g.devil;
+  if(!devil)return;
+  const follow=1-Math.exp(-14*dt);
+  devil.x=lerp(devil.x,clamp(g.p.x-40,25,935),follow);
+  devil.y=lerp(devil.y,clamp(g.p.y-16,68,505),follow);
+  devil.cd=Math.max(0,devil.cd-dt);
+  devil.recoil=Math.max(0,devil.recoil-dt*7);
+  if(devil.cd>1e-8||g.finishTime!==undefined)return;
+  let target,nearest=620;
+  for(const enemy of g.enemies){
+    if(enemy.dead||enemy.spawn>0||enemy.transform>0||enemy.owner?.transform>0)continue;
+    const distance=dist(devil,enemy);
+    if(distance<nearest){nearest=distance;target=enemy;}
+  }
+  if(!target)return;
+  devil.cd=devilShotInterval;devil.recoil=1;
+  g.pops.push({x:devil.x,y:devil.y,a:angle(devil,target),s:730,d:devilShotDamage*stageAmp[g.level],
+    r:5,life:1.8,pierce:0,hits:new Set(),color:'#ff9cbd',homing:7,companion:true});
 }
 
 function playerPop(origin,a,d,pierce,color='#eaffb6',offset=26,side=0,useGear=false,effect=null){
@@ -44,7 +70,7 @@ function fire(){
   const empowered=p.pattern==='overdrive'&&volley%4===0;
   const pattern=empowered?shotPatterns.fan:shotPatterns[p.pattern]??shotPatterns.single;
   const aim=p.pattern==='compass'?p.aim:p.aim+rand(-.022,.022);
-  const power=p.dmg*stageAmp[combatAreaIndex()]*(1+(p.quickDrawWindow>0?p.quickDraw:0)+p.streakPower*Math.min(5,g.comboT>0?g.combo:0));
+  const power=p.dmg*stageAmp[g.level]*(1+(p.quickDrawWindow>0?p.quickDraw:0)+p.streakPower*Math.min(5,g.comboT>0?g.combo:0));
   p.quickDrawWindow=0;
   const effect=p.nut&&(!p.nut.interval||volley%p.nut.interval===0)?p.nut:null;
   const color=effect?.color??(empowered?'#8fc1ff':'#eaffb6');
@@ -73,7 +99,7 @@ function applyNutEffect(e,shot){
       stunEnemy(e,effect.stun);
     }
     if(effect.poison){
-      const dps=g.p.dmg*stageAmp[combatAreaIndex()]*effect.poisonDps;
+      const dps=g.p.dmg*stageAmp[g.level]*effect.poisonDps;
       e.poison={duration:effect.poison,potency:dps*poisonTick,step:e.poison?.step??poisonTick};
     }
   }
@@ -106,9 +132,9 @@ function conditionStep(e,dt){
 function updatePlayerPops(dt){
   for(const b of g.pops){
     if(b.homing){
-      let target,nearest=245*245;
+      let target,nearest=(b.companion?620:245)**2;
       for(const bot of g.enemies){
-        if(bot.dead||bot.spawn>0||b.hits.has(bot))continue;
+        if(bot.dead||bot.spawn>0||bot.transform>0||bot.owner?.transform>0||b.hits.has(bot))continue;
         const distance=(bot.x-b.x)**2+(bot.y-b.y)**2;
         if(distance<nearest){nearest=distance;target=bot;}
       }
@@ -128,10 +154,10 @@ function updatePlayerPops(dt){
       .sort((a,e)=>dist(a,prev)-dist(e,prev));
     for(const e of hits){
       if(e.dead)continue;
-      const skillBonus=!isElite(e)?(e.hp>=e.max?g.p.opener:e.hp/e.max<.30?g.p.finisher:0):0;
-      if(damage(e,b.d*(1+skillBonus))){
-        if(!b.scored){b.scored=true;g.stats.hits++;}
-        if(e.kind==='boss'){
+      const skillBonus=!b.companion&&!isElite(e)?(e.hp>=e.max?g.p.opener:e.hp/e.max<.30?g.p.finisher:0):0;
+      if(damage(e,b.d*(1+skillBonus),b.companion?'companion':'pop')){
+        if(!b.companion&&!b.scored){b.scored=true;g.stats.hits++;}
+        if(!b.companion&&e.kind==='boss'){
           g.p.charge=Math.min(100,g.p.charge+.5+g.p.bossCharge);
           if(g.p.bossVibe){
             g.p.bossHits=(g.p.bossHits??0)+1;
@@ -194,7 +220,7 @@ function buzz(){
   const offset=spec.offset??0;
   particle(p.x+Math.cos(p.aim)*offset,p.y+Math.sin(p.aim)*offset,spec.color,46,360,1,p.aim,spec.angle?spec.angle*2:TAU);
   sound.event('burst');
-  const power=stageAmp[combatAreaIndex()]*p.burstDamage;
+  const power=stageAmp[g.level]*p.burstDamage;
   for(const e of g.enemies){
     if(inBurst(origin,e))hitBurst(e,power);
     if(push&&!e.dead&&!isElite(e)&&dist(e,p)<275){

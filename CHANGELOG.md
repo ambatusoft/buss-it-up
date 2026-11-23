@@ -2,6 +2,15 @@
 
 ## Unreleased
 
+### 2026-11-23 · Devil pendant and campaign-only release
+
+- Removed Endless Edging while preserving the combat balance changes.
+- Added I'm in Love with Satan as the sole 6-4 equipment reward. The devil follows the player's left shoulder and fires homing shots at 60% of default Popper DPS, independent of gear and skills. Wearing the pendant prevents every source of healing during an attempt.
+- Moved Censor Bar to 4-X. Version 8 retains old Censor Bar unlocks and grants the pendant to existing 6-4 clears.
+- Documented GitHub Pages setup for a private repository.
+- Both Chrome seeds cleared all 30 stages with zero retries, offline and over local HTTP. Companion damage and healing restrictions, legacy saves, all 25 audio assets, and generated files passed verification.
+
+
 ### 2026-11-17 · Endless Edging and balance
 
 - Added a separate Endless Edging entry after 6-4. Timed waves carry enemies over, and every sixth wave holds for the current arena's boss and surviving bots before rotating arenas. Enemy counts and health rise to a cap. Ambatron and Satan's PC stay in their opening forms.

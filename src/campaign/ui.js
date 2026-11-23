@@ -99,8 +99,7 @@ function renderCampaignMap(profile){
   const transition=campaignPageDirection===1?'slide-next':campaignPageDirection===-1?'slide-prev':'';
   campaignPageDirection=0;
   $('campaign-content').innerHTML=`<section class="campaign-main map-browser" style="--area-accent:${area.accent}">
-    <header class="campaign-heading map-heading"><div><small>Area ${pad(campaignAreaIndex+1)}</small><h2 id="campaign-heading" tabindex="-1">${area.name}</h2></div>
-    ${area.id==='server'&&endlessUnlocked(profile)?'<button class="secondary endless-launch" data-endless>Endless Edging</button>':`<span class="area-glyph" aria-hidden="true">${area.symbol}</span>`}</header>
+    <header class="campaign-heading map-heading"><div><small>Area ${pad(campaignAreaIndex+1)}</small><h2 id="campaign-heading" tabindex="-1">${area.name}</h2></div><span class="area-glyph" aria-hidden="true">${area.symbol}</span></header>
     <div class="map-carousel">
       <button class="map-arrow" data-page="-1" aria-label="Previous area" ${campaignAreaIndex===0?'disabled':''}>‹</button>
       <div class="campaign-map map-${area.id} ${transition}">
@@ -244,7 +243,6 @@ campaignResetDialog.querySelector('form').addEventListener('submit',event=>{
 $('campaign-content').addEventListener('click',event=>{
   const button=event.target.closest('button');
   if(!button||button.disabled)return;
-  if(button.hasAttribute('data-endless')){startEndless();return;}
   const {level,page,startLevel,rematch,file,setting,newStory,switchStory}=button.dataset;
   if(setting){toggleCampaignSetting(setting);return;}
   if(newStory){askStoryReset();return;}

@@ -1,3 +1,31 @@
+function drawDevil(c,devil){
+  const ink='#210f24',wing='#773451',skin='#f1778e';
+  c.save();
+  c.translate(devil.x,devil.y+(reduced?0:Math.sin(g.clock*5)*2));
+  c.lineWidth=1.7;
+  disk(c,0,17,12,'#07071370',null,4);
+  line(c,[-4,9,-11,17,-19,15,-18,9],'#ed839f',2);
+  poly(c,[-18,4,-22,10,-14,9],skin,ink);
+  const flap=reduced?0:Math.sin(g.clock*10)*3;
+  for(const side of [-1,1]){
+    poly(c,[side*5,0,side*15,-9-flap,side*19,0,side*14,1,side*10,6,side*5,4],wing,ink);
+    line(c,[side*7,2,side*15,-5-flap],'#cd6f91',1);
+  }
+  disk(c,0,7,7,'#a73764',ink,9);
+  disk(c,0,-3,10,skin,ink,9);
+  for(const side of [-1,1]){
+    poly(c,[side*4,-9,side*10,-17,side*9,-6],'#ffc3a2',ink);
+    line(c,[side*3,-4,side*7,-6],'#45203c',2);
+    disk(c,side*4,-2,1.5,'#fff2b7');
+  }
+  line(c,[-4,3,0,5,5,2],'#45203c',1.5);
+  if(devil.recoil>0){
+    c.globalAlpha=devil.recoil*.8;
+    disk(c,0,8,4+devil.recoil*5,'#ffd3ae55','#ffd3ae');
+  }
+  c.restore();
+}
+
 function drawCampaignFloor(c,area){
   const accent=area.accent;
   const tint=accent+'32';

@@ -210,7 +210,6 @@ body[data-mode="title"] .deck{width:100%;margin:0}
 .map-heading{align-items:center}
 .map-heading h2{font-size:clamp(22px,4.25vh,41px)}
 .map-heading .area-glyph{font-size:clamp(25px,4.55vh,49px)}
-.endless-launch{flex:none;max-width:9em;white-space:normal;border-color:var(--area-accent);color:var(--area-accent);font:800 12px/1.2 var(--mono)}
 .map-node i{position:absolute;right:0;bottom:0;background:var(--area-accent);color:#1f1628;border:1px solid #1f1628;border-radius:50%;padding:1px 4px;font:800 10px var(--mono)}
 .map-dispatch-summary{min-width:0}
 .map-dispatch-heading{display:grid;gap:2px}
